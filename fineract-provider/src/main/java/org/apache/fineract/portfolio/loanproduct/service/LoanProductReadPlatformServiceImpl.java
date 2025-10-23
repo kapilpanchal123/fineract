@@ -28,6 +28,7 @@ import java.util.Collection;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicInteger;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.apache.fineract.accounting.common.AccountingEnumerations;
 import org.apache.fineract.infrastructure.core.api.ApiFacingEnum;
 import org.apache.fineract.infrastructure.core.data.EnumOptionData;
@@ -75,7 +76,10 @@ import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.RowMapper;
 import org.springframework.lang.NonNull;
+import org.springframework.stereotype.Service;
 
+@Slf4j
+@Service
 @RequiredArgsConstructor
 public class LoanProductReadPlatformServiceImpl implements LoanProductReadPlatformService {
 
@@ -92,25 +96,28 @@ public class LoanProductReadPlatformServiceImpl implements LoanProductReadPlatfo
     @Override
     public LoanProductData retrieveLoanProduct(final Long loanProductId) {
 
-//        try {
-//            final Collection<ChargeData> charges = this.chargeReadPlatformService.retrieveLoanProductCharges(loanProductId);
-//            final Collection<RateData> rates = this.rateReadService.retrieveProductLoanRates(loanProductId);
-//            final Collection<LoanProductBorrowerCycleVariationData> borrowerCycleVariationDatas = retrieveLoanProductBorrowerCycleVariations(
-//                    loanProductId);
-//            final Collection<AdvancedPaymentData> advancedPaymentData = retrieveAdvancedPaymentData(loanProductId);
-//            final Collection<CreditAllocationData> creditAllocationData = retrieveCreditAllocationData(loanProductId);
-//            final Collection<DelinquencyBucketData> delinquencyBucketOptions = this.delinquencyReadPlatformService
-//                    .retrieveAllDelinquencyBuckets();
-//            final LoanProductMapper rm = new LoanProductMapper(charges, borrowerCycleVariationDatas, rates, delinquencyBucketOptions,
-//                    advancedPaymentData, creditAllocationData);
-//            final String sql = "select " + rm.loanProductSchema() + " where lp.id = ?";
-//
-//            return this.jdbcTemplate.queryForObject(sql, rm, loanProductId); // NOSONAR
-//
-//        } catch (final EmptyResultDataAccessException e) {
-//            throw new LoanProductNotFoundException(loanProductId, e);
-//        }
-      return loanProductReadPlatformRepository.retrieveLoanProduct(loanProductId);
+        // try {
+        // final Collection<ChargeData> charges =
+        // this.chargeReadPlatformService.retrieveLoanProductCharges(loanProductId);
+        // final Collection<RateData> rates = this.rateReadService.retrieveProductLoanRates(loanProductId);
+        // final Collection<LoanProductBorrowerCycleVariationData> borrowerCycleVariationDatas =
+        // retrieveLoanProductBorrowerCycleVariations(
+        // loanProductId);
+        // final Collection<AdvancedPaymentData> advancedPaymentData = retrieveAdvancedPaymentData(loanProductId);
+        // final Collection<CreditAllocationData> creditAllocationData = retrieveCreditAllocationData(loanProductId);
+        // final Collection<DelinquencyBucketData> delinquencyBucketOptions = this.delinquencyReadPlatformService
+        // .retrieveAllDelinquencyBuckets();
+        // final LoanProductMapper rm = new LoanProductMapper(charges, borrowerCycleVariationDatas, rates,
+        // delinquencyBucketOptions,
+        // advancedPaymentData, creditAllocationData);
+        // final String sql = "select " + rm.loanProductSchema() + " where lp.id = ?";
+        //
+        // return this.jdbcTemplate.queryForObject(sql, rm, loanProductId); // NOSONAR
+        //
+        // } catch (final EmptyResultDataAccessException e) {
+        // throw new LoanProductNotFoundException(loanProductId, e);
+        // }
+        return loanProductReadPlatformRepository.retrieveLoanProduct(loanProductId);
     }
 
     @Override
@@ -145,23 +152,25 @@ public class LoanProductReadPlatformServiceImpl implements LoanProductReadPlatfo
 
     @Override
     public Collection<LoanProductData> retrieveAllLoanProducts() {
-
         this.context.authenticatedUser();
+        // final LoanProductMapper rm = new LoanProductMapper(null, null, null, null, null, null);
+        // String sql = "select " + rm.loanProductSchema();
+        //
+        // // Check if branch specific products are enabled. If yes, fetch only
+        // // products mapped to current user's office
+        // String inClause = fineractEntityAccessUtil
+        // .getSQLWhereClauseForProductIDsForUserOffice_ifGlobalConfigEnabled(FineractEntityType.LOAN_PRODUCT);
+        // if (inClause != null && !inClause.trim().isEmpty()) {
+        // sql += " where lp.id in ( " + inClause + " ) ";
+        // }
+        //
+        // return this.jdbcTemplate.query(sql, rm); // NOSONAR
 
-//        final LoanProductMapper rm = new LoanProductMapper(null, null, null, null, null, null);
-//
-//        String sql = "select " + rm.loanProductSchema();
-//
-//        // Check if branch specific products are enabled. If yes, fetch only
-//        // products mapped to current user's office
-//        String inClause = fineractEntityAccessUtil
-//                .getSQLWhereClauseForProductIDsForUserOffice_ifGlobalConfigEnabled(FineractEntityType.LOAN_PRODUCT);
-//        if (inClause != null && !inClause.trim().isEmpty()) {
-//            sql += " where lp.id in ( " + inClause + " ) ";
-//        }
-//
-//        return this.jdbcTemplate.query(sql, rm); // NOSONAR
-      return loanProductReadPlatformRepository.retrieveAllLoanProducts();
+        List<LoanProduct> listOfLoanProducts = loanProductRepository.findAll();
+
+        log.info("Loan Products: {}", listOfLoanProducts);
+
+        return loanProductReadPlatformRepository.retrieveAllLoanProducts();
     }
 
     @Override

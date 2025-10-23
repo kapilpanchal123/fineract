@@ -30,7 +30,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.function.Function;
-
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.fineract.accounting.common.AccountingEnumerations;
@@ -50,8 +49,11 @@ import org.apache.fineract.portfolio.charge.service.ChargeReadPlatformService;
 import org.apache.fineract.portfolio.common.domain.DaysInYearCustomStrategyType;
 import org.apache.fineract.portfolio.common.service.CommonEnumerations;
 import org.apache.fineract.portfolio.delinquency.data.DelinquencyBucketData;
+import org.apache.fineract.portfolio.delinquency.domain.DelinquencyBucket;
+import org.apache.fineract.portfolio.delinquency.domain.DelinquencyBucketRepository;
 import org.apache.fineract.portfolio.delinquency.service.DelinquencyReadPlatformService;
-import org.apache.fineract.portfolio.loanaccount.domain.Loan;
+import org.apache.fineract.portfolio.floatingrates.domain.FloatingRate;
+import org.apache.fineract.portfolio.floatingrates.domain.FloatingRateRepository;
 import org.apache.fineract.portfolio.loanaccount.domain.LoanBuyDownFeeCalculationType;
 import org.apache.fineract.portfolio.loanaccount.domain.LoanBuyDownFeeIncomeType;
 import org.apache.fineract.portfolio.loanaccount.domain.LoanBuyDownFeeStrategy;
@@ -70,6 +72,7 @@ import org.apache.fineract.portfolio.loanproduct.data.LoanProductGuaranteeData;
 import org.apache.fineract.portfolio.loanproduct.data.LoanProductInterestRecalculationData;
 import org.apache.fineract.portfolio.loanproduct.domain.LoanProduct;
 import org.apache.fineract.portfolio.loanproduct.domain.LoanProductConfigurableAttributes;
+import org.apache.fineract.portfolio.loanproduct.domain.LoanProductFloatingRates;
 import org.apache.fineract.portfolio.loanproduct.domain.LoanProductGuaranteeDetails;
 import org.apache.fineract.portfolio.loanproduct.domain.LoanProductInterestRecalculationDetails;
 import org.apache.fineract.portfolio.loanproduct.domain.LoanProductParamType;
@@ -80,6 +83,7 @@ import org.apache.fineract.portfolio.loanproduct.repository.LoanProductGuarantee
 import org.apache.fineract.portfolio.loanproduct.repository.LoanProductInterestRecalculationRepository;
 import org.apache.fineract.portfolio.loanproduct.repository.LoanProductReadPlatformRepository;
 import org.apache.fineract.portfolio.loanproduct.repository.LoanProductsConfigurableAttributesRepository;
+import org.apache.fineract.portfolio.loanproduct.repository.LoanProductsFloatingRatesRepository;
 import org.apache.fineract.portfolio.rate.data.RateData;
 import org.apache.fineract.portfolio.rate.service.RateReadService;
 import org.springframework.dao.EmptyResultDataAccessException;
@@ -105,6 +109,9 @@ public class LoanProductReadPlatformServiceImpl implements LoanProductReadPlatfo
     private final LoanProductInterestRecalculationRepository loanProductInterestRecalculationRepository;
     private final LoanProductGuaranteeDetailsRepository loanProductGuaranteeDetailsRepository;
     private final LoanProductsConfigurableAttributesRepository loanProductsConfigurableAttributesRepository;
+    private final LoanProductsFloatingRatesRepository loanProductsFloatingRatesRepository;
+    private final FloatingRateRepository floatingRateRepository;
+    private final DelinquencyBucketRepository delinquencyBucketRepository;
 
     @Override
     public LoanProductData retrieveLoanProduct(final Long loanProductId) {
@@ -189,14 +196,37 @@ public class LoanProductReadPlatformServiceImpl implements LoanProductReadPlatfo
 //        log.info("Guarantee Details Map: {}", loanProductGuaranteeDetailsMap);
 
         final Map<Long, LoanProductConfigurableAttributes> loanProductConfigurableAttributes = getMapOfLoanConfigurableAttributes();
-        log.info("Configurable Attributes Map: {}", loanProductConfigurableAttributes);
+//        log.info("Configurable Attributes Map: {}", loanProductConfigurableAttributes);
 
+        final Map<Long, LoanProductFloatingRates> loanProductFloatingRatesMap = getLoanProductsFloatingRatesMap();
+//        log.info("Floating Rates Map: {}", loanProductFloatingRatesMap);
+
+        final Map<Long, FloatingRate> loanFloatingRatesMap = getLoanFloatingRatesMap();
+//        log.info("Loan Floating Rates Map: {}", loanFloatingRates);
+
+        final Map<Long, DelinquencyBucket> delinquencyBucketMap = getDelinqencyBucketMap();
+        log.info("Delinquency Bucket Map: {}", delinquencyBucketMap);
 
         return loanProductReadPlatformRepository.retrieveAllLoanProducts();
     }
 
+    private Map<Long, DelinquencyBucket> getDelinqencyBucketMap() {
+      final List<DelinquencyBucket> delinquencyBucketList = delinquencyBucketRepository.findAll();
+      return mapByKey(delinquencyBucketList, DelinquencyBucket::getId);
+    }
+
+    private Map<Long, FloatingRate> getLoanFloatingRatesMap() {
+      final List<FloatingRate> loanFloatingRatesList = floatingRateRepository.findAll();
+      return mapByKey(loanFloatingRatesList, FloatingRate::getId);
+    }
+
+    private Map<Long, LoanProductFloatingRates> getLoanProductsFloatingRatesMap() {
+      final List<LoanProductFloatingRates> loanProductsFloatingRatesList = loanProductsFloatingRatesRepository.findAll();
+      return mapByKey(loanProductsFloatingRatesList, LoanProductFloatingRates::getId);
+    }
+
     private Map<Long, LoanProductConfigurableAttributes> getMapOfLoanConfigurableAttributes() {
-      List<LoanProductConfigurableAttributes> loanProductsConfigurableAttributesList =
+      final List<LoanProductConfigurableAttributes> loanProductsConfigurableAttributesList =
           loanProductsConfigurableAttributesRepository.findAll();
       return mapByKey(loanProductsConfigurableAttributesList, LoanProductConfigurableAttributes::getId);
     }

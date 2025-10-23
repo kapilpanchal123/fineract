@@ -68,6 +68,7 @@ import org.apache.fineract.portfolio.loanproduct.domain.LoanProductParamType;
 import org.apache.fineract.portfolio.loanproduct.domain.LoanProductRepository;
 import org.apache.fineract.portfolio.loanproduct.domain.LoanSupportedInterestRefundTypes;
 import org.apache.fineract.portfolio.loanproduct.exception.LoanProductNotFoundException;
+import org.apache.fineract.portfolio.loanproduct.repository.LoanProductReadPlatformRepository;
 import org.apache.fineract.portfolio.rate.data.RateData;
 import org.apache.fineract.portfolio.rate.service.RateReadService;
 import org.springframework.dao.EmptyResultDataAccessException;
@@ -86,28 +87,30 @@ public class LoanProductReadPlatformServiceImpl implements LoanProductReadPlatfo
     private final FineractEntityAccessUtil fineractEntityAccessUtil;
     private final DelinquencyReadPlatformService delinquencyReadPlatformService;
     private final LoanProductRepository loanProductRepository;
+    private final LoanProductReadPlatformRepository loanProductReadPlatformRepository;
 
     @Override
     public LoanProductData retrieveLoanProduct(final Long loanProductId) {
 
-        try {
-            final Collection<ChargeData> charges = this.chargeReadPlatformService.retrieveLoanProductCharges(loanProductId);
-            final Collection<RateData> rates = this.rateReadService.retrieveProductLoanRates(loanProductId);
-            final Collection<LoanProductBorrowerCycleVariationData> borrowerCycleVariationDatas = retrieveLoanProductBorrowerCycleVariations(
-                    loanProductId);
-            final Collection<AdvancedPaymentData> advancedPaymentData = retrieveAdvancedPaymentData(loanProductId);
-            final Collection<CreditAllocationData> creditAllocationData = retrieveCreditAllocationData(loanProductId);
-            final Collection<DelinquencyBucketData> delinquencyBucketOptions = this.delinquencyReadPlatformService
-                    .retrieveAllDelinquencyBuckets();
-            final LoanProductMapper rm = new LoanProductMapper(charges, borrowerCycleVariationDatas, rates, delinquencyBucketOptions,
-                    advancedPaymentData, creditAllocationData);
-            final String sql = "select " + rm.loanProductSchema() + " where lp.id = ?";
-
-            return this.jdbcTemplate.queryForObject(sql, rm, loanProductId); // NOSONAR
-
-        } catch (final EmptyResultDataAccessException e) {
-            throw new LoanProductNotFoundException(loanProductId, e);
-        }
+//        try {
+//            final Collection<ChargeData> charges = this.chargeReadPlatformService.retrieveLoanProductCharges(loanProductId);
+//            final Collection<RateData> rates = this.rateReadService.retrieveProductLoanRates(loanProductId);
+//            final Collection<LoanProductBorrowerCycleVariationData> borrowerCycleVariationDatas = retrieveLoanProductBorrowerCycleVariations(
+//                    loanProductId);
+//            final Collection<AdvancedPaymentData> advancedPaymentData = retrieveAdvancedPaymentData(loanProductId);
+//            final Collection<CreditAllocationData> creditAllocationData = retrieveCreditAllocationData(loanProductId);
+//            final Collection<DelinquencyBucketData> delinquencyBucketOptions = this.delinquencyReadPlatformService
+//                    .retrieveAllDelinquencyBuckets();
+//            final LoanProductMapper rm = new LoanProductMapper(charges, borrowerCycleVariationDatas, rates, delinquencyBucketOptions,
+//                    advancedPaymentData, creditAllocationData);
+//            final String sql = "select " + rm.loanProductSchema() + " where lp.id = ?";
+//
+//            return this.jdbcTemplate.queryForObject(sql, rm, loanProductId); // NOSONAR
+//
+//        } catch (final EmptyResultDataAccessException e) {
+//            throw new LoanProductNotFoundException(loanProductId, e);
+//        }
+      return loanProductReadPlatformRepository.retrieveLoanProduct(loanProductId);
     }
 
     @Override
@@ -145,19 +148,20 @@ public class LoanProductReadPlatformServiceImpl implements LoanProductReadPlatfo
 
         this.context.authenticatedUser();
 
-        final LoanProductMapper rm = new LoanProductMapper(null, null, null, null, null, null);
-
-        String sql = "select " + rm.loanProductSchema();
-
-        // Check if branch specific products are enabled. If yes, fetch only
-        // products mapped to current user's office
-        String inClause = fineractEntityAccessUtil
-                .getSQLWhereClauseForProductIDsForUserOffice_ifGlobalConfigEnabled(FineractEntityType.LOAN_PRODUCT);
-        if (inClause != null && !inClause.trim().isEmpty()) {
-            sql += " where lp.id in ( " + inClause + " ) ";
-        }
-
-        return this.jdbcTemplate.query(sql, rm); // NOSONAR
+//        final LoanProductMapper rm = new LoanProductMapper(null, null, null, null, null, null);
+//
+//        String sql = "select " + rm.loanProductSchema();
+//
+//        // Check if branch specific products are enabled. If yes, fetch only
+//        // products mapped to current user's office
+//        String inClause = fineractEntityAccessUtil
+//                .getSQLWhereClauseForProductIDsForUserOffice_ifGlobalConfigEnabled(FineractEntityType.LOAN_PRODUCT);
+//        if (inClause != null && !inClause.trim().isEmpty()) {
+//            sql += " where lp.id in ( " + inClause + " ) ";
+//        }
+//
+//        return this.jdbcTemplate.query(sql, rm); // NOSONAR
+      return loanProductReadPlatformRepository.retrieveAllLoanProducts();
     }
 
     @Override

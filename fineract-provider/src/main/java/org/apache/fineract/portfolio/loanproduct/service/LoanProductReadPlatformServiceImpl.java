@@ -25,7 +25,9 @@ import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
+import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.concurrent.atomic.AtomicInteger;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -47,6 +49,7 @@ import org.apache.fineract.portfolio.common.domain.DaysInYearCustomStrategyType;
 import org.apache.fineract.portfolio.common.service.CommonEnumerations;
 import org.apache.fineract.portfolio.delinquency.data.DelinquencyBucketData;
 import org.apache.fineract.portfolio.delinquency.service.DelinquencyReadPlatformService;
+import org.apache.fineract.portfolio.loanaccount.domain.Loan;
 import org.apache.fineract.portfolio.loanaccount.domain.LoanBuyDownFeeCalculationType;
 import org.apache.fineract.portfolio.loanaccount.domain.LoanBuyDownFeeIncomeType;
 import org.apache.fineract.portfolio.loanaccount.domain.LoanBuyDownFeeStrategy;
@@ -65,10 +68,12 @@ import org.apache.fineract.portfolio.loanproduct.data.LoanProductGuaranteeData;
 import org.apache.fineract.portfolio.loanproduct.data.LoanProductInterestRecalculationData;
 import org.apache.fineract.portfolio.loanproduct.domain.LoanProduct;
 import org.apache.fineract.portfolio.loanproduct.domain.LoanProductConfigurableAttributes;
+import org.apache.fineract.portfolio.loanproduct.domain.LoanProductInterestRecalculationDetails;
 import org.apache.fineract.portfolio.loanproduct.domain.LoanProductParamType;
 import org.apache.fineract.portfolio.loanproduct.domain.LoanProductRepository;
 import org.apache.fineract.portfolio.loanproduct.domain.LoanSupportedInterestRefundTypes;
 import org.apache.fineract.portfolio.loanproduct.exception.LoanProductNotFoundException;
+import org.apache.fineract.portfolio.loanproduct.repository.LoanProductInterestRecalculationRepository;
 import org.apache.fineract.portfolio.loanproduct.repository.LoanProductReadPlatformRepository;
 import org.apache.fineract.portfolio.rate.data.RateData;
 import org.apache.fineract.portfolio.rate.service.RateReadService;
@@ -92,6 +97,7 @@ public class LoanProductReadPlatformServiceImpl implements LoanProductReadPlatfo
     private final DelinquencyReadPlatformService delinquencyReadPlatformService;
     private final LoanProductRepository loanProductRepository;
     private final LoanProductReadPlatformRepository loanProductReadPlatformRepository;
+    private final LoanProductInterestRecalculationRepository loanProductInterestRecalculationRepository;
 
     @Override
     public LoanProductData retrieveLoanProduct(final Long loanProductId) {
@@ -166,11 +172,35 @@ public class LoanProductReadPlatformServiceImpl implements LoanProductReadPlatfo
         //
         // return this.jdbcTemplate.query(sql, rm); // NOSONAR
 
-        List<LoanProduct> listOfLoanProducts = loanProductRepository.findAll();
+        final Map<Long, LoanProduct> mapOfLoanProducts = getMapOfLoanProducts();
+//        log.info("Loan Products Map: {}", mapOfLoanProducts);
 
-        log.info("Loan Products: {}", listOfLoanProducts);
+        final Map<Long, LoanProductInterestRecalculationDetails> mapOfInterestRecalculationData = getMapOfInterestRecalculationData();
+        log.info("Interest Recalculation Map: {}", mapOfInterestRecalculationData);
+
+
 
         return loanProductReadPlatformRepository.retrieveAllLoanProducts();
+    }
+
+    private Map<Long, LoanProductInterestRecalculationDetails> getMapOfInterestRecalculationData() {
+      List<LoanProductInterestRecalculationDetails> loanProductInterestCalculationList = loanProductInterestRecalculationRepository.findAll();
+      Map<Long, LoanProductInterestRecalculationDetails> mapOfProductInterestRecalculationData = new LinkedHashMap<>();
+
+      for(LoanProductInterestRecalculationDetails element : loanProductInterestCalculationList) {
+        mapOfProductInterestRecalculationData.putIfAbsent(element.getId(), element);
+      }
+      return mapOfProductInterestRecalculationData;
+    }
+
+    private Map<Long, LoanProduct> getMapOfLoanProducts() {
+      final List<LoanProduct> listOfLoanProducts = loanProductRepository.findAll();
+      final Map<Long, LoanProduct> mapOfLoanProducts = new LinkedHashMap<>();
+
+      for(LoanProduct loanProduct : listOfLoanProducts) {
+        mapOfLoanProducts.putIfAbsent(loanProduct.getId(), loanProduct);
+      }
+      return mapOfLoanProducts;
     }
 
     @Override

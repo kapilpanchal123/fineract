@@ -116,7 +116,7 @@ public class LoanDropdownReadPlatformServiceImpl implements LoanDropdownReadPlat
     }
 
     @Override
-    public Collection<TransactionProcessingStrategyData> retrieveTransactionProcessingStrategies() {
+    public List<TransactionProcessingStrategyData> retrieveTransactionProcessingStrategies() {
         return loanRepaymentScheduleTransactionProcessorFactory.getStrategies();
     }
 

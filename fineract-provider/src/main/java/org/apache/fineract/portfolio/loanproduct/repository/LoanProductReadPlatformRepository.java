@@ -372,9 +372,9 @@ public class LoanProductReadPlatformRepository {
                 status = "loanProduct.active";
             }
             final String externalId = rs.getString("externalId");
-            final Collection<LoanProductBorrowerCycleVariationData> principalVariationsForBorrowerCycle = new ArrayList<>();
-            final Collection<LoanProductBorrowerCycleVariationData> interestRateVariationsForBorrowerCycle = new ArrayList<>();
-            final Collection<LoanProductBorrowerCycleVariationData> numberOfRepaymentVariationsForBorrowerCycle = new ArrayList<>();
+            final List<LoanProductBorrowerCycleVariationData> principalVariationsForBorrowerCycle = new ArrayList<>();
+            final List<LoanProductBorrowerCycleVariationData> interestRateVariationsForBorrowerCycle = new ArrayList<>();
+            final List<LoanProductBorrowerCycleVariationData> numberOfRepaymentVariationsForBorrowerCycle = new ArrayList<>();
             if (this.borrowerCycleVariationDatas != null) {
                 for (final LoanProductBorrowerCycleVariationData borrowerCycleVariationData : this.borrowerCycleVariationDatas) {
                     final LoanProductParamType loanProductParamType = borrowerCycleVariationData.getLoanProductParamType();
@@ -497,7 +497,7 @@ public class LoanProductReadPlatformRepository {
             final boolean syncExpectedWithDisbursementDate = rs.getBoolean("syncExpectedWithDisbursementDate");
 
             final boolean canUseForTopup = rs.getBoolean("canUseForTopup");
-            final Collection<RateData> rateOptions = null;
+            final List<RateData> rateOptions = null;
             final boolean isRatesEnabled = false;
 
             // Delinquency Buckets

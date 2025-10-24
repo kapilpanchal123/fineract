@@ -351,9 +351,9 @@ public class LoanProductsApiResource {
         LoanProductData loanProduct = this.loanProductReadPlatformService.retrieveLoanProduct(productId);
 
         Map<String, Object> accountingMappings;
-        Collection<PaymentTypeToGLAccountMapper> paymentChannelToFundSourceMappings;
-        Collection<ChargeToGLAccountMapper> feeToGLAccountMappings;
-        Collection<ChargeToGLAccountMapper> penaltyToGLAccountMappings;
+        List<PaymentTypeToGLAccountMapper> paymentChannelToFundSourceMappings;
+        List<ChargeToGLAccountMapper> feeToGLAccountMappings;
+        List<ChargeToGLAccountMapper> penaltyToGLAccountMappings;
         List<AdvancedMappingToExpenseAccountData> chargeOffReasonToGLAccountMappings;
         List<AdvancedMappingToExpenseAccountData> writeOffReasonsToExpenseAccountMappings;
         List<ClassificationToGLAccountData> capitalizedIncomeClassificationToGLAccountMappings;
@@ -388,24 +388,23 @@ public class LoanProductsApiResource {
     }
 
     private LoanProductData handleTemplate(final LoanProductData productData) {
-
-        Collection<ChargeData> chargeOptions = this.chargeReadPlatformService.retrieveLoanApplicableFees();
+        List<ChargeData> chargeOptions = this.chargeReadPlatformService.retrieveLoanApplicableFees();
         if (chargeOptions.isEmpty()) {
             chargeOptions = null;
         }
 
-        Collection<ChargeData> penaltyOptions = this.chargeReadPlatformService.retrieveLoanApplicablePenalties();
+        List<ChargeData> penaltyOptions = this.chargeReadPlatformService.retrieveLoanApplicablePenalties();
         if (penaltyOptions.isEmpty()) {
             penaltyOptions = null;
         }
 
         boolean isRatesEnabled = this.configurationDomainService.isSubRatesEnabled();
-        Collection<RateData> rateOptions = this.rateReadService.retrieveLoanApplicableRates();
+        List<RateData> rateOptions = this.rateReadService.retrieveLoanApplicableRates();
         if (rateOptions.isEmpty()) {
             rateOptions = null;
         }
 
-        final Collection<CurrencyData> currencyOptions = this.currencyReadPlatformService.retrieveAllowedCurrencies();
+        final List<CurrencyData> currencyOptions = this.currencyReadPlatformService.retrieveAllowedCurrencies();
         final List<EnumOptionData> amortizationTypeOptions = this.dropdownReadPlatformService.retrieveLoanAmortizationTypeOptions();
         final List<EnumOptionData> interestTypeOptions = this.dropdownReadPlatformService.retrieveLoanInterestTypeOptions();
         final List<EnumOptionData> interestCalculationPeriodTypeOptions = this.dropdownReadPlatformService
@@ -413,19 +412,19 @@ public class LoanProductsApiResource {
         final List<EnumOptionData> repaymentFrequencyTypeOptions = this.dropdownReadPlatformService.retrieveRepaymentFrequencyTypeOptions();
         final List<EnumOptionData> interestRateFrequencyTypeOptions = this.dropdownReadPlatformService
                 .retrieveInterestRateFrequencyTypeOptions();
-        final Collection<PaymentTypeData> paymentTypeOptions = this.paymentTypeReadPlatformService.retrieveAllPaymentTypes();
+        final List<PaymentTypeData> paymentTypeOptions = this.paymentTypeReadPlatformService.retrieveAllPaymentTypes();
 
-        Collection<FundData> fundOptions = this.fundReadPlatformService.retrieveAllFunds();
+        List<FundData> fundOptions = this.fundReadPlatformService.retrieveAllFunds();
         if (fundOptions.isEmpty()) {
             fundOptions = null;
         }
 
-        Collection<DelinquencyBucketData> delinquencyBucketOptions = this.delinquencyReadPlatformService.retrieveAllDelinquencyBuckets();
+        List<DelinquencyBucketData> delinquencyBucketOptions = this.delinquencyReadPlatformService.retrieveAllDelinquencyBuckets();
         if (delinquencyBucketOptions.isEmpty()) {
             delinquencyBucketOptions = null;
         }
 
-        final Collection<TransactionProcessingStrategyData> transactionProcessingStrategyOptions = this.dropdownReadPlatformService
+        final List<TransactionProcessingStrategyData> transactionProcessingStrategyOptions = this.dropdownReadPlatformService
                 .retrieveTransactionProcessingStrategies();
 
         final Map<String, List<GLAccountData>> accountOptions = this.accountingDropdownReadPlatformService
@@ -501,5 +500,4 @@ public class LoanProductsApiResource {
                 capitalizedIncomeTypeOptions, buyDownFeeCalculationTypeOptions, buyDownFeeStrategyOptions, buyDownFeeIncomeTypeOptions,
                 writeOffReasonOptions, capitalizedIncomeClassificationOptions, buydownFeeClassificationOptions);
     }
-
 }

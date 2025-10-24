@@ -51,7 +51,6 @@ import org.apache.fineract.portfolio.charge.service.ChargeReadPlatformService;
 import org.apache.fineract.portfolio.common.domain.DaysInYearCustomStrategyType;
 import org.apache.fineract.portfolio.common.service.CommonEnumerations;
 import org.apache.fineract.portfolio.delinquency.data.DelinquencyBucketData;
-import org.apache.fineract.portfolio.delinquency.data.DelinquencyRangeData;
 import org.apache.fineract.portfolio.delinquency.domain.DelinquencyBucket;
 import org.apache.fineract.portfolio.delinquency.domain.DelinquencyBucketRepository;
 import org.apache.fineract.portfolio.delinquency.service.DelinquencyReadPlatformService;
@@ -523,22 +522,19 @@ public class LoanProductReadPlatformServiceImpl implements LoanProductReadPlatfo
 
     private static final class LoanProductMapper implements RowMapper<LoanProductData> {
 
-        private final Collection<ChargeData> charges;
+        private final List<ChargeData> charges;
+        private final List<LoanProductBorrowerCycleVariationData> borrowerCycleVariationDatas;
+        private final List<AdvancedPaymentData> advancedPaymentData;
+        private final List<CreditAllocationData> creditAllocationData;
+        private final List<RateData> rates;
+        private final List<DelinquencyBucketData> delinquencyBucketOptions;
 
-        private final Collection<LoanProductBorrowerCycleVariationData> borrowerCycleVariationDatas;
-
-        private final Collection<AdvancedPaymentData> advancedPaymentData;
-
-        private final Collection<CreditAllocationData> creditAllocationData;
-
-        private final Collection<RateData> rates;
-
-        private final Collection<DelinquencyBucketData> delinquencyBucketOptions;
-
-        LoanProductMapper(final Collection<ChargeData> charges,
-                final Collection<LoanProductBorrowerCycleVariationData> borrowerCycleVariationDatas, final Collection<RateData> rates,
-                final Collection<DelinquencyBucketData> delinquencyBucketOptions, Collection<AdvancedPaymentData> advancedPaymentData,
-                Collection<CreditAllocationData> creditAllocationData) {
+        LoanProductMapper(final List<ChargeData> charges,
+                          final List<LoanProductBorrowerCycleVariationData> borrowerCycleVariationDatas,
+                          final List<RateData> rates,
+                          final List<DelinquencyBucketData> delinquencyBucketOptions,
+                          final List<AdvancedPaymentData> advancedPaymentData,
+                          final List<CreditAllocationData> creditAllocationData) {
             this.charges = charges;
             this.borrowerCycleVariationDatas = borrowerCycleVariationDatas;
             this.rates = rates;
@@ -554,7 +550,7 @@ public class LoanProductReadPlatformServiceImpl implements LoanProductReadPlatfo
                     + "lp.nominal_interest_rate_per_period as interestRatePerPeriod, lp.min_nominal_interest_rate_per_period as minInterestRatePerPeriod, lp.max_nominal_interest_rate_per_period as maxInterestRatePerPeriod, lp.interest_period_frequency_enum as interestRatePerPeriodFreq, "
                     + "lp.annual_nominal_interest_rate as annualInterestRate, lp.interest_method_enum as interestMethod, lp.interest_calculated_in_period_enum as interestCalculationInPeriodMethod,lp.allow_partial_period_interest_calcualtion as allowPartialPeriodInterestCalcualtion, "
                     + "lp.repay_every as repaidEvery, lp.repayment_period_frequency_enum as repaymentPeriodFrequency, lp.number_of_repayments as numberOfRepayments, lp.min_number_of_repayments as minNumberOfRepayments, lp.max_number_of_repayments as maxNumberOfRepayments, "
-                    + "lp.fixed_length as fixedLength, " + "lp.enable_accrual_activity_posting as enableAccrualActivityPosting, "
+                    + "lp.fixed_length as fixedLength, lp.enable_accrual_activity_posting as enableAccrualActivityPosting, "
                     + "lp.grace_on_principal_periods as graceOnPrincipalPayment, lp.recurring_moratorium_principal_periods as recurringMoratoriumOnPrincipalPeriods, lp.grace_on_interest_periods as graceOnInterestPayment, lp.grace_interest_free_periods as graceOnInterestCharged,lp.grace_on_arrears_ageing as graceOnArrearsAgeing,lp.overdue_days_for_npa as overdueDaysForNPA, "
                     + "lp.min_days_between_disbursal_and_first_repayment As minimumDaysBetweenDisbursalAndFirstRepayment, "
                     + "lp.amortization_method_enum as amortizationMethod, lp.arrearstolerance_amount as tolerance, "
@@ -569,7 +565,7 @@ public class LoanProductReadPlatformServiceImpl implements LoanProductReadPlatfo
                     + "lpr.id as lprId, lpr.product_id as productId, lpr.compound_type_enum as compoundType, lpr.reschedule_strategy_enum as rescheduleStrategy, "
                     + "lpr.rest_frequency_type_enum as restFrequencyEnum, lpr.rest_frequency_interval as restFrequencyInterval, "
                     + "lpr.rest_frequency_nth_day_enum as restFrequencyNthDayEnum, "
-                    + "lpr.rest_frequency_weekday_enum as restFrequencyWeekDayEnum, " + "lpr.rest_frequency_on_day as restFrequencyOnDay, "
+                    + "lpr.rest_frequency_weekday_enum as restFrequencyWeekDayEnum, lpr.rest_frequency_on_day as restFrequencyOnDay, "
                     + "lpr.arrears_based_on_original_schedule as isArrearsBasedOnOriginalSchedule, "
                     + "lpr.compounding_frequency_type_enum as compoundingFrequencyTypeEnum, lpr.compounding_frequency_interval as compoundingInterval, "
                     + "lpr.compounding_frequency_nth_day_enum as compoundingFrequencyNthDayEnum, "
@@ -591,23 +587,23 @@ public class LoanProductReadPlatformServiceImpl implements LoanProductReadPlatfo
                     + "lca.loan_transaction_strategy_code as transactionProcessingStrategyBoolean,lca.interest_calculated_in_period_enum as interestCalcPeriodBoolean, lca.arrearstolerance_amount as arrearsToleranceBoolean, "
                     + "lca.repay_every as repaymentFrequencyBoolean, lca.moratorium as graceOnPrincipalAndInterestBoolean, lca.grace_on_arrears_ageing as graceOnArrearsAgingBoolean, "
                     + "lp.is_linked_to_floating_interest_rates as isLinkedToFloatingInterestRates, "
-                    + "lfr.floating_rates_id as floatingRateId, " + "fr.name as floatingRateName, "
+                    + "lfr.floating_rates_id as floatingRateId, fr.name as floatingRateName, "
                     + "lfr.interest_rate_differential as interestRateDifferential, "
                     + "lfr.min_differential_lending_rate as minDifferentialLendingRate, "
                     + "lfr.default_differential_lending_rate as defaultDifferentialLendingRate, "
                     + "lfr.max_differential_lending_rate as maxDifferentialLendingRate, "
                     + "lfr.is_floating_interest_rate_calculation_allowed as isFloatingInterestRateCalculationAllowed, "
-                    + "lp.allow_variabe_installments as isVariableIntallmentsAllowed, " + "lvi.minimum_gap as minimumGap, "
+                    + "lp.allow_variabe_installments as isVariableIntallmentsAllowed, lvi.minimum_gap as minimumGap, "
                     + "lvi.maximum_gap as maximumGap, dbuc.id as delinquencyBucketId, dbuc.name as delinquencyBucketName, "
                     + "lp.can_use_for_topup as canUseForTopup, lp.is_equal_amortization as isEqualAmortization, lp.loan_schedule_type as loanScheduleType, lp.loan_schedule_processing_type as loanScheduleProcessingType, lp.supported_interest_refund_types as supportedInterestRefundTypes, "
-                    + "lp.charge_off_behaviour as chargeOffBehaviour, " //
-                    + "lp.enable_income_capitalization as enableIncomeCapitalization, " //
-                    + "lp.capitalized_income_calculation_type as capitalizedIncomeCalculationType, " //
-                    + "lp.capitalized_income_strategy as capitalizedIncomeStrategy, " //
-                    + "lp.capitalized_income_type as capitalizedIncomeType, lp.is_merchant_buy_down_fee as merchantBuyDownFee, " //
-                    + "lp.enable_buy_down_fee as enableBuyDownFee, " + "lp.buy_down_fee_calculation_type as buyDownFeeCalculationType, "
-                    + "lp.buy_down_fee_strategy as buyDownFeeStrategy, " + "lp.buy_down_fee_income_type as buyDownFeeIncomeType "
-                    + " from m_product_loan lp " + " left join m_fund f on f.id = lp.fund_id "
+                    + "lp.charge_off_behaviour as chargeOffBehaviour, "
+                    + "lp.enable_income_capitalization as enableIncomeCapitalization, "
+                    + "lp.capitalized_income_calculation_type as capitalizedIncomeCalculationType, "
+                    + "lp.capitalized_income_strategy as capitalizedIncomeStrategy, "
+                    + "lp.capitalized_income_type as capitalizedIncomeType, lp.is_merchant_buy_down_fee as merchantBuyDownFee, "
+                    + "lp.enable_buy_down_fee as enableBuyDownFee, lp.buy_down_fee_calculation_type as buyDownFeeCalculationType, "
+                    + "lp.buy_down_fee_strategy as buyDownFeeStrategy, lp.buy_down_fee_income_type as buyDownFeeIncomeType "
+                    + " from m_product_loan lp left join m_fund f on f.id = lp.fund_id "
                     + " left join m_product_loan_recalculation_details lpr on lpr.product_id=lp.id "
                     + " left join m_product_loan_guarantee_details lpg on lpg.loan_product_id=lp.id "
                     + " left join m_product_loan_configurable_attributes lca on lca.loan_product_id = lp.id "
@@ -721,9 +717,9 @@ public class LoanProductReadPlatformServiceImpl implements LoanProductReadPlatfo
                 status = "loanProduct.active";
             }
             final String externalId = rs.getString("externalId");
-            final Collection<LoanProductBorrowerCycleVariationData> principalVariationsForBorrowerCycle = new ArrayList<>();
-            final Collection<LoanProductBorrowerCycleVariationData> interestRateVariationsForBorrowerCycle = new ArrayList<>();
-            final Collection<LoanProductBorrowerCycleVariationData> numberOfRepaymentVariationsForBorrowerCycle = new ArrayList<>();
+            final List<LoanProductBorrowerCycleVariationData> principalVariationsForBorrowerCycle = new ArrayList<>();
+            final List<LoanProductBorrowerCycleVariationData> interestRateVariationsForBorrowerCycle = new ArrayList<>();
+            final List<LoanProductBorrowerCycleVariationData> numberOfRepaymentVariationsForBorrowerCycle = new ArrayList<>();
             if (this.borrowerCycleVariationDatas != null) {
                 for (final LoanProductBorrowerCycleVariationData borrowerCycleVariationData : this.borrowerCycleVariationDatas) {
                     final LoanProductParamType loanProductParamType = borrowerCycleVariationData.getLoanProductParamType();
@@ -846,7 +842,7 @@ public class LoanProductReadPlatformServiceImpl implements LoanProductReadPlatfo
             final boolean syncExpectedWithDisbursementDate = rs.getBoolean("syncExpectedWithDisbursementDate");
 
             final boolean canUseForTopup = rs.getBoolean("canUseForTopup");
-            final Collection<RateData> rateOptions = null;
+            final List<RateData> rateOptions = null;
             final boolean isRatesEnabled = false;
 
             // Delinquency Buckets

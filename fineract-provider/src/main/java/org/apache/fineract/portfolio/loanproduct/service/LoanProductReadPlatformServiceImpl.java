@@ -44,16 +44,21 @@ import org.apache.fineract.infrastructure.entityaccess.domain.FineractEntityType
 import org.apache.fineract.infrastructure.entityaccess.service.FineractEntityAccessUtil;
 import org.apache.fineract.infrastructure.security.service.PlatformSecurityContext;
 import org.apache.fineract.organisation.monetary.data.CurrencyData;
+import org.apache.fineract.organisation.monetary.domain.ApplicationCurrency;
+import org.apache.fineract.organisation.monetary.domain.ApplicationCurrencyRepository;
 import org.apache.fineract.portfolio.charge.data.ChargeData;
 import org.apache.fineract.portfolio.charge.service.ChargeReadPlatformService;
 import org.apache.fineract.portfolio.common.domain.DaysInYearCustomStrategyType;
 import org.apache.fineract.portfolio.common.service.CommonEnumerations;
 import org.apache.fineract.portfolio.delinquency.data.DelinquencyBucketData;
+import org.apache.fineract.portfolio.delinquency.data.DelinquencyRangeData;
 import org.apache.fineract.portfolio.delinquency.domain.DelinquencyBucket;
 import org.apache.fineract.portfolio.delinquency.domain.DelinquencyBucketRepository;
 import org.apache.fineract.portfolio.delinquency.service.DelinquencyReadPlatformService;
 import org.apache.fineract.portfolio.floatingrates.domain.FloatingRate;
 import org.apache.fineract.portfolio.floatingrates.domain.FloatingRateRepository;
+import org.apache.fineract.portfolio.fund.domain.Fund;
+import org.apache.fineract.portfolio.fund.domain.FundRepository;
 import org.apache.fineract.portfolio.loanaccount.domain.LoanBuyDownFeeCalculationType;
 import org.apache.fineract.portfolio.loanaccount.domain.LoanBuyDownFeeIncomeType;
 import org.apache.fineract.portfolio.loanaccount.domain.LoanBuyDownFeeStrategy;
@@ -77,11 +82,13 @@ import org.apache.fineract.portfolio.loanproduct.domain.LoanProductGuaranteeDeta
 import org.apache.fineract.portfolio.loanproduct.domain.LoanProductInterestRecalculationDetails;
 import org.apache.fineract.portfolio.loanproduct.domain.LoanProductParamType;
 import org.apache.fineract.portfolio.loanproduct.domain.LoanProductRepository;
+import org.apache.fineract.portfolio.loanproduct.domain.LoanProductVariableInstallmentConfig;
 import org.apache.fineract.portfolio.loanproduct.domain.LoanSupportedInterestRefundTypes;
 import org.apache.fineract.portfolio.loanproduct.exception.LoanProductNotFoundException;
 import org.apache.fineract.portfolio.loanproduct.repository.LoanProductGuaranteeDetailsRepository;
 import org.apache.fineract.portfolio.loanproduct.repository.LoanProductInterestRecalculationRepository;
 import org.apache.fineract.portfolio.loanproduct.repository.LoanProductReadPlatformRepository;
+import org.apache.fineract.portfolio.loanproduct.repository.LoanProductVariableInstallmentConfigRepository;
 import org.apache.fineract.portfolio.loanproduct.repository.LoanProductsConfigurableAttributesRepository;
 import org.apache.fineract.portfolio.loanproduct.repository.LoanProductsFloatingRatesRepository;
 import org.apache.fineract.portfolio.rate.data.RateData;
@@ -112,6 +119,9 @@ public class LoanProductReadPlatformServiceImpl implements LoanProductReadPlatfo
     private final LoanProductsFloatingRatesRepository loanProductsFloatingRatesRepository;
     private final FloatingRateRepository floatingRateRepository;
     private final DelinquencyBucketRepository delinquencyBucketRepository;
+    private final FundRepository fundRepository;
+    private final LoanProductVariableInstallmentConfigRepository loanProductVariableInstallmentConfigRepository;
+    private final ApplicationCurrencyRepository applicationCurrencyRepository;
 
     @Override
     public LoanProductData retrieveLoanProduct(final Long loanProductId) {
@@ -187,80 +197,272 @@ public class LoanProductReadPlatformServiceImpl implements LoanProductReadPlatfo
         // return this.jdbcTemplate.query(sql, rm); // NOSONAR
 
         final Map<Long, LoanProduct> mapOfLoanProducts = getMapOfLoanProducts();
-//        log.info("Loan Products Map: {}", mapOfLoanProducts);
+        // log.info("Loan Products Map: {}", mapOfLoanProducts);
+
+        final Map<Long, Fund> mapOfFund = getMapOfFund();
+        // log.info("Fund Map: {}", mapOfFund);
 
         final Map<Long, LoanProductInterestRecalculationDetails> mapOfInterestRecalculationData = getMapOfInterestRecalculationData();
-//        log.info("Interest Recalculation Map: {}", mapOfInterestRecalculationData);
+        // log.info("Interest Recalculation Map: {}", mapOfInterestRecalculationData);
 
-        final Map<Long, LoanProductGuaranteeDetails> loanProductGuaranteeDetailsMap = getMapOfLoanProductGuaranteeDetails();
-//        log.info("Guarantee Details Map: {}", loanProductGuaranteeDetailsMap);
+        final Map<Long, LoanProductGuaranteeDetails> mapOfLoanProductGuaranteeDetails = getMapOfLoanProductGuaranteeDetails();
+        // log.info("Guarantee Details Map: {}", loanProductGuaranteeDetailsMap);
 
-        final Map<Long, LoanProductConfigurableAttributes> loanProductConfigurableAttributes = getMapOfLoanConfigurableAttributes();
-//        log.info("Configurable Attributes Map: {}", loanProductConfigurableAttributes);
+        final Map<Long, LoanProductConfigurableAttributes> mapOfLoanProductConfigurableAttributes = getMapOfLoanConfigurableAttributes();
+        // log.info("Configurable Attributes Map: {}", loanProductConfigurableAttributes);
 
-        final Map<Long, LoanProductFloatingRates> loanProductFloatingRatesMap = getLoanProductsFloatingRatesMap();
-//        log.info("Floating Rates Map: {}", loanProductFloatingRatesMap);
+        final Map<Long, LoanProductFloatingRates> mapOfLoanProductFloatingRates = getLoanProductsFloatingRatesMap();
+        // log.info("Floating Rates Map: {}", loanProductFloatingRatesMap);
 
-        final Map<Long, FloatingRate> loanFloatingRatesMap = getLoanFloatingRatesMap();
-//        log.info("Loan Floating Rates Map: {}", loanFloatingRates);
+        final Map<Long, FloatingRate> mapOfLoanFloatingRates = getLoanFloatingRatesMap();
+        // log.info("Loan Floating Rates Map: {}", loanFloatingRates);
 
-        final Map<Long, DelinquencyBucket> delinquencyBucketMap = getDelinqencyBucketMap();
-        log.info("Delinquency Bucket Map: {}", delinquencyBucketMap);
+        final Map<Long, DelinquencyBucket> mapOfDelinquencyBucket = getDelinqencyBucketMap();
+        // log.info("Delinquency Bucket Map: {}", delinquencyBucketMap);
 
-        return loanProductReadPlatformRepository.retrieveAllLoanProducts();
+        final Map<Long, LoanProductVariableInstallmentConfig> mapOfLoanProductVariableInstallmentConfig = getLoanProductVariableInstallmentConfigMap();
+        // log.info("Loan Product Variable Installment Map: {}", mapOfLoanProductVariableInstallmentConfig);
+
+        final Map<String, ApplicationCurrency> mapOfCurrency = getMapOfCurrency();
+        // log.info("Application Currency Map: {}", mapOfCurrency);
+
+        Collection<LoanProductData> getFlattenedData = getFlattenedData(mapOfLoanProducts, mapOfFund, mapOfInterestRecalculationData,
+                mapOfLoanProductGuaranteeDetails, mapOfLoanProductConfigurableAttributes, mapOfLoanProductVariableInstallmentConfig,
+                mapOfLoanProductFloatingRates, mapOfLoanFloatingRates, mapOfCurrency, mapOfDelinquencyBucket);
+
+        // return loanProductReadPlatformRepository.retrieveAllLoanProducts();
+        return getFlattenedData;
+    }
+
+    private Map<String, ApplicationCurrency> getMapOfCurrency() {
+        final List<ApplicationCurrency> currenciesList = applicationCurrencyRepository.findAll();
+        return mapByKey(currenciesList, ApplicationCurrency::getCode);
+    }
+
+    private Map<Long, LoanProductVariableInstallmentConfig> getLoanProductVariableInstallmentConfigMap() {
+        final List<LoanProductVariableInstallmentConfig> loanProductVariableInstallmentConfigList = loanProductVariableInstallmentConfigRepository
+                .findAll();
+        return mapByKey(loanProductVariableInstallmentConfigList, LoanProductVariableInstallmentConfig::getId);
+    }
+
+    private Map<Long, Fund> getMapOfFund() {
+        final List<Fund> fundList = fundRepository.findAll();
+        return mapByKey(fundList, Fund::getId);
+    }
+
+    private Collection<LoanProductData> getFlattenedData(Map<Long, LoanProduct> mapOfLoanProducts, Map<Long, Fund> mapOfFund,
+            Map<Long, LoanProductInterestRecalculationDetails> mapOfInterestRecalculationData,
+            Map<Long, LoanProductGuaranteeDetails> mapOfLoanProductGuaranteeDetails,
+            Map<Long, LoanProductConfigurableAttributes> mapOfLoanProductConfigurableAttributes,
+            Map<Long, LoanProductVariableInstallmentConfig> mapOfLoanProductVariableInstallmentConfig,
+            Map<Long, LoanProductFloatingRates> mapOfLoanProductFloatingRates, Map<Long, FloatingRate> mapOfLoanFloatingRates,
+            Map<String, ApplicationCurrency> mapOfCurrency, Map<Long, DelinquencyBucket> mapOfDelinquencyBucket) {
+
+        final List<LoanProductData> loanProductDataList = new ArrayList<>();
+
+        for (LoanProduct lp : mapOfLoanProducts.values()) {
+            Long productId = lp.getId();
+
+            // LEFT JOIN fund
+            Fund fund = (lp.getFund() != null) ? mapOfFund.get(lp.getFund().getId()) : null;
+
+            // LEFT JOIN interest recalculation
+            LoanProductInterestRecalculationDetails recalculation = mapOfInterestRecalculationData.get(productId);
+
+            // LEFT JOIN guarantee
+            LoanProductGuaranteeDetails guarantee = mapOfLoanProductGuaranteeDetails.get(productId);
+
+            // LEFT JOIN configurable attributes
+            LoanProductConfigurableAttributes attributes = mapOfLoanProductConfigurableAttributes.get(productId);
+
+            // LEFT JOIN variable installment config
+            LoanProductVariableInstallmentConfig variableInstallment = mapOfLoanProductVariableInstallmentConfig.get(productId);
+
+            // LEFT JOIN floating rates
+            LoanProductFloatingRates loanProductFloatingRates = mapOfLoanProductFloatingRates.get(productId);
+            FloatingRate floatingRate = (loanProductFloatingRates != null)
+                    ? mapOfLoanFloatingRates.get(loanProductFloatingRates.getFloatingRate().getId())
+                    : null;
+
+            // LEFT JOIN delinquency bucket
+            DelinquencyBucket delinquencyBucket = (lp.getDelinquencyBucket() != null)
+                    ? mapOfDelinquencyBucket.get(lp.getDelinquencyBucket().getId())
+                    : null;
+
+            // JOIN currency
+            ApplicationCurrency currency = (lp.getCurrency() != null) ? mapOfCurrency.get(lp.getCurrency().getCode()) : null;
+
+            LoanProductData data1 = new LoanProductData(lp.getId(), lp.getName(), lp.getShortName(), lp.getDescription(),
+                    currency != null ? currency.toData() : null, lp.getPrincipalAmount().getAmount(),
+                    lp.getMinPrincipalAmount().getAmount(), lp.getMaxPrincipalAmount().getAmount(),
+                    // tolerance,
+                    null, lp.getNumberOfRepayments(), lp.getMinNumberOfRepayments(), lp.getMaxNumberOfRepayments(),
+                    lp.getLoanProductRelatedDetail().getRepayEvery(), lp.getNominalInterestRatePerPeriod(),
+                    lp.getMinNominalInterestRatePerPeriod(), lp.getMaxNominalInterestRatePerPeriod(),
+                    lp.getLoanProductRelatedDetail().getAnnualNominalInterestRate(),
+                    new EnumOptionData(lp.getLoanProductRelatedDetail().getRepaymentPeriodFrequencyType().getValue().longValue(),
+                            lp.getLoanProductRelatedDetail().getCurrency().getCode(), lp.getDescription()),
+                    new EnumOptionData(lp.getLoanProductRelatedDetail().getInterestPeriodFrequencyType().getValue().longValue(),
+                            lp.getLoanProductRelatedDetail().getCurrency().getCode(), lp.getDescription()),
+                    new EnumOptionData(lp.getLoanProductRelatedDetail().getAmortizationMethod().getValue().longValue(),
+                            lp.getLoanProductRelatedDetail().getAmortizationMethod().getCode(), ""),
+                    new EnumOptionData(lp.getLoanProductRelatedDetail().getInterestMethod().getValue().longValue(),
+                            lp.getLoanProductRelatedDetail().getInterestMethod().getCode(), ""),
+                    new EnumOptionData(lp.getLoanProductRelatedDetail().getInterestCalculationPeriodMethod().getValue().longValue(),
+                            lp.getLoanProductRelatedDetail().getInterestCalculationPeriodMethod().getCode(), ""),
+                    lp.getLoanProductRelatedDetail().isAllowPartialPeriodInterestCalculation(),
+//                    fund != null ? fund.getId() : Long.valueOf(0), fund != null ? fund.getName() : "",
+                    null, null,
+                    lp.getTransactionProcessingStrategyCode(), lp.getTransactionProcessingStrategyName(),
+                    lp.getLoanProductRelatedDetail().getGraceOnPrincipalPayment(),
+                    lp.getLoanProductRelatedDetail().getRecurringMoratoriumOnPrincipalPeriods(),
+                    lp.getLoanProductRelatedDetail().getGraceOnInterestPayment(),
+                    lp.getLoanProductRelatedDetail().getGraceOnInterestCharged(), null,
+                    new EnumOptionData(lp.getAccountingRule().getValue().longValue(), lp.getAccountingRule().getCode(), ""),
+                    lp.isIncludeInBorrowerCycle(), lp.isUseBorrowerCycle(), lp.getStartDate(), lp.getCloseDate(),
+                    (lp.getCloseDate() != null && DateUtils.isBeforeBusinessDate(lp.getCloseDate()) ? "loanProduct.inActive"
+                            : "loanProduct.active"),
+                    lp.getExternalId().getValue(),
+                    // principalVariationsForBorrowerCycle,
+                    // interestRateVariationsForBorrowerCycle,
+                    // numberOfRepaymentVariationsForBorrowerCycle,
+                    // multiDisburseLoan,
+                    // maxTrancheCount,
+                    // outstandingLoanBalance,
+                    null, null, null, null, null, null, lp.isDisallowExpectedDisbursements(),
+                    lp.isAllowApprovedDisbursedAmountsOverApplied(), lp.getOverAppliedCalculationType(), lp.getOverAppliedNumber(),
+                    lp.getLoanProductRelatedDetail().getGraceOnArrearsAgeing(), lp.getOverdueDaysForNPA(),
+                    new EnumOptionData(lp.getLoanProductRelatedDetail().fetchDaysInMonthType().getValue().longValue(),
+                            lp.getLoanProductRelatedDetail().fetchDaysInMonthType().getCode(), ""),
+                    new EnumOptionData(lp.getLoanProductRelatedDetail().fetchDaysInYearType().getValue().longValue(),
+                            lp.getLoanProductRelatedDetail().fetchDaysInYearType().getCode(), ""),
+                    lp.isInterestRecalculationEnabled(),
+                    // recalculation,
+
+                    new LoanProductInterestRecalculationData(recalculation.getId(), recalculation.getLoanProduct().getId(),
+                            // final EnumOptionData interestRecalculationCompoundingType,
+                            // recalculation.getLoanProduct().getProductInterestRecalculationDetails().getCompoundingFrequencyType(),
+                            // final EnumOptionData rescheduleStrategyType,
+                            // recalculation.getRescheduleStrategyMethod(),
+                            null, null,
+                            // final EnumOptionData recalculationRestFrequencyType,
+                            null,
+                            // final Integer recalculationRestFrequencyInterval,
+                            null,
+                            // final EnumOptionData recalculationRestFrequencyNthDay,
+                            // final EnumOptionData recalculationRestFrequencyWeekday,
+                            // final Integer recalculationRestFrequencyOnDay,
+                            // final EnumOptionData recalculationCompoundingFrequencyType,
+                            // final Integer recalculationCompoundingFrequencyInterval,
+                            // final EnumOptionData recalculationCompoundingFrequencyNthDay,
+                            // final EnumOptionData recalculationCompoundingFrequencyWeekday,
+                            // final Integer recalculationCompoundingFrequencyOnDay,
+                            // final boolean isArrearsBasedOnOriginalSchedule,
+                            // boolean isCompoundingToBePostedAsTransaction,
+                            // final EnumOptionData preCloseInterestCalculationStrategy,
+                            // final boolean allowCompoundingOnEod,
+                            // final Boolean disallowInterestCalculationOnPastDue,
+                            null, null, null, null, null, null, null, null, false, false, null, false, null),
+                    lp.getMinimumDaysBetweenDisbursalAndFirstRepayment(), lp.isHoldGuaranteeFunds(),
+                    // lp.getLoanProductGuaranteeDetails(),
+                    null, lp.getPrincipalThresholdForLastInstallment(),
+                    // accountMovesOutOfNPAOnlyOnArrearsCompletion,
+                    false, lp.isCanDefineInstallmentAmount(),
+                    // installmentAmountInMultiplesOf,
+                    lp.getLoanProductRelatedDetail().getInstallmentAmountInMultiplesOf(),
+                    // allowAttributeOverrides,
+                    null, lp.isLinkedToFloatingInterestRate(),
+                    // lp.getFloatingRates().getId(),
+                    // lp.getFloatingRates() != null ? lp.getFloatingRates().getId().intValue() : 0,
+                    null,
+                    // floatingRateName,
+//                    lp.getFloatingRates().getFloatingRate().getName(),
+                    null,
+                    // interestRateDifferential,
+                    // minDifferentialLendingRate,
+                    // defaultDifferentialLendingRate,
+                    // maxDifferentialLendingRate,
+                    // isFloatingInterestRateCalculationAllowed,
+                    null, null, null, null, false, lp.isAllowVariabeInstallments(),
+                    // minimumGap,
+                    // maximumGap,
+                    // syncExpectedWithDisbursementDate,
+                    null, null, false, lp.isCanUseForTopup(), lp.isEqualAmortization(),
+                    // rateOptions,
+                    null, null,
+                    // isRatesEnabled,
+                    false, lp.getFixedPrincipalPercentagePerInstallment(), null,
+                    // delinquencyBucket,
+//                    new DelinquencyBucketData(delinquencyBucket.getId(), delinquencyBucket.getName(),
+//                            List.of(DelinquencyRangeData.instance(null, null, null))),
+                     null,
+                    lp.getDueDaysForRepaymentEvent(), lp.getOverDueDaysForRepaymentEvent(),
+                    // enableDownPayment,
+                    lp.getLoanProductRelatedDetail().isEnableDownPayment(),
+                    // disbursedAmountPercentageForDownPayment,
+                    // enableAutoRepaymentForDownPayment,
+                    null, false, null, null,
+                    // lp.getRepaymentStartDateType(),
+                    new EnumOptionData(lp.getRepaymentStartDateType().getValue().longValue(), lp.getRepaymentStartDateType().getCode(), ""),
+                    lp.isEnableInstallmentLevelDelinquency(),
+                    // loanScheduleType.asEnumOptionData(),
+                    // loanScheduleProcessingType.asEnumOptionData(),
+                    // fixedLength,
+                    // enableAccrualActivityPosting,
+                    // supportedInterestRefundTypes,
+                    // loanChargeOffBehaviour.getValueAsStringEnumOptionData(),
+                    // interestRecognitionOnDisbursementDate,
+                    // daysInYearCustomStrategy,
+                    // enableIncomeCapitalization,
+                    // capitalizedIncomeCalculationType,
+                    // capitalizedIncomeStrategy,
+                    // capitalizedIncome,
+                    // enableBuyDownFee,
+                    // buyDownFeeCalculationType,
+                    // buyDownFeeStrategy,
+                    // buyDownFeeIncomeType,
+                    // merchantBuyDownFee,
+                    null, null, null, false, null, null, false, null, false, null, null, null, false, null, null, null, false, null, null);
+            loanProductDataList.add(data1);
+        }
+        return loanProductDataList;
     }
 
     private Map<Long, DelinquencyBucket> getDelinqencyBucketMap() {
-      final List<DelinquencyBucket> delinquencyBucketList = delinquencyBucketRepository.findAll();
-      return mapByKey(delinquencyBucketList, DelinquencyBucket::getId);
+        final List<DelinquencyBucket> delinquencyBucketList = delinquencyBucketRepository.findAll();
+        return mapByKey(delinquencyBucketList, DelinquencyBucket::getId);
     }
 
     private Map<Long, FloatingRate> getLoanFloatingRatesMap() {
-      final List<FloatingRate> loanFloatingRatesList = floatingRateRepository.findAll();
-      return mapByKey(loanFloatingRatesList, FloatingRate::getId);
+        final List<FloatingRate> loanFloatingRatesList = floatingRateRepository.findAll();
+        return mapByKey(loanFloatingRatesList, FloatingRate::getId);
     }
 
     private Map<Long, LoanProductFloatingRates> getLoanProductsFloatingRatesMap() {
-      final List<LoanProductFloatingRates> loanProductsFloatingRatesList = loanProductsFloatingRatesRepository.findAll();
-      return mapByKey(loanProductsFloatingRatesList, LoanProductFloatingRates::getId);
+        final List<LoanProductFloatingRates> loanProductsFloatingRatesList = loanProductsFloatingRatesRepository.findAll();
+        return mapByKey(loanProductsFloatingRatesList, LoanProductFloatingRates::getId);
     }
 
     private Map<Long, LoanProductConfigurableAttributes> getMapOfLoanConfigurableAttributes() {
-      final List<LoanProductConfigurableAttributes> loanProductsConfigurableAttributesList =
-          loanProductsConfigurableAttributesRepository.findAll();
-      return mapByKey(loanProductsConfigurableAttributesList, LoanProductConfigurableAttributes::getId);
+        final List<LoanProductConfigurableAttributes> loanProductsConfigurableAttributesList = loanProductsConfigurableAttributesRepository
+                .findAll();
+        return mapByKey(loanProductsConfigurableAttributesList, LoanProductConfigurableAttributes::getId);
     }
 
     private Map<Long, LoanProductGuaranteeDetails> getMapOfLoanProductGuaranteeDetails() {
-      final List<LoanProductGuaranteeDetails> loanProductGuaranteeDetailsList = loanProductGuaranteeDetailsRepository.findAll();
-//      final Map<Long, LoanProductGuaranteeDetails> mapOfLoanProductGuaranteeDetails = new LinkedHashMap<>();
-//
-//      for(LoanProductGuaranteeDetails element : loanProductGuaranteeDetailsList) {
-//        mapOfLoanProductGuaranteeDetails.putIfAbsent(element.getId(), element);
-//      }
-      return mapByKey(loanProductGuaranteeDetailsList, LoanProductGuaranteeDetails::getId);
+        final List<LoanProductGuaranteeDetails> loanProductGuaranteeDetailsList = loanProductGuaranteeDetailsRepository.findAll();
+        return mapByKey(loanProductGuaranteeDetailsList, LoanProductGuaranteeDetails::getId);
     }
 
     private Map<Long, LoanProductInterestRecalculationDetails> getMapOfInterestRecalculationData() {
-      final List<LoanProductInterestRecalculationDetails> loanProductInterestCalculationList = loanProductInterestRecalculationRepository.findAll();
-//      Map<Long, LoanProductInterestRecalculationDetails> mapOfProductInterestRecalculationData = new LinkedHashMap<>();
-//
-//      for(LoanProductInterestRecalculationDetails element : loanProductInterestCalculationList) {
-//        mapOfProductInterestRecalculationData.putIfAbsent(element.getId(), element);
-//      }
-//      return mapOfProductInterestRecalculationData;
-      return mapByKey(loanProductInterestCalculationList, LoanProductInterestRecalculationDetails::getId);
+        final List<LoanProductInterestRecalculationDetails> loanProductInterestCalculationList = loanProductInterestRecalculationRepository
+                .findAll();
+        return mapByKey(loanProductInterestCalculationList, LoanProductInterestRecalculationDetails::getId);
     }
 
     private Map<Long, LoanProduct> getMapOfLoanProducts() {
-      final List<LoanProduct> listOfLoanProducts = loanProductRepository.findAll();
-//      final Map<Long, LoanProduct> mapOfLoanProducts = new LinkedHashMap<>();
-//
-//      for(LoanProduct loanProduct : listOfLoanProducts) {
-//        mapOfLoanProducts.putIfAbsent(loanProduct.getId(), loanProduct);
-//      }
-//      return mapOfLoanProducts;
-      return mapByKey(listOfLoanProducts, LoanProduct::getId);
+        final List<LoanProduct> listOfLoanProducts = loanProductRepository.findAll();
+        return mapByKey(listOfLoanProducts, LoanProduct::getId);
     }
 
     @Override
@@ -970,11 +1172,11 @@ public class LoanProductReadPlatformServiceImpl implements LoanProductReadPlatfo
     }
 
     private <K, V> Map<K, V> mapByKey(List<V> list, Function<V, K> keyExtractor) {
-      final Map<K, V> result = new LinkedHashMap<>();
-      for(V element : list) {
-        K key = keyExtractor.apply(element);
-        result.putIfAbsent(key, element);
-      }
-      return result;
+        final Map<K, V> result = new LinkedHashMap<>();
+        for (V element : list) {
+            K key = keyExtractor.apply(element);
+            result.putIfAbsent(key, element);
+        }
+        return result;
     }
 }

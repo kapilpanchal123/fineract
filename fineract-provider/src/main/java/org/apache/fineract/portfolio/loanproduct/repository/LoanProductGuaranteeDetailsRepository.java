@@ -22,5 +22,5 @@ import org.apache.fineract.portfolio.loanproduct.domain.LoanProductGuaranteeDeta
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
 
-public interface LoanProductGuaranteeDetailsRepository extends JpaRepository<LoanProductGuaranteeDetails, Long>, JpaSpecificationExecutor<LoanProductGuaranteeDetails> {
-}
+public interface LoanProductGuaranteeDetailsRepository
+        extends JpaRepository<LoanProductGuaranteeDetails, Long>, JpaSpecificationExecutor<LoanProductGuaranteeDetails> {}

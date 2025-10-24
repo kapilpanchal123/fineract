@@ -4,5 +4,5 @@ import org.apache.fineract.portfolio.loanproduct.domain.LoanProductConfigurableA
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
 
-public interface LoanProductsConfigurableAttributesRepository extends JpaRepository<LoanProductConfigurableAttributes, Long>, JpaSpecificationExecutor<LoanProductConfigurableAttributes> {
-}
+public interface LoanProductsConfigurableAttributesRepository
+        extends JpaRepository<LoanProductConfigurableAttributes, Long>, JpaSpecificationExecutor<LoanProductConfigurableAttributes> {}

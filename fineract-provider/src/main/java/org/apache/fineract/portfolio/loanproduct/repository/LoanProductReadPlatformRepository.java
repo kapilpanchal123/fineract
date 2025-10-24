@@ -22,7 +22,6 @@ import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Collection;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicInteger;
 import lombok.RequiredArgsConstructor;
@@ -83,14 +82,14 @@ public class LoanProductReadPlatformRepository {
     private final FineractEntityAccessUtil fineractEntityAccessUtil;
     private final DelinquencyReadPlatformService delinquencyReadPlatformService;
     private final LoanProductRepository loanProductRepository;
-    private final Collection<ChargeData> charges;
-    private final Collection<LoanProductBorrowerCycleVariationData> borrowerCycleVariationDatas;
-    private final Collection<AdvancedPaymentData> advancedPaymentData;
-    private final Collection<CreditAllocationData> creditAllocationData;
-    private final Collection<RateData> rates;
-    private final Collection<DelinquencyBucketData> delinquencyBucketOptions;
+    private final List<ChargeData> charges;
+    private final List<LoanProductBorrowerCycleVariationData> borrowerCycleVariationDatas;
+    private final List<AdvancedPaymentData> advancedPaymentData;
+    private final List<CreditAllocationData> creditAllocationData;
+    private final List<RateData> rates;
+    private final List<DelinquencyBucketData> delinquencyBucketOptions;
 
-    public Collection<LoanProductData> retrieveAllLoanProducts() {
+    public List<LoanProductData> retrieveAllLoanProducts() {
         String sql = "SELECT " + loanProductSchema();
 
         // Check if branch specific products are enabled. If yes, fetch only
@@ -104,15 +103,14 @@ public class LoanProductReadPlatformRepository {
     }
 
     public LoanProductData retrieveLoanProduct(final Long loanProductId) {
-
         try {
-            final Collection<ChargeData> charges = this.chargeReadPlatformService.retrieveLoanProductCharges(loanProductId);
-            final Collection<RateData> rates = this.rateReadService.retrieveProductLoanRates(loanProductId);
-            final Collection<LoanProductBorrowerCycleVariationData> borrowerCycleVariationDatas = retrieveLoanProductBorrowerCycleVariations(
+            final List<ChargeData> charges = this.chargeReadPlatformService.retrieveLoanProductCharges(loanProductId);
+            final List<RateData> rates = this.rateReadService.retrieveProductLoanRates(loanProductId);
+            final List<LoanProductBorrowerCycleVariationData> borrowerCycleVariationDatas = retrieveLoanProductBorrowerCycleVariations(
                     loanProductId);
-            final Collection<AdvancedPaymentData> advancedPaymentData = retrieveAdvancedPaymentData(loanProductId);
-            final Collection<CreditAllocationData> creditAllocationData = retrieveCreditAllocationData(loanProductId);
-            final Collection<DelinquencyBucketData> delinquencyBucketOptions = this.delinquencyReadPlatformService
+            final List<AdvancedPaymentData> advancedPaymentData = retrieveAdvancedPaymentData(loanProductId);
+            final List<CreditAllocationData> creditAllocationData = retrieveCreditAllocationData(loanProductId);
+            final List<DelinquencyBucketData> delinquencyBucketOptions = this.delinquencyReadPlatformService
                     .retrieveAllDelinquencyBuckets();
             final String sql = "SELECT " + loanProductSchema() + " WHERE lp.id = ?";
 
@@ -123,7 +121,7 @@ public class LoanProductReadPlatformRepository {
         }
     }
 
-    private Collection<CreditAllocationData> retrieveCreditAllocationData(Long loanProductId) {
+    private List<CreditAllocationData> retrieveCreditAllocationData(Long loanProductId) {
         final String sql = "SELECT " + creditAllocationDataSchema() + " WHERE loan_product_id = ?";
         return this.jdbcTemplate.query(sql, creditAllocationDataMapper(), loanProductId);
     }
@@ -146,7 +144,7 @@ public class LoanProductReadPlatformRepository {
         return "transaction_type, allocation_types from m_loan_product_credit_allocation_rule";
     }
 
-    private Collection<AdvancedPaymentData> retrieveAdvancedPaymentData(Long loanProductId) {
+    private List<AdvancedPaymentData> retrieveAdvancedPaymentData(Long loanProductId) {
         final String sql = "SELECT " + advancedPaymentDataSchema() + " WHERE loan_product_id = ?";
         return this.jdbcTemplate.query(sql, advancedPaymentDataMapper(), loanProductId);
     }
@@ -170,7 +168,7 @@ public class LoanProductReadPlatformRepository {
         return "transaction_type, allocation_types, future_installment_allocation_rule from m_loan_product_payment_allocation_rule";
     }
 
-    private Collection<LoanProductBorrowerCycleVariationData> retrieveLoanProductBorrowerCycleVariations(Long loanProductId) {
+    private List<LoanProductBorrowerCycleVariationData> retrieveLoanProductBorrowerCycleVariations(Long loanProductId) {
         final String sql = "SELECT " + loanProductBorrowerCycleSchema()
                 + " WHERE bc.loan_product_id=? ORDER BY bc.borrower_cycle_number, bc.value_condition";
         return this.jdbcTemplate.query(sql, loanProductBorrowerCycleMapper(), loanProductId);
@@ -268,10 +266,10 @@ public class LoanProductReadPlatformRepository {
                 + " join m_currency curr on curr.code = lp.currency_code";
     }
 
-    private RowMapper<LoanProductData> loanProductMapper(final Collection<ChargeData> charges,
-            final Collection<LoanProductBorrowerCycleVariationData> borrowerCycleVariationDatas, final Collection<RateData> rates,
-            final Collection<DelinquencyBucketData> delinquencyBucketOptions, Collection<AdvancedPaymentData> advancedPaymentData,
-            Collection<CreditAllocationData> creditAllocationData) {
+    private RowMapper<LoanProductData> loanProductMapper(final List<ChargeData> charges,
+            final List<LoanProductBorrowerCycleVariationData> borrowerCycleVariationDatas, final List<RateData> rates,
+            final List<DelinquencyBucketData> delinquencyBucketOptions, List<AdvancedPaymentData> advancedPaymentData,
+            List<CreditAllocationData> creditAllocationData) {
         return (rs, rowNum) -> {
             final Long id = JdbcSupport.getLong(rs, "id");
             final String name = rs.getString("name");

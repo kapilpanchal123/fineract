@@ -124,28 +124,6 @@ public class LoanProductReadPlatformServiceImpl implements LoanProductReadPlatfo
 
     @Override
     public LoanProductData retrieveLoanProduct(final Long loanProductId) {
-
-        // try {
-        // final Collection<ChargeData> charges =
-        // this.chargeReadPlatformService.retrieveLoanProductCharges(loanProductId);
-        // final Collection<RateData> rates = this.rateReadService.retrieveProductLoanRates(loanProductId);
-        // final Collection<LoanProductBorrowerCycleVariationData> borrowerCycleVariationDatas =
-        // retrieveLoanProductBorrowerCycleVariations(
-        // loanProductId);
-        // final Collection<AdvancedPaymentData> advancedPaymentData = retrieveAdvancedPaymentData(loanProductId);
-        // final Collection<CreditAllocationData> creditAllocationData = retrieveCreditAllocationData(loanProductId);
-        // final Collection<DelinquencyBucketData> delinquencyBucketOptions = this.delinquencyReadPlatformService
-        // .retrieveAllDelinquencyBuckets();
-        // final LoanProductMapper rm = new LoanProductMapper(charges, borrowerCycleVariationDatas, rates,
-        // delinquencyBucketOptions,
-        // advancedPaymentData, creditAllocationData);
-        // final String sql = "select " + rm.loanProductSchema() + " where lp.id = ?";
-        //
-        // return this.jdbcTemplate.queryForObject(sql, rm, loanProductId); // NOSONAR
-        //
-        // } catch (final EmptyResultDataAccessException e) {
-        // throw new LoanProductNotFoundException(loanProductId, e);
-        // }
         return loanProductReadPlatformRepository.retrieveLoanProduct(loanProductId);
     }
 
@@ -162,73 +140,39 @@ public class LoanProductReadPlatformServiceImpl implements LoanProductReadPlatfo
     public Collection<LoanProductBorrowerCycleVariationData> retrieveLoanProductBorrowerCycleVariations(final Long loanProductId) {
         final LoanProductBorrowerCycleMapper rm = new LoanProductBorrowerCycleMapper();
         final String sql = "select " + rm.schema() + " where bc.loan_product_id=?  order by bc.borrower_cycle_number,bc.value_condition";
-        return this.jdbcTemplate.query(sql, rm, loanProductId); // NOSONAR
+        return this.jdbcTemplate.query(sql, rm, loanProductId);
     }
 
     @Override
     public List<AdvancedPaymentData> retrieveAdvancedPaymentData(final Long loanProductId) {
         final AdvancedPaymentDataMapper apdm = new AdvancedPaymentDataMapper();
         final String sql = "select " + apdm.schema() + " where loan_product_id = ?";
-        return this.jdbcTemplate.query(sql, apdm, loanProductId); // NOSONAR
+        return this.jdbcTemplate.query(sql, apdm, loanProductId);
     }
 
     @Override
     public List<CreditAllocationData> retrieveCreditAllocationData(final Long loanProductId) {
         final CreditAllocationDataMapper cadm = new CreditAllocationDataMapper();
         final String sql = "select " + cadm.schema() + " where loan_product_id = ?";
-        return this.jdbcTemplate.query(sql, cadm, loanProductId); // NOSONAR
+        return this.jdbcTemplate.query(sql, cadm, loanProductId);
     }
 
     @Override
-    public Collection<LoanProductData> retrieveAllLoanProducts() {
+    public List<LoanProductData> retrieveAllLoanProducts() {
         this.context.authenticatedUser();
-        // final LoanProductMapper rm = new LoanProductMapper(null, null, null, null, null, null);
-        // String sql = "select " + rm.loanProductSchema();
-        //
-        // // Check if branch specific products are enabled. If yes, fetch only
-        // // products mapped to current user's office
-        // String inClause = fineractEntityAccessUtil
-        // .getSQLWhereClauseForProductIDsForUserOffice_ifGlobalConfigEnabled(FineractEntityType.LOAN_PRODUCT);
-        // if (inClause != null && !inClause.trim().isEmpty()) {
-        // sql += " where lp.id in ( " + inClause + " ) ";
-        // }
-        //
-        // return this.jdbcTemplate.query(sql, rm); // NOSONAR
-
         final Map<Long, LoanProduct> mapOfLoanProducts = getMapOfLoanProducts();
-        // log.info("Loan Products Map: {}", mapOfLoanProducts);
-
         final Map<Long, Fund> mapOfFund = getMapOfFund();
-        // log.info("Fund Map: {}", mapOfFund);
-
         final Map<Long, LoanProductInterestRecalculationDetails> mapOfInterestRecalculationData = getMapOfInterestRecalculationData();
-        // log.info("Interest Recalculation Map: {}", mapOfInterestRecalculationData);
-
         final Map<Long, LoanProductGuaranteeDetails> mapOfLoanProductGuaranteeDetails = getMapOfLoanProductGuaranteeDetails();
-        // log.info("Guarantee Details Map: {}", loanProductGuaranteeDetailsMap);
-
         final Map<Long, LoanProductConfigurableAttributes> mapOfLoanProductConfigurableAttributes = getMapOfLoanConfigurableAttributes();
-        // log.info("Configurable Attributes Map: {}", loanProductConfigurableAttributes);
-
         final Map<Long, LoanProductFloatingRates> mapOfLoanProductFloatingRates = getLoanProductsFloatingRatesMap();
-        // log.info("Floating Rates Map: {}", loanProductFloatingRatesMap);
-
         final Map<Long, FloatingRate> mapOfLoanFloatingRates = getLoanFloatingRatesMap();
-        // log.info("Loan Floating Rates Map: {}", loanFloatingRates);
-
         final Map<Long, DelinquencyBucket> mapOfDelinquencyBucket = getDelinqencyBucketMap();
-        // log.info("Delinquency Bucket Map: {}", delinquencyBucketMap);
-
         final Map<Long, LoanProductVariableInstallmentConfig> mapOfLoanProductVariableInstallmentConfig = getLoanProductVariableInstallmentConfigMap();
-        // log.info("Loan Product Variable Installment Map: {}", mapOfLoanProductVariableInstallmentConfig);
-
         final Map<String, ApplicationCurrency> mapOfCurrency = getMapOfCurrency();
-        // log.info("Application Currency Map: {}", mapOfCurrency);
-
-        Collection<LoanProductData> getFlattenedData = getFlattenedData(mapOfLoanProducts, mapOfFund, mapOfInterestRecalculationData,
+        List<LoanProductData> getFlattenedData = getFlattenedData(mapOfLoanProducts, mapOfFund, mapOfInterestRecalculationData,
                 mapOfLoanProductGuaranteeDetails, mapOfLoanProductConfigurableAttributes, mapOfLoanProductVariableInstallmentConfig,
                 mapOfLoanProductFloatingRates, mapOfLoanFloatingRates, mapOfCurrency, mapOfDelinquencyBucket);
-
         // return loanProductReadPlatformRepository.retrieveAllLoanProducts();
         return getFlattenedData;
     }
@@ -249,7 +193,7 @@ public class LoanProductReadPlatformServiceImpl implements LoanProductReadPlatfo
         return mapByKey(fundList, Fund::getId);
     }
 
-    private Collection<LoanProductData> getFlattenedData(Map<Long, LoanProduct> mapOfLoanProducts, Map<Long, Fund> mapOfFund,
+    private List<LoanProductData> getFlattenedData(Map<Long, LoanProduct> mapOfLoanProducts, Map<Long, Fund> mapOfFund,
             Map<Long, LoanProductInterestRecalculationDetails> mapOfInterestRecalculationData,
             Map<Long, LoanProductGuaranteeDetails> mapOfLoanProductGuaranteeDetails,
             Map<Long, LoanProductConfigurableAttributes> mapOfLoanProductConfigurableAttributes,
@@ -261,33 +205,25 @@ public class LoanProductReadPlatformServiceImpl implements LoanProductReadPlatfo
 
         for (LoanProduct lp : mapOfLoanProducts.values()) {
             Long productId = lp.getId();
-
             // LEFT JOIN fund
             Fund fund = (lp.getFund() != null) ? mapOfFund.get(lp.getFund().getId()) : null;
-
             // LEFT JOIN interest recalculation
             LoanProductInterestRecalculationDetails recalculation = mapOfInterestRecalculationData.get(productId);
-
             // LEFT JOIN guarantee
             LoanProductGuaranteeDetails guarantee = mapOfLoanProductGuaranteeDetails.get(productId);
-
             // LEFT JOIN configurable attributes
             LoanProductConfigurableAttributes attributes = mapOfLoanProductConfigurableAttributes.get(productId);
-
             // LEFT JOIN variable installment config
             LoanProductVariableInstallmentConfig variableInstallment = mapOfLoanProductVariableInstallmentConfig.get(productId);
-
             // LEFT JOIN floating rates
             LoanProductFloatingRates loanProductFloatingRates = mapOfLoanProductFloatingRates.get(productId);
             FloatingRate floatingRate = (loanProductFloatingRates != null)
                     ? mapOfLoanFloatingRates.get(loanProductFloatingRates.getFloatingRate().getId())
                     : null;
-
             // LEFT JOIN delinquency bucket
             DelinquencyBucket delinquencyBucket = (lp.getDelinquencyBucket() != null)
                     ? mapOfDelinquencyBucket.get(lp.getDelinquencyBucket().getId())
                     : null;
-
             // JOIN currency
             ApplicationCurrency currency = (lp.getCurrency() != null) ? mapOfCurrency.get(lp.getCurrency().getCode()) : null;
 

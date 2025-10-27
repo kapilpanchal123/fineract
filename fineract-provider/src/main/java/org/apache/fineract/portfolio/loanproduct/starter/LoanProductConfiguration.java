@@ -39,6 +39,7 @@ import org.apache.fineract.portfolio.loanaccount.service.LoanProductUpdateUtil;
 import org.apache.fineract.portfolio.loanproduct.domain.AdvancedPaymentAllocationsJsonParser;
 import org.apache.fineract.portfolio.loanproduct.domain.CreditAllocationsJsonParser;
 import org.apache.fineract.portfolio.loanproduct.domain.LoanProductRepository;
+import org.apache.fineract.portfolio.loanproduct.mapper.LoanProductDataMapper;
 import org.apache.fineract.portfolio.loanproduct.repository.LoanProductGuaranteeDetailsRepository;
 import org.apache.fineract.portfolio.loanproduct.repository.LoanProductInterestRecalculationRepository;
 import org.apache.fineract.portfolio.loanproduct.repository.LoanProductReadPlatformRepository;
@@ -72,21 +73,21 @@ public class LoanProductConfiguration {
     @Bean
     @ConditionalOnMissingBean(LoanProductReadPlatformService.class)
     public LoanProductReadPlatformService loanProductReadPlatformService(PlatformSecurityContext context, JdbcTemplate jdbcTemplate,
-            ChargeReadPlatformService chargeReadPlatformService, RateReadService rateReadService, DatabaseSpecificSQLGenerator sqlGenerator,
-            FineractEntityAccessUtil fineractEntityAccessUtil, DelinquencyReadPlatformService delinquencyReadPlatformService,
-            LoanProductRepository loanProductRepository, LoanProductReadPlatformRepository loanProductReadPlatformRepository,
-            LoanProductInterestRecalculationRepository loanProductInterestRecalculationRepository,
-            LoanProductGuaranteeDetailsRepository loanProductGuaranteeDetailsRepository,
-            LoanProductsConfigurableAttributesRepository loanProductsConfigurableAttributesRepository,
-            LoanProductsFloatingRatesRepository loanProductsFloatingRatesRepository, FloatingRateRepository floatingRateRepository,
-            DelinquencyBucketRepository delinquencyBucketRepository, FundRepository fundRepository,
-            LoanProductVariableInstallmentConfigRepository loanProductVariableInstallmentConfigRepository,
-            ApplicationCurrencyRepository applicationCurrencyRepository) {
+                                                                         ChargeReadPlatformService chargeReadPlatformService, RateReadService rateReadService, DatabaseSpecificSQLGenerator sqlGenerator,
+                                                                         FineractEntityAccessUtil fineractEntityAccessUtil, DelinquencyReadPlatformService delinquencyReadPlatformService,
+                                                                         LoanProductRepository loanProductRepository, LoanProductReadPlatformRepository loanProductReadPlatformRepository,
+                                                                         LoanProductInterestRecalculationRepository loanProductInterestRecalculationRepository,
+                                                                         LoanProductGuaranteeDetailsRepository loanProductGuaranteeDetailsRepository,
+                                                                         LoanProductsConfigurableAttributesRepository loanProductsConfigurableAttributesRepository,
+                                                                         LoanProductsFloatingRatesRepository loanProductsFloatingRatesRepository, FloatingRateRepository floatingRateRepository,
+                                                                         DelinquencyBucketRepository delinquencyBucketRepository, FundRepository fundRepository,
+                                                                         LoanProductVariableInstallmentConfigRepository loanProductVariableInstallmentConfigRepository,
+                                                                         ApplicationCurrencyRepository applicationCurrencyRepository, LoanProductDataMapper dataMapper) {
         return new LoanProductReadPlatformServiceImpl(context, jdbcTemplate, chargeReadPlatformService, rateReadService, sqlGenerator,
                 fineractEntityAccessUtil, delinquencyReadPlatformService, loanProductRepository, loanProductReadPlatformRepository,
                 loanProductInterestRecalculationRepository, loanProductGuaranteeDetailsRepository,
                 loanProductsConfigurableAttributesRepository, loanProductsFloatingRatesRepository, floatingRateRepository,
-                delinquencyBucketRepository, fundRepository, loanProductVariableInstallmentConfigRepository, applicationCurrencyRepository);
+                delinquencyBucketRepository, fundRepository, loanProductVariableInstallmentConfigRepository, applicationCurrencyRepository, dataMapper);
     }
 
     @Bean

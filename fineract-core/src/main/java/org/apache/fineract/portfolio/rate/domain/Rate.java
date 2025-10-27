@@ -28,16 +28,22 @@ import jakarta.persistence.UniqueConstraint;
 import java.math.BigDecimal;
 import java.util.LinkedHashMap;
 import java.util.Map;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.fineract.infrastructure.core.api.JsonCommand;
 import org.apache.fineract.infrastructure.core.domain.AbstractAuditableCustom;
 import org.apache.fineract.portfolio.charge.exception.ChargeParameterUpdateNotSupportedException;
 import org.apache.fineract.useradministration.domain.AppUser;
 
-/**
- * Bowpi GT Created by Jose on 19/07/2017.
- */
-
+@Getter
+@Setter
+@NoArgsConstructor
+@AllArgsConstructor
+@Builder
 @Entity
 @Table(name = "m_rate", uniqueConstraints = { @UniqueConstraint(columnNames = { "name" }, name = "name") })
 public class Rate extends AbstractAuditableCustom {
@@ -58,8 +64,6 @@ public class Rate extends AbstractAuditableCustom {
     @JoinColumn(name = "approve_user", nullable = true)
     private AppUser approveUser;
 
-    public Rate() {}
-
     public Rate(String name, BigDecimal percentage, RateAppliesTo productApply, boolean active, AppUser approveUser) {
         this.name = name;
         this.percentage = percentage;
@@ -75,46 +79,6 @@ public class Rate extends AbstractAuditableCustom {
         this.active = active;
     }
 
-    public String getName() {
-        return name;
-    }
-
-    public void setName(String name) {
-        this.name = name;
-    }
-
-    public BigDecimal getPercentage() {
-        return percentage;
-    }
-
-    public void setPercentage(BigDecimal percentage) {
-        this.percentage = percentage;
-    }
-
-    public boolean isActive() {
-        return active;
-    }
-
-    public void setActive(boolean active) {
-        this.active = active;
-    }
-
-    public AppUser getApproveUser() {
-        return approveUser;
-    }
-
-    public void setApproveUser(AppUser approveUser) {
-        this.approveUser = approveUser;
-    }
-
-    public Integer getProductApply() {
-        return productApply;
-    }
-
-    public void setProductApply(Integer productApply) {
-        this.productApply = productApply;
-    }
-
     @Override
     public String toString() {
         return "Rate{" + "name='" + name + '\'' + ", percentage=" + percentage + ", productApply='" + productApply + '\'' + ", active="
@@ -126,22 +90,15 @@ public class Rate extends AbstractAuditableCustom {
     }
 
     public static Rate fromJson(final JsonCommand command, AppUser user) {
-
         final String name = command.stringValueOfParameterNamed("name");
-
         final BigDecimal percentage = command.bigDecimalValueOfParameterNamed("percentage");
-
         final RateAppliesTo productApply = RateAppliesTo.fromInt(command.integerValueOfParameterNamed("productApply"));
-
         final boolean active = command.booleanPrimitiveValueOfParameterNamed("active");
-
         return new Rate(name, percentage, productApply, active, user);
     }
 
     public Map<String, Object> update(final JsonCommand command) {
-
         final Map<String, Object> actualChanges = new LinkedHashMap<>(7);
-
         final String nameParamName = "name";
         if (command.isChangeInStringParameterNamed(nameParamName, this.name)) {
             final String newValue = command.stringValueOfParameterNamed(nameParamName);

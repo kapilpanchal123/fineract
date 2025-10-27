@@ -41,9 +41,9 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.Setter;
-import lombok.ToString;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.fineract.accounting.common.AccountingRuleType;
 import org.apache.fineract.infrastructure.core.domain.AbstractPersistableCustom;
@@ -73,18 +73,10 @@ import org.apache.fineract.portfolio.loanproduct.LoanProductConstants;
 import org.apache.fineract.portfolio.loanproduct.exception.LoanProductGeneralRuleException;
 import org.apache.fineract.portfolio.rate.domain.Rate;
 
-/**
- * Loan products allow for categorisation of an organisations loans into something meaningful to them.
- *
- * They provide a means of simplifying creation/maintenance of loans. They can also allow for product comparison to take
- * place when reporting.
- *
- * They allow for constraints to be added at product level.
- */
 @Entity
 @Getter
 @Setter
-@ToString
+@AllArgsConstructor
 @Table(name = "m_product_loan", uniqueConstraints = { @UniqueConstraint(columnNames = { "name" }, name = "unq_name"),
         @UniqueConstraint(columnNames = { "external_id" }, name = "external_id_UNIQUE"),
         @UniqueConstraint(columnNames = { "short_name" }, name = "unq_short_name") })
@@ -100,13 +92,9 @@ public class LoanProduct extends AbstractPersistableCustom<Long> {
     @Column(name = "loan_transaction_strategy_name")
     private String transactionProcessingStrategyName;
 
-    // TODO FINERACT-1932-Fineract modularization: Move to fineract-progressive-loan module after removing association
-    // from LoanProduct entity
     @OneToMany(cascade = CascadeType.ALL, mappedBy = "loanProduct", orphanRemoval = true, fetch = FetchType.EAGER)
     private List<LoanProductPaymentAllocationRule> paymentAllocationRules = new ArrayList<>();
 
-    // TODO FINERACT-1932-Fineract modularization: Move to fineract-progressive-loan module after removing association
-    // from LoanProduct entity
     @OneToMany(cascade = CascadeType.ALL, mappedBy = "loanProduct", orphanRemoval = true, fetch = FetchType.EAGER)
     private List<LoanProductCreditAllocationRule> creditAllocationRules = new ArrayList<>();
 
@@ -352,10 +340,8 @@ public class LoanProduct extends AbstractPersistableCustom<Long> {
         this.accountingRule = accountingRuleType;
         this.includeInBorrowerCycle = includeInBorrowerCycle;
         this.useBorrowerCycle = useBorrowerCycle;
-
         this.startDate = startDate;
         this.closeDate = closeDate;
-
         this.externalId = externalId;
         this.borrowerCycleVariations = loanProductBorrowerCycleVariations;
         for (LoanProductBorrowerCycleVariations borrowerCycleVariations : this.borrowerCycleVariations) {
@@ -378,7 +364,6 @@ public class LoanProduct extends AbstractPersistableCustom<Long> {
         this.syncExpectedWithDisbursementDate = syncExpectedWithDisbursementDate;
         this.canUseForTopup = canUseForTopup;
         this.fixedPrincipalPercentagePerInstallment = fixedPrincipalPercentagePerInstallment;
-
         this.disallowExpectedDisbursements = disallowExpectedDisbursements;
         this.allowApprovedDisbursedAmountsOverApplied = allowApprovedDisbursedAmountsOverApplied;
         this.overAppliedCalculationType = overAppliedCalculationType;
@@ -391,7 +376,6 @@ public class LoanProduct extends AbstractPersistableCustom<Long> {
         this.dueDaysForRepaymentEvent = dueDaysForRepaymentEvent;
         this.overDueDaysForRepaymentEvent = overDueDaysForRepaymentEvent;
         this.repaymentStartDateType = repaymentStartDateType;
-
         this.enableInstallmentLevelDelinquency = enableInstallmentLevelDelinquency;
         validateLoanProductPreSave();
     }
@@ -471,7 +455,6 @@ public class LoanProduct extends AbstractPersistableCustom<Long> {
             throw new LoanProductGeneralRuleException("days.in.year.custom.strategy.is.only.applicable.for.actual.days.in.year.type",
                     "daysInYearCustomStrategy is only applicable for ACTUAL days in year type");
         }
-
     }
 
     public MonetaryCurrency getCurrency() {

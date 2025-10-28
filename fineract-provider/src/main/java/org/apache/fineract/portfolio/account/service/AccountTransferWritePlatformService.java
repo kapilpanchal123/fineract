@@ -18,17 +18,13 @@
  */
 package org.apache.fineract.portfolio.account.service;
 
+import java.util.List;
 import org.apache.fineract.command.core.Command;
-import org.apache.fineract.infrastructure.core.api.JsonCommand;
-import org.apache.fineract.infrastructure.core.data.CommandProcessingResult;
 import org.apache.fineract.portfolio.account.PortfolioAccountType;
 import org.apache.fineract.portfolio.account.data.AccountTransferDTO;
 import org.apache.fineract.portfolio.account.data.AccountTransferRequest;
 import org.apache.fineract.portfolio.account.data.AccountTransferResponse;
 import org.apache.fineract.portfolio.account.domain.AccountTransferDetails;
-
-import java.util.Collection;
-import java.util.List;
 
 public interface AccountTransferWritePlatformService {
 

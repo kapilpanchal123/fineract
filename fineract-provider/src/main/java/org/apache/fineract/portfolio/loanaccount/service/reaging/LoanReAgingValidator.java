@@ -33,7 +33,6 @@ import org.apache.fineract.infrastructure.core.data.ApiParameterError;
 import org.apache.fineract.infrastructure.core.data.DataValidatorBuilder;
 import org.apache.fineract.infrastructure.core.exception.GeneralPlatformDomainRuleException;
 import org.apache.fineract.infrastructure.core.exception.PlatformApiDataValidationException;
-import org.apache.fineract.infrastructure.core.service.DateUtils;
 import org.apache.fineract.portfolio.loanaccount.api.LoanApiConstants;
 import org.apache.fineract.portfolio.loanaccount.api.LoanReAgingApiConstants;
 import org.apache.fineract.portfolio.loanaccount.domain.Loan;
@@ -56,6 +55,7 @@ public class LoanReAgingValidator {
     public void validateReAge(Loan loan, JsonCommand command) {
         validateReAgeRequest(loan, command);
         validateReAgeBusinessRules(loan);
+        validateReAgeOutstandingBalance(loan, command);
     }
 
     private void validateReAgeRequest(Loan loan, JsonCommand command) {
@@ -67,7 +67,7 @@ public class LoanReAgingValidator {
                 .notExceedingLengthOf(100);
 
         LocalDate startDate = command.localDateValueOfParameterNamed(LoanReAgingApiConstants.startDate);
-        if (loan.isProgressiveSchedule() && !loan.isInterestBearing()) {
+        if (loan.isProgressiveSchedule()) {
             baseDataValidator.reset().parameter(LoanReAgingApiConstants.startDate).value(startDate).notNull()
                     .validateDateAfterOrEqual(loan.getDisbursementDate());
         } else {
@@ -104,14 +104,6 @@ public class LoanReAgingValidator {
     }
 
     private void validateReAgeBusinessRules(Loan loan) {
-        // validate reaging shouldn't happen before maturity
-        // on progressive loans it can
-        if (!(loan.isProgressiveSchedule() && !loan.isInterestBearing())
-                && DateUtils.isBefore(getBusinessLocalDate(), loan.getMaturityDate())) {
-            throw new GeneralPlatformDomainRuleException("error.msg.loan.reage.cannot.be.submitted.before.maturity",
-                    "Loan cannot be re-aged before maturity", loan.getId());
-        }
-
         // validate reaging is only available for progressive schedule & advanced payment allocation
         LoanScheduleType loanScheduleType = LoanScheduleType.valueOf(loan.getLoanProductRelatedDetail().getLoanScheduleType().name());
         boolean isProgressiveSchedule = LoanScheduleType.PROGRESSIVE.equals(loanScheduleType);
@@ -124,12 +116,6 @@ public class LoanReAgingValidator {
             throw new GeneralPlatformDomainRuleException("error.msg.loan.reage.supported.only.for.progressive.loan.schedule.type",
                     "Loan reaging is only available for progressive repayment schedule and Advanced payment allocation strategy",
                     loan.getId());
-        }
-
-        // validate reaging is only available for non-interest bearing loans
-        if (loan.isInterestBearing()) {
-            throw new GeneralPlatformDomainRuleException("error.msg.loan.reage.supported.only.for.non.interest.loans",
-                    "Loan reaging is only available for non-interest bearing loans", loan.getId());
         }
 
         // validate reaging is only done on an active loan
@@ -180,4 +166,20 @@ public class LoanReAgingValidator {
     private boolean transactionHappenedAfterOther(LoanTransaction transaction, LoanTransaction otherTransaction) {
         return new ChangeOperation(transaction).compareTo(new ChangeOperation(otherTransaction)) > 0;
     }
+
+    private void validateReAgeOutstandingBalance(final Loan loan, final JsonCommand command) {
+        final LocalDate businessDate = getBusinessLocalDate();
+        final LocalDate startDate = command.dateValueOfParameterNamed(LoanReAgingApiConstants.startDate);
+
+        final boolean isBackdated = businessDate.isAfter(startDate);
+        if (isBackdated) {
+            return;
+        }
+
+        if (loan.getSummary().getTotalPrincipalOutstanding().compareTo(java.math.BigDecimal.ZERO) == 0) {
+            throw new GeneralPlatformDomainRuleException("error.msg.loan.reage.no.outstanding.balance.to.reage",
+                    "Loan cannot be re-aged as there are no outstanding balances to be re-aged", loan.getId());
+        }
+    }
+
 }

@@ -37,13 +37,13 @@ import jakarta.ws.rs.PathParam;
 import jakarta.ws.rs.Produces;
 import jakarta.ws.rs.QueryParam;
 import jakarta.ws.rs.core.MediaType;
+import java.util.UUID;
+import java.util.function.Supplier;
 import lombok.RequiredArgsConstructor;
 import org.apache.fineract.command.core.CommandPipeline;
 import org.apache.fineract.commands.domain.CommandWrapper;
 import org.apache.fineract.commands.service.CommandWrapperBuilder;
 import org.apache.fineract.commands.service.PortfolioCommandSourceWritePlatformService;
-import org.apache.fineract.infrastructure.businessdate.command.BusinessDateUpdateCommand;
-import org.apache.fineract.infrastructure.businessdate.data.api.BusinessDateUpdateResponse;
 import org.apache.fineract.infrastructure.core.data.CommandProcessingResult;
 import org.apache.fineract.infrastructure.core.serialization.DefaultToApiJsonSerializer;
 import org.apache.fineract.infrastructure.core.service.DateUtils;
@@ -57,9 +57,6 @@ import org.apache.fineract.portfolio.account.data.AccountTransferResponse;
 import org.apache.fineract.portfolio.account.data.request.AccountTransSearchParam;
 import org.apache.fineract.portfolio.account.service.AccountTransfersReadPlatformService;
 import org.springframework.stereotype.Component;
-
-import java.util.UUID;
-import java.util.function.Supplier;
 
 @Path("/v1/accounttransfers")
 @Component
@@ -95,38 +92,42 @@ public class AccountTransfersApiResource {
                 accountTransSearchParam.getToAccountType());
     }
 
-//    @POST
-//    @Consumes({ MediaType.APPLICATION_JSON })
-//    @Produces({ MediaType.APPLICATION_JSON })
-//    @Operation(summary = "Create new Transfer", description = "Ability to create new transfer of monetary funds from one account to another.")
-//    @RequestBody(required = true, content = @Content(schema = @Schema(implementation = AccountTransferRequest.class)))
-//    @ApiResponse(responseCode = "200", description = "OK", content = @Content(schema = @Schema(implementation = AccountTransfersApiResourceSwagger.PostAccountTransfersResponse.class)))
-//    public CommandProcessingResult create(@Parameter(hidden = true) AccountTransferRequest accountTransferRequest) {
-//        final CommandWrapper commandRequest = new CommandWrapperBuilder().createAccountTransfer()
-//                .withJson(toApiJsonSerializer.serialize(accountTransferRequest)).build();
-//
-//        return commandsSourceWritePlatformService.logCommandSource(commandRequest);
-//    }
+    // @POST
+    // @Consumes({ MediaType.APPLICATION_JSON })
+    // @Produces({ MediaType.APPLICATION_JSON })
+    // @Operation(summary = "Create new Transfer", description = "Ability to create new transfer of monetary funds from
+    // one account to another.")
+    // @RequestBody(required = true, content = @Content(schema = @Schema(implementation =
+    // AccountTransferRequest.class)))
+    // @ApiResponse(responseCode = "200", description = "OK", content = @Content(schema = @Schema(implementation =
+    // AccountTransfersApiResourceSwagger.PostAccountTransfersResponse.class)))
+    // public CommandProcessingResult create(@Parameter(hidden = true) AccountTransferRequest accountTransferRequest) {
+    // final CommandWrapper commandRequest = new CommandWrapperBuilder().createAccountTransfer()
+    // .withJson(toApiJsonSerializer.serialize(accountTransferRequest)).build();
+    //
+    // return commandsSourceWritePlatformService.logCommandSource(commandRequest);
+    // }
 
-  @POST
-  @Consumes({ MediaType.APPLICATION_JSON })
-  @Produces({ MediaType.APPLICATION_JSON })
-  @Operation(summary = "Create new Transfer", description = "Ability to create new transfer of monetary funds from one account to another.")
-  public AccountTransferResponse create(@HeaderParam("Idempotency-Key") String idempotencyKey, @Valid AccountTransferRequest accountTransferRequest) {
-//    final CommandWrapper commandRequest = new CommandWrapperBuilder().createAccountTransfer()
-//        .withJson(toApiJsonSerializer.serialize(accountTransferRequest)).build();
-//    return commandsSourceWritePlatformService.logCommandSource(commandRequest);
+    @POST
+    @Consumes({ MediaType.APPLICATION_JSON })
+    @Produces({ MediaType.APPLICATION_JSON })
+    @Operation(summary = "Create new Transfer", description = "Ability to create new transfer of monetary funds from one account to another.")
+    public AccountTransferResponse create(@HeaderParam("Idempotency-Key") String idempotencyKey,
+            @Valid AccountTransferRequest accountTransferRequest) {
+        // final CommandWrapper commandRequest = new CommandWrapperBuilder().createAccountTransfer()
+        // .withJson(toApiJsonSerializer.serialize(accountTransferRequest)).build();
+        // return commandsSourceWritePlatformService.logCommandSource(commandRequest);
 
-    final AccountTransferCreateCommand command = new AccountTransferCreateCommand();
+        final AccountTransferCreateCommand command = new AccountTransferCreateCommand();
 
-    command.setId(UUID.randomUUID());
-    command.setIdempotencyKey(idempotencyKey);
-    command.setCreatedAt(DateUtils.getAuditOffsetDateTime());
-    command.setPayload(accountTransferRequest);
+        command.setId(UUID.randomUUID());
+        command.setIdempotencyKey(idempotencyKey);
+        command.setCreatedAt(DateUtils.getAuditOffsetDateTime());
+        command.setPayload(accountTransferRequest);
 
-    final Supplier<AccountTransferResponse> response = commandPipeline.send(command);
-    return response.get();
-  }
+        final Supplier<AccountTransferResponse> response = commandPipeline.send(command);
+        return response.get();
+    }
 
     @GET
     @Consumes({ MediaType.APPLICATION_JSON })

@@ -40,22 +40,22 @@ public class AccountTransferRequest implements Serializable {
     @Size(max = 200, message = "{org.apache.fineract.portfolio.account.data.transfer.description.size}")
     private String transferDescription;
 
-//    @NotBlank(message = "{org.apache.fineract.portfolio.account.data.to.office.id.not.blank}")
+    // @NotBlank(message = "{org.apache.fineract.portfolio.account.data.to.office.id.not.blank}")
     private Long toOfficeId;
 
-//    @NotBlank(message = "{org.apache.fineract.portfolio.account.data.to.account.type.not.blank}")
+    // @NotBlank(message = "{org.apache.fineract.portfolio.account.data.to.account.type.not.blank}")
     private Integer toAccountType;
 
     // @NotBlank(message = "{org.apache.fineract.portfolio.account.data.date.format.not.blank}")
     // private String dateFormat;
 
-//    @NotBlank(message = "{org.apache.fineract.portfolio.account.data.transfer.amount.not.blank}")
+    // @NotBlank(message = "{org.apache.fineract.portfolio.account.data.transfer.amount.not.blank}")
     private BigDecimal transferAmount;
 
-//    @NotBlank(message = "{org.apache.fineract.portfolio.account.data.to.account.id.not.blank}")
+    // @NotBlank(message = "{org.apache.fineract.portfolio.account.data.to.account.id.not.blank}")
     private Long toAccountId;
 
-//    @NotBlank(message = "{org.apache.fineract.portfolio.account.data.from.client.id.not.blank}")
+    // @NotBlank(message = "{org.apache.fineract.portfolio.account.data.from.client.id.not.blank}")
     private Long fromClientId;
 
     // @NotBlank(message = "{org.apache.fineract.portfolio.account.data.locale.not.blank}")
@@ -63,18 +63,18 @@ public class AccountTransferRequest implements Serializable {
     // @Locale
     // private String locale;
 
-//    @NotBlank(message = "{org.apache.fineract.portfolio.account.data.transfer.date.not.blank}")
+    // @NotBlank(message = "{org.apache.fineract.portfolio.account.data.transfer.date.not.blank}")
     private LocalDate transferDate;
 
-//    @NotBlank(message = "{org.apache.fineract.portfolio.account.data.from.account.type.not.blank}")
+    // @NotBlank(message = "{org.apache.fineract.portfolio.account.data.from.account.type.not.blank}")
     private Integer fromAccountType;
 
-//    @NotBlank(message = "{org.apache.fineract.portfolio.account.data.to.client.id.not.blank}")
+    // @NotBlank(message = "{org.apache.fineract.portfolio.account.data.to.client.id.not.blank}")
     private Long toClientId;
 
-//    @NotBlank(message = "{org.apache.fineract.portfolio.account.data.from.account.id.not.blank}")
+    // @NotBlank(message = "{org.apache.fineract.portfolio.account.data.from.account.id.not.blank}")
     private Long fromAccountId;
 
-//    @NotBlank(message = "{org.apache.fineract.portfolio.account.data.from.office.id.not.blank}")
+    // @NotBlank(message = "{org.apache.fineract.portfolio.account.data.from.office.id.not.blank}")
     private Long fromOfficeId;
 }

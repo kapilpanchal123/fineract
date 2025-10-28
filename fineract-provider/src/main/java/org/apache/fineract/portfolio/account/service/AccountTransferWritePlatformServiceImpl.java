@@ -116,8 +116,7 @@ public class AccountTransferWritePlatformServiceImpl implements AccountTransferW
                     backdatedTxnsAllowedTill);
 
             final Long toSavingsId = request.getToAccountId();
-            final SavingsAccount toSavingsAccount = this.savingsAccountAssembler.assembleFrom(toSavingsId,
-                    backdatedTxnsAllowedTill);
+            final SavingsAccount toSavingsAccount = this.savingsAccountAssembler.assembleFrom(toSavingsId, backdatedTxnsAllowedTill);
 
             final SavingsAccountTransaction deposit = this.savingsAccountDomainService.handleDeposit(toSavingsAccount, fmt,
                     request.getTransferDate(), request.getTransferAmount(), paymentDetail, isAccountTransfer, isRegularTransaction,
@@ -172,7 +171,7 @@ public class AccountTransferWritePlatformServiceImpl implements AccountTransferW
             // FIXME - kw - ADD overpaid loan to savings account transfer
             // support.
 
-             fromLoanAccountId = request.getFromAccountId();
+            fromLoanAccountId = request.getFromAccountId();
             final Loan fromLoanAccount = this.loanAccountAssembler.assembleFrom(fromLoanAccountId);
             ExternalId externalId = externalIdFactory.create();
             final LoanTransaction loanRefundTransaction = this.loanAccountDomainService.makeRefund(fromLoanAccountId,

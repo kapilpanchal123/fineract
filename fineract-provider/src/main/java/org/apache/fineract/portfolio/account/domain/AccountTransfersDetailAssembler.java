@@ -40,128 +40,128 @@ public class AccountTransfersDetailAssembler {
     private final SavingsAccountAssembler savingsAccountAssembler;
     private final LoanAssembler loanAccountAssembler;
 
-  public AccountTransferDetails assembleSavingsToSavingsTransfer(final Command<AccountTransferRequest> command) {
+    public AccountTransferDetails assembleSavingsToSavingsTransfer(final Command<AccountTransferRequest> command) {
 
-    final AccountTransferRequest request = command.getPayload();
-    final Long fromSavingsId = request.getFromAccountId();
-    final SavingsAccount fromSavingsAccount = this.savingsAccountAssembler.assembleFrom(fromSavingsId, false);
+        final AccountTransferRequest request = command.getPayload();
+        final Long fromSavingsId = request.getFromAccountId();
+        final SavingsAccount fromSavingsAccount = this.savingsAccountAssembler.assembleFrom(fromSavingsId, false);
 
-    final boolean backdatedTxnsAllowedTill = false;
-    final Long toSavingsId = request.getToAccountId();
-    final SavingsAccount toSavingsAccount = this.savingsAccountAssembler.assembleFrom(toSavingsId, backdatedTxnsAllowedTill);
+        final boolean backdatedTxnsAllowedTill = false;
+        final Long toSavingsId = request.getToAccountId();
+        final SavingsAccount toSavingsAccount = this.savingsAccountAssembler.assembleFrom(toSavingsId, backdatedTxnsAllowedTill);
 
-    return assembleSavingsToSavingsTransfer(command, fromSavingsAccount, toSavingsAccount);
-  }
+        return assembleSavingsToSavingsTransfer(command, fromSavingsAccount, toSavingsAccount);
+    }
 
-  public AccountTransferDetails assembleSavingsToLoanTransfer(final Command<AccountTransferRequest> command) {
+    public AccountTransferDetails assembleSavingsToLoanTransfer(final Command<AccountTransferRequest> command) {
 
-    final AccountTransferRequest request = command.getPayload();
-    final Long fromSavingsAccountId = request.getFromAccountId();
-    final boolean backdatedTxnsAllowedTill = false;
-    final SavingsAccount fromSavingsAccount = this.savingsAccountAssembler.assembleFrom(fromSavingsAccountId, backdatedTxnsAllowedTill);
+        final AccountTransferRequest request = command.getPayload();
+        final Long fromSavingsAccountId = request.getFromAccountId();
+        final boolean backdatedTxnsAllowedTill = false;
+        final SavingsAccount fromSavingsAccount = this.savingsAccountAssembler.assembleFrom(fromSavingsAccountId, backdatedTxnsAllowedTill);
 
-    final Long toLoanAccountId = request.getToAccountId();
-    final Loan toLoanAccount = this.loanAccountAssembler.assembleFrom(toLoanAccountId);
+        final Long toLoanAccountId = request.getToAccountId();
+        final Loan toLoanAccount = this.loanAccountAssembler.assembleFrom(toLoanAccountId);
 
-    return assembleSavingsToLoanTransfer(command, fromSavingsAccount, toLoanAccount);
-  }
+        return assembleSavingsToLoanTransfer(command, fromSavingsAccount, toLoanAccount);
+    }
 
-  public AccountTransferDetails assembleLoanToSavingsTransfer(final Command<AccountTransferRequest> command) {
+    public AccountTransferDetails assembleLoanToSavingsTransfer(final Command<AccountTransferRequest> command) {
 
-    final AccountTransferRequest request = command.getPayload();
-    final Long fromLoanAccountId = request.getFromAccountId();
-    final Loan fromLoanAccount = this.loanAccountAssembler.assembleFrom(fromLoanAccountId);
-    final boolean backdatedTxnsAllowedTill = false;
-    final Long toSavingsAccountId = request.getToAccountId();
-    final SavingsAccount toSavingsAccount = this.savingsAccountAssembler.assembleFrom(toSavingsAccountId, backdatedTxnsAllowedTill);
+        final AccountTransferRequest request = command.getPayload();
+        final Long fromLoanAccountId = request.getFromAccountId();
+        final Loan fromLoanAccount = this.loanAccountAssembler.assembleFrom(fromLoanAccountId);
+        final boolean backdatedTxnsAllowedTill = false;
+        final Long toSavingsAccountId = request.getToAccountId();
+        final SavingsAccount toSavingsAccount = this.savingsAccountAssembler.assembleFrom(toSavingsAccountId, backdatedTxnsAllowedTill);
 
-    return assembleLoanToSavingsTransfer(command, fromLoanAccount, toSavingsAccount);
-  }
+        return assembleLoanToSavingsTransfer(command, fromLoanAccount, toSavingsAccount);
+    }
 
-  public AccountTransferDetails assembleSavingsToSavingsTransfer(final Command<AccountTransferRequest> command,
-                                                                 final SavingsAccount fromSavingsAccount, final SavingsAccount toSavingsAccount) {
-    final AccountTransferRequest request = command.getPayload();
-    final Office fromOffice = this.officeRepositoryWrapper.findOneWithNotFoundDetection(request.getFromOfficeId());
-    final Client fromClient = this.clientRepository.findOneWithNotFoundDetection(request.getFromClientId());
-    final Office toOffice = this.officeRepositoryWrapper.findOneWithNotFoundDetection(request.getToOfficeId());
-    final Client toClient = this.clientRepository.findOneWithNotFoundDetection(request.getToClientId());
+    public AccountTransferDetails assembleSavingsToSavingsTransfer(final Command<AccountTransferRequest> command,
+            final SavingsAccount fromSavingsAccount, final SavingsAccount toSavingsAccount) {
+        final AccountTransferRequest request = command.getPayload();
+        final Office fromOffice = this.officeRepositoryWrapper.findOneWithNotFoundDetection(request.getFromOfficeId());
+        final Client fromClient = this.clientRepository.findOneWithNotFoundDetection(request.getFromClientId());
+        final Office toOffice = this.officeRepositoryWrapper.findOneWithNotFoundDetection(request.getToOfficeId());
+        final Client toClient = this.clientRepository.findOneWithNotFoundDetection(request.getToClientId());
 
-    // final Integer transfertype = this.fromApiJsonHelper.extractIntegerNamed(transferTypeParamName, element,
-    // Locale.getDefault());
-    // TODO
-    return AccountTransferDetails.savingsToSavingsTransfer(fromOffice, fromClient, fromSavingsAccount, toOffice, toClient,
-        toSavingsAccount, AccountTransferType.ACCOUNT_TRANSFER.getValue());
-  }
+        // final Integer transfertype = this.fromApiJsonHelper.extractIntegerNamed(transferTypeParamName, element,
+        // Locale.getDefault());
+        // TODO
+        return AccountTransferDetails.savingsToSavingsTransfer(fromOffice, fromClient, fromSavingsAccount, toOffice, toClient,
+                toSavingsAccount, AccountTransferType.ACCOUNT_TRANSFER.getValue());
+    }
 
-  public AccountTransferDetails assembleSavingsToLoanTransfer(final Command<AccountTransferRequest> command,
-                                                              final SavingsAccount fromSavingsAccount, final Loan toLoanAccount) {
-    final AccountTransferRequest request = command.getPayload();
+    public AccountTransferDetails assembleSavingsToLoanTransfer(final Command<AccountTransferRequest> command,
+            final SavingsAccount fromSavingsAccount, final Loan toLoanAccount) {
+        final AccountTransferRequest request = command.getPayload();
 
-    final Office fromOffice = this.officeRepositoryWrapper.findOneWithNotFoundDetection(request.getFromOfficeId());
-    final Client fromClient = this.clientRepository.findOneWithNotFoundDetection(request.getFromClientId());
-    final Office toOffice = this.officeRepositoryWrapper.findOneWithNotFoundDetection(request.getToOfficeId());
-    final Client toClient = this.clientRepository.findOneWithNotFoundDetection(request.getToClientId());
+        final Office fromOffice = this.officeRepositoryWrapper.findOneWithNotFoundDetection(request.getFromOfficeId());
+        final Client fromClient = this.clientRepository.findOneWithNotFoundDetection(request.getFromClientId());
+        final Office toOffice = this.officeRepositoryWrapper.findOneWithNotFoundDetection(request.getToOfficeId());
+        final Client toClient = this.clientRepository.findOneWithNotFoundDetection(request.getToClientId());
 
-    // final Integer transfertype = this.fromApiJsonHelper.extractIntegerNamed(transferTypeParamName, element,
-    // Locale.getDefault());
+        // final Integer transfertype = this.fromApiJsonHelper.extractIntegerNamed(transferTypeParamName, element,
+        // Locale.getDefault());
 
-    return AccountTransferDetails.savingsToLoanTransfer(fromOffice, fromClient, fromSavingsAccount, toOffice, toClient, toLoanAccount,
-        AccountTransferType.ACCOUNT_TRANSFER.getValue());
-  }
+        return AccountTransferDetails.savingsToLoanTransfer(fromOffice, fromClient, fromSavingsAccount, toOffice, toClient, toLoanAccount,
+                AccountTransferType.ACCOUNT_TRANSFER.getValue());
+    }
 
-  public AccountTransferDetails assembleLoanToSavingsTransfer(Command<AccountTransferRequest> command, Loan fromLoanAccount,
-                                                              SavingsAccount toSavingsAccount) {
-    final AccountTransferRequest request = command.getPayload();
+    public AccountTransferDetails assembleLoanToSavingsTransfer(Command<AccountTransferRequest> command, Loan fromLoanAccount,
+            SavingsAccount toSavingsAccount) {
+        final AccountTransferRequest request = command.getPayload();
 
-    final Office fromOffice = this.officeRepositoryWrapper.findOneWithNotFoundDetection(request.getFromOfficeId());
-    final Client fromClient = this.clientRepository.findOneWithNotFoundDetection(request.getToClientId());
-    final Office toOffice = this.officeRepositoryWrapper.findOneWithNotFoundDetection(request.getToOfficeId());
-    final Client toClient = this.clientRepository.findOneWithNotFoundDetection(request.getToClientId());
+        final Office fromOffice = this.officeRepositoryWrapper.findOneWithNotFoundDetection(request.getFromOfficeId());
+        final Client fromClient = this.clientRepository.findOneWithNotFoundDetection(request.getToClientId());
+        final Office toOffice = this.officeRepositoryWrapper.findOneWithNotFoundDetection(request.getToOfficeId());
+        final Client toClient = this.clientRepository.findOneWithNotFoundDetection(request.getToClientId());
 
-    return AccountTransferDetails.loanTosavingsTransfer(fromOffice, fromClient, fromLoanAccount, toOffice, toClient, toSavingsAccount,
-        AccountTransferType.ACCOUNT_TRANSFER.getValue());
-  }
+        return AccountTransferDetails.loanTosavingsTransfer(fromOffice, fromClient, fromLoanAccount, toOffice, toClient, toSavingsAccount,
+                AccountTransferType.ACCOUNT_TRANSFER.getValue());
+    }
 
-  public AccountTransferDetails assembleSavingsToLoanTransfer(final SavingsAccount fromSavingsAccount, final Loan toLoanAccount,
-                                                              Integer transferType) {
-    final Office fromOffice = fromSavingsAccount.office();
-    final Client fromClient = fromSavingsAccount.getClient();
-    final Office toOffice = toLoanAccount.getOffice();
-    final Client toClient = toLoanAccount.client();
+    public AccountTransferDetails assembleSavingsToLoanTransfer(final SavingsAccount fromSavingsAccount, final Loan toLoanAccount,
+            Integer transferType) {
+        final Office fromOffice = fromSavingsAccount.office();
+        final Client fromClient = fromSavingsAccount.getClient();
+        final Office toOffice = toLoanAccount.getOffice();
+        final Client toClient = toLoanAccount.client();
 
-    return AccountTransferDetails.savingsToLoanTransfer(fromOffice, fromClient, fromSavingsAccount, toOffice, toClient, toLoanAccount,
-        transferType);
-  }
+        return AccountTransferDetails.savingsToLoanTransfer(fromOffice, fromClient, fromSavingsAccount, toOffice, toClient, toLoanAccount,
+                transferType);
+    }
 
-  public AccountTransferDetails assembleSavingsToSavingsTransfer(final SavingsAccount fromSavingsAccount,
-                                                                 final SavingsAccount toSavingsAccount, Integer transferType) {
-    final Office fromOffice = fromSavingsAccount.office();
-    final Client fromClient = fromSavingsAccount.getClient();
-    final Office toOffice = toSavingsAccount.office();
-    final Client toClient = toSavingsAccount.getClient();
+    public AccountTransferDetails assembleSavingsToSavingsTransfer(final SavingsAccount fromSavingsAccount,
+            final SavingsAccount toSavingsAccount, Integer transferType) {
+        final Office fromOffice = fromSavingsAccount.office();
+        final Client fromClient = fromSavingsAccount.getClient();
+        final Office toOffice = toSavingsAccount.office();
+        final Client toClient = toSavingsAccount.getClient();
 
-    return AccountTransferDetails.savingsToSavingsTransfer(fromOffice, fromClient, fromSavingsAccount, toOffice, toClient,
-        toSavingsAccount, transferType);
-  }
+        return AccountTransferDetails.savingsToSavingsTransfer(fromOffice, fromClient, fromSavingsAccount, toOffice, toClient,
+                toSavingsAccount, transferType);
+    }
 
-  public AccountTransferDetails assembleLoanToSavingsTransfer(final Loan fromLoanAccount, final SavingsAccount toSavingsAccount,
-                                                              Integer transferType) {
-    final Office fromOffice = fromLoanAccount.getOffice();
-    final Client fromClient = fromLoanAccount.client();
-    final Office toOffice = toSavingsAccount.office();
-    final Client toClient = toSavingsAccount.getClient();
+    public AccountTransferDetails assembleLoanToSavingsTransfer(final Loan fromLoanAccount, final SavingsAccount toSavingsAccount,
+            Integer transferType) {
+        final Office fromOffice = fromLoanAccount.getOffice();
+        final Client fromClient = fromLoanAccount.client();
+        final Office toOffice = toSavingsAccount.office();
+        final Client toClient = toSavingsAccount.getClient();
 
-    return AccountTransferDetails.loanTosavingsTransfer(fromOffice, fromClient, fromLoanAccount, toOffice, toClient, toSavingsAccount,
-        transferType);
-  }
+        return AccountTransferDetails.loanTosavingsTransfer(fromOffice, fromClient, fromLoanAccount, toOffice, toClient, toSavingsAccount,
+                transferType);
+    }
 
-  public AccountTransferDetails assembleLoanToLoanTransfer(Loan fromLoanAccount, Loan toLoanAccount, Integer transferType) {
-    final Office fromOffice = fromLoanAccount.getOffice();
-    final Client fromClient = fromLoanAccount.client();
-    final Office toOffice = toLoanAccount.getOffice();
-    final Client toClient = toLoanAccount.client();
+    public AccountTransferDetails assembleLoanToLoanTransfer(Loan fromLoanAccount, Loan toLoanAccount, Integer transferType) {
+        final Office fromOffice = fromLoanAccount.getOffice();
+        final Client fromClient = fromLoanAccount.client();
+        final Office toOffice = toLoanAccount.getOffice();
+        final Client toClient = toLoanAccount.client();
 
-    return AccountTransferDetails.loanToLoanTransfer(fromOffice, fromClient, fromLoanAccount, toOffice, toClient, toLoanAccount,
-        transferType);
-  }
+        return AccountTransferDetails.loanToLoanTransfer(fromOffice, fromClient, fromLoanAccount, toOffice, toClient, toLoanAccount,
+                transferType);
+    }
 }

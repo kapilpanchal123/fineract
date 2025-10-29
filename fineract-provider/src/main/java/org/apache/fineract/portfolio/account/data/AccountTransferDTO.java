@@ -18,6 +18,8 @@
  */
 package org.apache.fineract.portfolio.account.data;
 
+import java.io.Serial;
+import java.io.Serializable;
 import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
@@ -39,7 +41,10 @@ import org.apache.fineract.portfolio.savings.domain.SavingsAccount;
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
-public class AccountTransferDTO {
+public class AccountTransferDTO implements Serializable {
+
+    @Serial
+    private static final long serialVersionUID = 1L;
 
     private LocalDate transactionDate;
     private BigDecimal transactionAmount;

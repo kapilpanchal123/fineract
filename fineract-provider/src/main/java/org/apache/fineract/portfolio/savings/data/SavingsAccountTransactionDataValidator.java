@@ -239,7 +239,7 @@ public class SavingsAccountTransactionDataValidator {
         }
 
         Boolean isEnforceMinRequiredBalanceEnabled = account.getEnforceMinRequiredBalance();
-        Boolean isAccountLienEnabled = account.isLienAllowed();
+        Boolean isAccountLienEnabled = account.getLienAllowed();
         Boolean isOverdraftEnabled = account.isAllowOverdraft();
 
         Boolean lienAllowed = false;

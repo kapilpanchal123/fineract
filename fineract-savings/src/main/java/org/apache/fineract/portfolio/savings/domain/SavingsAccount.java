@@ -72,6 +72,10 @@ import java.util.Map;
 import java.util.Set;
 import java.util.UUID;
 import java.util.stream.Collectors;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
+import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.fineract.infrastructure.configuration.domain.ConfigurationDomainService;
 import org.apache.fineract.infrastructure.configuration.service.TemporaryConfigurationServiceContainer;
@@ -124,20 +128,20 @@ import org.apache.fineract.portfolio.tax.domain.TaxComponent;
 import org.apache.fineract.portfolio.tax.domain.TaxGroup;
 import org.apache.fineract.portfolio.tax.service.TaxUtils;
 import org.apache.fineract.useradministration.domain.AppUser;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.util.CollectionUtils;
 
+@Slf4j
 @Entity
 @Table(name = "m_savings_account", uniqueConstraints = { @UniqueConstraint(columnNames = { "account_no" }, name = "sa_account_no_UNIQUE"),
         @UniqueConstraint(columnNames = { "external_id" }, name = "sa_external_id_UNIQUE") })
 @Inheritance(strategy = InheritanceType.SINGLE_TABLE)
+@Getter
+@Setter
+@NoArgsConstructor
 @DiscriminatorColumn(name = "deposit_type_enum", discriminatorType = DiscriminatorType.INTEGER)
 @DiscriminatorValue("100")
 @SuppressWarnings({ "MemberName" })
 public class SavingsAccount extends AbstractAuditableWithUTCDateTimeCustom<Long> {
-
-    private static final Logger LOG = LoggerFactory.getLogger(SavingsAccount.class);
 
     @Version
     int version;
@@ -348,10 +352,6 @@ public class SavingsAccount extends AbstractAuditableWithUTCDateTimeCustom<Long>
 
     public transient ConfigurationDomainService configurationDomainService;
 
-    protected SavingsAccount() {
-        //
-    }
-
     public static SavingsAccount createNewApplicationForSubmittal(final Client client, final Group group, final SavingsProduct product,
             final Staff fieldOfficer, final String accountNo, final ExternalId externalId, final AccountType accountType,
             final LocalDate submittedOnDate, final AppUser submittedBy, final BigDecimal interestRate,
@@ -469,10 +469,6 @@ public class SavingsAccount extends AbstractAuditableWithUTCDateTimeCustom<Long>
         return this.savingsAccountTransactions;
     }
 
-    public ExternalId getExternalId() {
-        return externalId;
-    }
-
     public boolean isNotActive() {
         return !isActive();
     }
@@ -503,10 +499,6 @@ public class SavingsAccount extends AbstractAuditableWithUTCDateTimeCustom<Long>
 
     public boolean isClosed() {
         return SavingsAccountStatusType.fromInt(this.status).isClosed();
-    }
-
-    public List<InteropIdentifier> getIdentifiers() {
-        return identifiers;
     }
 
     public void postInterest(final MathContext mc, final LocalDate interestPostingUpToDate, final boolean isInterestTransfer,
@@ -1212,18 +1204,6 @@ public class SavingsAccount extends AbstractAuditableWithUTCDateTimeCustom<Long>
         return this.activatedOnDate;
     }
 
-    public AppUser getActivatedBy() {
-        return this.activatedBy;
-    }
-
-    public LocalDate getWithdrawnOnDate() {
-        return this.withdrawnOnDate;
-    }
-
-    public AppUser getWithdrawnBy() {
-        return this.withdrawnBy;
-    }
-
     // startInterestCalculationDate is set during migration so that there is no
     // interference with interest posting of previous system
     public LocalDate getStartInterestCalculationDate() {
@@ -1234,10 +1214,6 @@ public class SavingsAccount extends AbstractAuditableWithUTCDateTimeCustom<Long>
             startInterestCalculationLocalDate = getActivationDate();
         }
         return startInterestCalculationLocalDate;
-    }
-
-    public void setStartInterestCalculationDate(LocalDate startInterestCalculationDate) {
-        this.startInterestCalculationDate = startInterestCalculationDate;
     }
 
     public SavingsAccountTransaction withdraw(final SavingsAccountTransactionDTO transactionDTO, final boolean applyWithdrawFee,
@@ -1628,10 +1604,6 @@ public class SavingsAccount extends AbstractAuditableWithUTCDateTimeCustom<Long>
         return DateUtils.isBefore(transactionDate, getLockedInUntilDate());
     }
 
-    public LocalDate getLockedInUntilDate() {
-        return this.lockedInUntilDate;
-    }
-
     public BigDecimal getAccountBalance() {
         return this.summary.getAccountBalance(this.currency).getAmount();
     }
@@ -1980,10 +1952,6 @@ public class SavingsAccount extends AbstractAuditableWithUTCDateTimeCustom<Long>
         this.accountNumberRequiresAutoGeneration = false;
     }
 
-    public boolean isAccountNumberRequiresAutoGeneration() {
-        return this.accountNumberRequiresAutoGeneration;
-    }
-
     public Long productId() {
         return this.product.getId();
     }
@@ -2020,10 +1988,6 @@ public class SavingsAccount extends AbstractAuditableWithUTCDateTimeCustom<Long>
         return office;
     }
 
-    public Staff getSavingsOfficer() {
-        return this.savingsOfficer;
-    }
-
     public Boolean getEnforceMinRequiredBalance() {
         return this.enforceMinRequiredBalance;
     }
@@ -2056,16 +2020,8 @@ public class SavingsAccount extends AbstractAuditableWithUTCDateTimeCustom<Long>
         return id;
     }
 
-    public GroupSavingsIndividualMonitoring getGsim() {
-        return gsim;
-    }
-
     public Long getSavingsProductId() {
         return this.savingsProduct().getId();
-    }
-
-    public void setGsim(GroupSavingsIndividualMonitoring gsim) {
-        this.gsim = gsim;
     }
 
     public Long hasSavingsOfficerId() {
@@ -2148,22 +2104,6 @@ public class SavingsAccount extends AbstractAuditableWithUTCDateTimeCustom<Long>
         return lastAssignmentRecordLatestEndDate;
     }
 
-    public LocalDate getSubmittedOnDate() {
-        return submittedOnDate;
-    }
-
-    public LocalDate getApprovedOnDate() {
-        return approvedOnDate;
-    }
-
-    public LocalDate getRejectedOnDate() {
-        return rejectedOnDate;
-    }
-
-    public AppUser getRejectedBy() {
-        return this.rejectedBy;
-    }
-
     public void removeSavingsOfficer(final LocalDate unassignDate) {
         final SavingsOfficerAssignmentHistory latestHistoryRecord = findLatestIncompleteHistoryRecord();
 
@@ -2197,10 +2137,6 @@ public class SavingsAccount extends AbstractAuditableWithUTCDateTimeCustom<Long>
         }
     }
 
-    public MonetaryCurrency getCurrency() {
-        return this.currency;
-    }
-
     public void validateNewApplicationState(final String resourceName) {
         // validateWithdrawalFeeDetails();
         // validateAnnualFeeDetails();
@@ -2231,30 +2167,6 @@ public class SavingsAccount extends AbstractAuditableWithUTCDateTimeCustom<Long>
         if (!dataValidationErrors.isEmpty()) {
             throw new PlatformApiDataValidationException(dataValidationErrors);
         }
-    }
-
-    public Client getClient() {
-        return this.client;
-    }
-
-    public BigDecimal getNominalAnnualInterestRate() {
-        return this.nominalAnnualInterestRate;
-    }
-
-    public Integer getInterestCompoundingPeriodType() {
-        return this.interestCompoundingPeriodType;
-    }
-
-    public Integer getInterestPostingPeriodType() {
-        return this.interestPostingPeriodType;
-    }
-
-    public Integer getInterestCalculationType() {
-        return this.interestCalculationType;
-    }
-
-    public BigDecimal getNominalAnnualInterestRateOverdraft() {
-        return this.nominalAnnualInterestRateOverdraft;
     }
 
     public Map<String, Object> approveApplication(final AppUser currentUser, final JsonCommand command) {
@@ -2858,7 +2770,7 @@ public class SavingsAccount extends AbstractAuditableWithUTCDateTimeCustom<Long>
                 lockedInUntilLocalDate = activationLocalDate.plusYears(this.lockinPeriodFrequency);
             break;
             case WHOLE_TERM:
-                LOG.error("TODO Implement calculateDateAccountIsLockedUntil for WHOLE_TERM");
+                log.error("TODO Implement calculateDateAccountIsLockedUntil for WHOLE_TERM");
             break;
         }
 
@@ -2869,30 +2781,10 @@ public class SavingsAccount extends AbstractAuditableWithUTCDateTimeCustom<Long>
         return this.group;
     }
 
-    public boolean isWithdrawalFeeApplicableForTransfer() {
-        return this.withdrawalFeeApplicableForTransfer;
-    }
-
     public void activateAccountBasedOnBalance() {
         if (getStatus().isClosed() && !this.summary.getAccountBalance(getCurrency()).isZero()) {
             this.status = SavingsAccountStatusType.ACTIVE.getValue();
         }
-    }
-
-    public LocalDate getClosedOnDate() {
-        return this.closedOnDate;
-    }
-
-    public AppUser getClosedBy() {
-        return this.closedBy;
-    }
-
-    public SavingsAccountSummary getSummary() {
-        return this.summary;
-    }
-
-    public List<SavingsAccountTransaction> getTransactions() {
-        return this.transactions;
     }
 
     public void addTransaction(final SavingsAccountTransaction transaction) {
@@ -2901,10 +2793,6 @@ public class SavingsAccount extends AbstractAuditableWithUTCDateTimeCustom<Long>
 
     public void addTransactionToExisting(final SavingsAccountTransaction transaction) {
         this.savingsAccountTransactions.add(transaction);
-    }
-
-    public void setStatus(final Integer status) {
-        this.status = status;
     }
 
     private Set<SavingsAccountCharge> associateChargesWithThisSavingsAccount(final Set<SavingsAccountCharge> savingsAccountCharges) {
@@ -3315,14 +3203,6 @@ public class SavingsAccount extends AbstractAuditableWithUTCDateTimeCustom<Long>
         }
     }
 
-    public AppUser getSubmittedBy() {
-        return this.submittedBy;
-    }
-
-    public AppUser getApprovedBy() {
-        return this.approvedBy;
-    }
-
     public boolean allowDeposit() {
         return true;
     }
@@ -3400,10 +3280,6 @@ public class SavingsAccount extends AbstractAuditableWithUTCDateTimeCustom<Long>
         return savingsAccountCharge;
     }
 
-    public String getAccountNumber() {
-        return this.accountNumber;
-    }
-
     private Money minRequiredBalanceDerived(final MonetaryCurrency currency) {
         Money minReqBalance = Money.zero(currency);
         if (this.enforceMinRequiredBalance) {
@@ -3441,16 +3317,8 @@ public class SavingsAccount extends AbstractAuditableWithUTCDateTimeCustom<Long>
         return getAccountBalance().subtract(this.getOnHoldFunds()).subtract(this.getSavingsHoldAmount());
     }
 
-    public TaxGroup getTaxGroup() {
-        return this.taxGroup;
-    }
-
     public boolean withHoldTax() {
         return this.withHoldTax;
-    }
-
-    public void setWithHoldTax(boolean withHoldTax) {
-        this.withHoldTax = withHoldTax;
     }
 
     protected boolean applyWithholdTaxForDepositAccounts(final LocalDate interestPostingUpToDate, boolean recalucateDailyBalance,
@@ -3781,10 +3649,6 @@ public class SavingsAccount extends AbstractAuditableWithUTCDateTimeCustom<Long>
         return accountType;
     }
 
-    public void setAccountType(Integer accountType) {
-        this.accountType = accountType;
-    }
-
     private boolean isOverdraft() {
         return allowOverdraft;
     }
@@ -3793,72 +3657,8 @@ public class SavingsAccount extends AbstractAuditableWithUTCDateTimeCustom<Long>
         return this.groupId();
     }
 
-    public Integer getInterestCalculationDaysInYearType() {
-        return this.interestCalculationDaysInYearType;
-    }
-
-    public BigDecimal getMinRequiredOpeningBalance() {
-        return this.minRequiredOpeningBalance;
-    }
-
-    public Integer getLockinPeriodFrequency() {
-        return this.lockinPeriodFrequency;
-    }
-
-    public Integer getLockinPeriodFrequencyType() {
-        return this.lockinPeriodFrequencyType;
-    }
-
     public boolean isWithdrawalFeeForTransfer() {
         return this.withdrawalFeeApplicableForTransfer;
-    }
-
-    public boolean isAllowOverdraft() {
-        return this.allowOverdraft;
-    }
-
-    public BigDecimal getOverdraftLimit() {
-        return this.overdraftLimit;
-    }
-
-    public BigDecimal getMinOverdraftForInterestCalculation() {
-        return this.minOverdraftForInterestCalculation;
-    }
-
-    public Integer getDepositType() {
-        return this.depositType;
-    }
-
-    public BigDecimal getMinRequiredBalance() {
-        return this.minRequiredBalance;
-    }
-
-    public boolean isEnforceMinRequiredBalance() {
-        return this.enforceMinRequiredBalance;
-    }
-
-    public BigDecimal getMaxAllowedLienLimit() {
-        return this.maxAllowedLienLimit;
-    }
-
-    public boolean isLienAllowed() {
-        return this.lienAllowed;
-    }
-
-    public BigDecimal getMinBalanceForInterestCalculation() {
-        return this.minBalanceForInterestCalculation;
-    }
-
-    public int getVersion() {
-        return this.version;
-    }
-
-    public boolean isWithHoldTax() {
-        return this.withHoldTax;
-    }
-
-    public void setAccruedTillDate(LocalDate accruedTillDate) {
-        this.accruedTillDate = accruedTillDate;
     }
 
     public List<SavingsAccountTransactionDetailsForPostingPeriod> toSavingsAccountTransactionDetailsForPostingPeriodList(

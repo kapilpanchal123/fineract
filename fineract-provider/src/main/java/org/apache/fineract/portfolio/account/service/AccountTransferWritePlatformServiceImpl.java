@@ -109,19 +109,19 @@ public class AccountTransferWritePlatformServiceImpl implements AccountTransferW
 
         if (isSavingsToSavingsAccountTransfer(fromAccountType, toAccountType)) {
             fromSavingsAccountId = request.getFromAccountId();
-            final SavingsAccount fromSavingsAccount = this.savingsAccountAssembler.assembleFrom(fromSavingsAccountId,
+            final SavingsAccount fromSavingsAccount = savingsAccountAssembler.assembleFrom(fromSavingsAccountId,
                     backdatedTxnsAllowedTill);
 
             final SavingsTransactionBooleanValues transactionBooleanValues = new SavingsTransactionBooleanValues(isAccountTransfer,
                     isRegularTransaction, fromSavingsAccount.isWithdrawalFeeApplicableForTransfer(), isInterestTransfer, isWithdrawBalance);
-            final SavingsAccountTransaction withdrawal = this.savingsAccountDomainService.handleWithdrawal(fromSavingsAccount, fmt,
+            final SavingsAccountTransaction withdrawal = savingsAccountDomainService.handleWithdrawal(fromSavingsAccount, fmt,
                     request.getTransferDate(), request.getTransferAmount(), paymentDetail, transactionBooleanValues,
                     backdatedTxnsAllowedTill);
 
             final Long toSavingsId = request.getToAccountId();
-            final SavingsAccount toSavingsAccount = this.savingsAccountAssembler.assembleFrom(toSavingsId, backdatedTxnsAllowedTill);
+            final SavingsAccount toSavingsAccount = savingsAccountAssembler.assembleFrom(toSavingsId, backdatedTxnsAllowedTill);
 
-            final SavingsAccountTransaction deposit = this.savingsAccountDomainService.handleDeposit(toSavingsAccount, fmt,
+            final SavingsAccountTransaction deposit = savingsAccountDomainService.handleDeposit(toSavingsAccount, fmt,
                     request.getTransferDate(), request.getTransferAmount(), paymentDetail, isAccountTransfer, isRegularTransaction,
                     backdatedTxnsAllowedTill);
 
@@ -133,29 +133,29 @@ public class AccountTransferWritePlatformServiceImpl implements AccountTransferW
             final AccountTransferDetails accountTransferDetails = accountTransfersAssembler.assembleSavingsToSavingsTransfer(command,
                     fromSavingsAccount, toSavingsAccount, withdrawal, deposit);
 
-            this.accountTransferDetailRepository.saveAndFlush(accountTransferDetails);
+            accountTransferDetailRepository.saveAndFlush(accountTransferDetails);
             transferDetailId = accountTransferDetails.getId();
 
         } else if (isSavingsToLoanAccountTransfer(fromAccountType, toAccountType)) {
             fromSavingsAccountId = request.getFromAccountId();
-            final SavingsAccount fromSavingsAccount = this.savingsAccountAssembler.assembleFrom(fromSavingsAccountId,
+            final SavingsAccount fromSavingsAccount = savingsAccountAssembler.assembleFrom(fromSavingsAccountId,
                     backdatedTxnsAllowedTill);
 
             final SavingsTransactionBooleanValues transactionBooleanValues = new SavingsTransactionBooleanValues(isAccountTransfer,
                     isRegularTransaction, fromSavingsAccount.isWithdrawalFeeApplicableForTransfer(), isInterestTransfer, isWithdrawBalance);
-            final SavingsAccountTransaction withdrawal = this.savingsAccountDomainService.handleWithdrawal(fromSavingsAccount, fmt,
+            final SavingsAccountTransaction withdrawal = savingsAccountDomainService.handleWithdrawal(fromSavingsAccount, fmt,
                     request.getTransferDate(), request.getTransferAmount(), paymentDetail, transactionBooleanValues,
                     backdatedTxnsAllowedTill);
 
-            Loan toLoanAccount = this.loanAccountAssembler.assembleFrom(request.getToAccountId());
+            Loan toLoanAccount = loanAccountAssembler.assembleFrom(request.getToAccountId());
 
             final Boolean isHolidayValidationDone = false;
             final HolidayDetailDTO holidayDetailDto = null;
             final boolean isRecoveryRepayment = false;
             final String chargeRefundChargeType = null;
 
-            ExternalId externalId = externalIdFactory.create();
-            final LoanTransaction loanRepaymentTransaction = this.loanAccountDomainService.makeRepayment(LoanTransactionType.REPAYMENT,
+            final ExternalId externalId = externalIdFactory.create();
+            final LoanTransaction loanRepaymentTransaction = loanAccountDomainService.makeRepayment(LoanTransactionType.REPAYMENT,
                     toLoanAccount, request.getTransferDate(), request.getTransferAmount(), paymentDetail, null, externalId,
                     isRecoveryRepayment, chargeRefundChargeType, isAccountTransfer, holidayDetailDto, isHolidayValidationDone);
             toLoanAccount = loanRepaymentTransaction.getLoan();
@@ -163,7 +163,7 @@ public class AccountTransferWritePlatformServiceImpl implements AccountTransferW
             final AccountTransferDetails accountTransferDetails = accountTransfersAssembler.assembleSavingsToLoanTransfer(command,
                     fromSavingsAccount, toLoanAccount, withdrawal, loanRepaymentTransaction);
 
-            this.accountTransferDetailRepository.saveAndFlush(accountTransferDetails);
+            accountTransferDetailRepository.saveAndFlush(accountTransferDetails);
             transferDetailId = accountTransferDetails.getId();
 
         } else if (isLoanToSavingsAccountTransfer(fromAccountType, toAccountType)) {
@@ -171,23 +171,23 @@ public class AccountTransferWritePlatformServiceImpl implements AccountTransferW
             // support.
 
             fromLoanAccountId = request.getFromAccountId();
-            final Loan fromLoanAccount = this.loanAccountAssembler.assembleFrom(fromLoanAccountId);
-            ExternalId externalId = externalIdFactory.create();
-            final LoanTransaction loanRefundTransaction = this.loanAccountDomainService.makeRefund(fromLoanAccountId,
+            final Loan fromLoanAccount = loanAccountAssembler.assembleFrom(fromLoanAccountId);
+            final ExternalId externalId = externalIdFactory.create();
+            final LoanTransaction loanRefundTransaction = loanAccountDomainService.makeRefund(fromLoanAccountId,
                     new CommandProcessingResultBuilder(), request.getTransferDate(), request.getTransferAmount(), paymentDetail, null,
                     externalId);
 
-            final SavingsAccount toSavingsAccount = this.savingsAccountAssembler.assembleFrom(request.getToAccountId(),
+            final SavingsAccount toSavingsAccount = savingsAccountAssembler.assembleFrom(request.getToAccountId(),
                     backdatedTxnsAllowedTill);
 
-            final SavingsAccountTransaction deposit = this.savingsAccountDomainService.handleDeposit(toSavingsAccount, fmt,
+            final SavingsAccountTransaction deposit = savingsAccountDomainService.handleDeposit(toSavingsAccount, fmt,
                     request.getTransferDate(), request.getTransferAmount(), paymentDetail, isAccountTransfer, isRegularTransaction,
                     backdatedTxnsAllowedTill);
 
             final AccountTransferDetails accountTransferDetails = accountTransfersAssembler.assembleLoanToSavingsTransfer(command,
                     fromLoanAccount, toSavingsAccount, deposit, loanRefundTransaction);
 
-            this.accountTransferDetailRepository.saveAndFlush(accountTransferDetails);
+            accountTransferDetailRepository.saveAndFlush(accountTransferDetails);
             transferDetailId = accountTransferDetails.getId();
         }
 

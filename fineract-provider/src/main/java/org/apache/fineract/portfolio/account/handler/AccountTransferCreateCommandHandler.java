@@ -25,6 +25,7 @@ import org.apache.fineract.portfolio.account.data.AccountTransferRequest;
 import org.apache.fineract.portfolio.account.data.AccountTransferResponse;
 import org.apache.fineract.portfolio.account.service.AccountTransferWritePlatformService;
 import org.springframework.stereotype.Component;
+import org.springframework.transaction.annotation.Transactional;
 
 @Component
 @RequiredArgsConstructor
@@ -32,6 +33,7 @@ public class AccountTransferCreateCommandHandler implements CommandHandler<Accou
 
     private final AccountTransferWritePlatformService accountTransferWritePlatformService;
 
+    @Transactional
     @Override
     public AccountTransferResponse handle(Command<AccountTransferRequest> command) {
         return accountTransferWritePlatformService.create(command);

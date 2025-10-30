@@ -54,6 +54,7 @@ import java.util.function.Predicate;
 import java.util.stream.Collectors;
 import lombok.AccessLevel;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 import lombok.Setter;
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
@@ -85,6 +86,7 @@ import org.apache.fineract.useradministration.domain.AppUser;
 import org.springframework.lang.NonNull;
 
 @Entity
+@NoArgsConstructor
 @Table(name = "m_loan", uniqueConstraints = { @UniqueConstraint(columnNames = { "account_no" }, name = "loan_account_no_UNIQUE"),
         @UniqueConstraint(columnNames = { "external_id" }, name = "loan_externalid_UNIQUE") })
 @Getter
@@ -476,10 +478,6 @@ public class Loan extends AbstractAuditableWithUTCDateTimeCustom<Long> {
                 maxOutstandingLoanBalance, createStandingInstructionAtDisbursement, isFloatingInterestRate, interestRateDifferential, rates,
                 fixedPrincipalPercentagePerInstallment, externalId, loanApplicationTerms, enableInstallmentLevelDelinquency,
                 submittedOnDate);
-    }
-
-    protected Loan() {
-        // empty
     }
 
     private Loan(final String accountNo, final Client client, final Group group, final AccountType loanType, final Fund fund,

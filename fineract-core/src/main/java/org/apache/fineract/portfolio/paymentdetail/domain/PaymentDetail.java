@@ -24,7 +24,9 @@ import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
 import java.util.Map;
+import lombok.AllArgsConstructor;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.fineract.infrastructure.core.api.JsonCommand;
 import org.apache.fineract.infrastructure.core.domain.AbstractPersistableCustom;
@@ -35,6 +37,8 @@ import org.apache.fineract.portfolio.paymenttype.domain.PaymentType;
 
 @Entity
 @Getter
+@NoArgsConstructor
+@AllArgsConstructor
 @Table(name = "m_payment_detail")
 public class PaymentDetail extends AbstractPersistableCustom<Long> {
 
@@ -56,8 +60,6 @@ public class PaymentDetail extends AbstractPersistableCustom<Long> {
 
     @Column(name = "bank_number", length = 50)
     private String bankNumber;
-
-    protected PaymentDetail() {}
 
     public static PaymentDetail generatePaymentDetail(final PaymentType paymentType, final JsonCommand command,
             final Map<String, Object> changes) {
@@ -89,16 +91,6 @@ public class PaymentDetail extends AbstractPersistableCustom<Long> {
     public static PaymentDetail instance(final PaymentType paymentType, final String accountNumber, final String checkNumber,
             final String routingCode, final String receiptNumber, final String bankNumber) {
         return new PaymentDetail(paymentType, accountNumber, checkNumber, routingCode, receiptNumber, bankNumber);
-    }
-
-    private PaymentDetail(final PaymentType paymentType, final String accountNumber, final String checkNumber, final String routingCode,
-            final String receiptNumber, final String bankNumber) {
-        this.paymentType = paymentType;
-        this.accountNumber = accountNumber;
-        this.checkNumber = checkNumber;
-        this.routingCode = routingCode;
-        this.receiptNumber = receiptNumber;
-        this.bankNumber = bankNumber;
     }
 
     public PaymentDetailData toData() {

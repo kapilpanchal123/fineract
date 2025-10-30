@@ -29,6 +29,8 @@ import jakarta.persistence.OneToOne;
 import jakarta.persistence.Table;
 import jakarta.persistence.UniqueConstraint;
 import jakarta.persistence.Version;
+import java.io.Serial;
+import java.io.Serializable;
 import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.util.ArrayList;
@@ -38,6 +40,7 @@ import java.util.List;
 import java.util.Set;
 import java.util.function.Predicate;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 import lombok.Setter;
 import org.apache.fineract.infrastructure.codes.domain.CodeValue;
 import org.apache.fineract.infrastructure.core.domain.AbstractAuditableWithUTCDateTimeCustom;
@@ -57,8 +60,12 @@ import org.apache.fineract.portfolio.paymentdetail.domain.PaymentDetail;
  */
 @Getter
 @Entity
+@NoArgsConstructor
 @Table(name = "m_loan_transaction", uniqueConstraints = { @UniqueConstraint(columnNames = { "external_id" }, name = "external_id_UNIQUE") })
-public class LoanTransaction extends AbstractAuditableWithUTCDateTimeCustom<Long> {
+public class LoanTransaction extends AbstractAuditableWithUTCDateTimeCustom<Long> implements Serializable {
+
+    @Serial
+    private static final long serialVersionUID = 1L;
 
     @Version
     private Long version;
@@ -132,14 +139,14 @@ public class LoanTransaction extends AbstractAuditableWithUTCDateTimeCustom<Long
     private String chargeRefundChargeType;
 
     @OneToMany(cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY, mappedBy = "loanTransaction")
-    private Set<LoanCollateralManagement> loanCollateralManagementSet = new HashSet<>();
+    private Set<LoanCollateralManagement> loanCollateralManagementSet;
 
     @Getter
     @OneToMany(cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY, mappedBy = "loanTransaction")
-    private Set<LoanTransactionToRepaymentScheduleMapping> loanTransactionToRepaymentScheduleMappings = new HashSet<>();
+    private Set<LoanTransactionToRepaymentScheduleMapping> loanTransactionToRepaymentScheduleMappings;
 
     @OneToMany(cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY, mappedBy = "fromTransaction")
-    private Set<LoanTransactionRelation> loanTransactionRelations = new HashSet<>();
+    private Set<LoanTransactionRelation> loanTransactionRelations;
 
     @Setter
     @OneToOne(cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY, mappedBy = "loanTransaction")
@@ -149,8 +156,6 @@ public class LoanTransaction extends AbstractAuditableWithUTCDateTimeCustom<Long
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "classification_cv_id")
     private CodeValue classification;
-
-    protected LoanTransaction() {}
 
     public static LoanTransaction incomePosting(final Loan loan, final Office office, final LocalDate dateOf, final BigDecimal amount,
             final BigDecimal interestPortion, final BigDecimal feeChargesPortion, final BigDecimal penaltyChargesPortion,
@@ -623,10 +628,6 @@ public class LoanTransaction extends AbstractAuditableWithUTCDateTimeCustom<Long
         return this.typeOf == null ? LoanTransactionType.INVALID : this.typeOf;
     }
 
-    public boolean isReversed() {
-        return this.reversed;
-    }
-
     public boolean isNotReversed() {
         return !isReversed();
     }
@@ -856,7 +857,6 @@ public class LoanTransaction extends AbstractAuditableWithUTCDateTimeCustom<Long
     }
 
     public boolean isNotRefundForActiveLoan() {
-        // TODO Auto-generated method stub
         return !isRefundForActiveLoan();
     }
 
@@ -1005,9 +1005,6 @@ public class LoanTransaction extends AbstractAuditableWithUTCDateTimeCustom<Long
     public void updateAmount(BigDecimal bigDecimal) {
         this.amount = bigDecimal;
     }
-
-    // TODO missing hashCode(), equals(Object obj), but probably OK as long as
-    // this is never stored in a Collection.
 
     public void updateTransactionDate(final LocalDate transactionDate) {
         this.dateOf = transactionDate;

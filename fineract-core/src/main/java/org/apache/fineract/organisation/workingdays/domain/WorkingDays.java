@@ -24,6 +24,7 @@ import jakarta.persistence.Table;
 import java.util.LinkedHashMap;
 import java.util.Map;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 import lombok.Setter;
 import org.apache.fineract.infrastructure.core.api.JsonCommand;
 import org.apache.fineract.infrastructure.core.domain.AbstractPersistableCustom;
@@ -31,6 +32,7 @@ import org.apache.fineract.organisation.workingdays.api.WorkingDaysApiConstants;
 
 @Getter
 @Entity
+@NoArgsConstructor
 @Table(name = "m_working_days")
 public class WorkingDays extends AbstractPersistableCustom<Long> {
 
@@ -46,10 +48,6 @@ public class WorkingDays extends AbstractPersistableCustom<Long> {
 
     @Column(name = "extend_term_holiday_repayment", nullable = false)
     private Boolean extendTermForRepaymentsOnHolidays;
-
-    protected WorkingDays() {
-
-    }
 
     public WorkingDays(final String recurrence, final Integer repaymentReschedulingType, final Boolean extendTermForDailyRepayments,
             final Boolean extendTermForRepaymentsOnHolidays) {

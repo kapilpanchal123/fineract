@@ -28,10 +28,16 @@ import jakarta.persistence.Table;
 import jakarta.persistence.UniqueConstraint;
 import java.math.BigDecimal;
 import java.util.Set;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
 import org.apache.fineract.infrastructure.core.domain.AbstractPersistableCustom;
 import org.apache.fineract.portfolio.group.domain.Group;
 
 @Entity
+@Getter
+@Setter
+@NoArgsConstructor
 @Table(name = "gsim_accounts", uniqueConstraints = { @UniqueConstraint(columnNames = { "account_number" }, name = "gsim_id") })
 public final class GroupSavingsIndividualMonitoring extends AbstractPersistableCustom<Long> {
 
@@ -60,8 +66,6 @@ public final class GroupSavingsIndividualMonitoring extends AbstractPersistableC
     @Column(name = "application_id", nullable = true)
     private BigDecimal applicationId;
 
-    private GroupSavingsIndividualMonitoring() {}
-
     private GroupSavingsIndividualMonitoring(String accountNumber, Group group, BigDecimal parentDeposit, Long childAccountsCount,
             Boolean isAcceptingChild, Integer savingsStatus, BigDecimal applicationId) {
         this.accountNumber = accountNumber;
@@ -71,68 +75,11 @@ public final class GroupSavingsIndividualMonitoring extends AbstractPersistableC
         this.isAcceptingChild = isAcceptingChild;
         this.savingsStatus = savingsStatus;
         this.applicationId = applicationId;
-
     }
 
     public static GroupSavingsIndividualMonitoring getInstance(String accountNumber, Group group, BigDecimal parentDeposit,
             Long childAccountsCount, Boolean isAcceptingChild, Integer savingsStatus, BigDecimal applicationId) {
         return new GroupSavingsIndividualMonitoring(accountNumber, group, parentDeposit, childAccountsCount, isAcceptingChild,
                 savingsStatus, applicationId);
-    }
-
-    public Group getGroup() {
-        return group;
-    }
-
-    public void setGroup(Group group) {
-        this.group = group;
-    }
-
-    public String getAccountNumber() {
-        return accountNumber;
-    }
-
-    public void setAccountNumber(String accountNumber) {
-        this.accountNumber = accountNumber;
-    }
-
-    public BigDecimal getParentDeposit() {
-        return parentDeposit;
-    }
-
-    public void setParentDeposit(BigDecimal parentDeposit) {
-        this.parentDeposit = parentDeposit;
-    }
-
-    public Long getChildAccountsCount() {
-        return childAccountsCount;
-    }
-
-    public void setChildAccountsCount(Long childAccountsCount) {
-        this.childAccountsCount = childAccountsCount;
-    }
-
-    public Boolean getIsAcceptingChild() {
-        return isAcceptingChild;
-    }
-
-    public void setIsAcceptingChild(Boolean isAcceptingChild) {
-        this.isAcceptingChild = isAcceptingChild;
-    }
-
-    public Set<SavingsAccount> getChildSaving() {
-        return childSaving;
-    }
-
-    public void setChildSaving(Set<SavingsAccount> childSaving) {
-        this.childSaving = childSaving;
-    }
-
-    public Integer getSavingsStatus() {
-        return savingsStatus;
-    }
-
-    public void setSavingsStatus(Integer savingsStatus) {
-        this.savingsStatus = savingsStatus;
     }
 }

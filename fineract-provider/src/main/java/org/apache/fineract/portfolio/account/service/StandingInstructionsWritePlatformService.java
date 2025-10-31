@@ -21,8 +21,14 @@ package org.apache.fineract.portfolio.account.service;
 import org.apache.fineract.command.core.Command;
 import org.apache.fineract.portfolio.account.data.StandingInstructionCreateRequest;
 import org.apache.fineract.portfolio.account.data.StandingInstructionCreateResponse;
+import org.apache.fineract.portfolio.account.data.StandingInstructionUpdateRequest;
+import org.apache.fineract.portfolio.account.data.StandingInstructionUpdateResponse;
 
 public interface StandingInstructionsWritePlatformService {
 
     StandingInstructionCreateResponse create(Command<StandingInstructionCreateRequest> command);
+
+    StandingInstructionUpdateResponse update(Command<StandingInstructionUpdateRequest> command);
+
+    StandingInstructionUpdateResponse delete(Command<StandingInstructionUpdateRequest> command);
 }

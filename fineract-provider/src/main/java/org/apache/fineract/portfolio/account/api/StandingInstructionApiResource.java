@@ -22,7 +22,6 @@ import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
-import io.swagger.v3.oas.annotations.parameters.RequestBody;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
@@ -53,8 +52,6 @@ import org.apache.fineract.commands.domain.CommandWrapper;
 import org.apache.fineract.commands.service.CommandWrapperBuilder;
 import org.apache.fineract.commands.service.PortfolioCommandSourceWritePlatformService;
 import org.apache.fineract.infrastructure.core.api.ApiParameterHelper;
-import org.apache.fineract.infrastructure.core.data.CommandProcessingResult;
-import org.apache.fineract.infrastructure.core.exception.UnrecognizedQueryParamException;
 import org.apache.fineract.infrastructure.core.serialization.DefaultToApiJsonSerializer;
 import org.apache.fineract.infrastructure.core.service.CommandParameterUtil;
 import org.apache.fineract.infrastructure.core.service.DateUtils;
@@ -63,13 +60,15 @@ import org.apache.fineract.infrastructure.core.service.SearchParameters;
 import org.apache.fineract.infrastructure.security.service.PlatformSecurityContext;
 import org.apache.fineract.infrastructure.security.service.SqlValidator;
 import org.apache.fineract.portfolio.account.command.StandingInstructionCreateCommand;
+import org.apache.fineract.portfolio.account.command.StandingInstructionUpdateCommand;
 import org.apache.fineract.portfolio.account.data.AccountTransferData;
 import org.apache.fineract.portfolio.account.data.StandingInstructionCreateRequest;
 import org.apache.fineract.portfolio.account.data.StandingInstructionCreateResponse;
 import org.apache.fineract.portfolio.account.data.StandingInstructionDTO;
 import org.apache.fineract.portfolio.account.data.StandingInstructionData;
+import org.apache.fineract.portfolio.account.data.StandingInstructionUpdateRequest;
+import org.apache.fineract.portfolio.account.data.StandingInstructionUpdateResponse;
 import org.apache.fineract.portfolio.account.data.request.StandingInstructionSearchParam;
-import org.apache.fineract.portfolio.account.data.request.StandingInstructionUpdatesRequest;
 import org.apache.fineract.portfolio.account.service.AccountTransfersReadPlatformService;
 import org.apache.fineract.portfolio.account.service.StandingInstructionReadPlatformService;
 import org.springframework.stereotype.Component;
@@ -150,19 +149,34 @@ public class StandingInstructionApiResource {
             + "\n" + "PUT https://DomainName/api/v1/standinginstructions/1?command=update\n" + "\n\n"
             + "Ability to modify existing instruction for transfer of monetary funds from one account to another.\n" + "\n"
             + "PUT https://DomainName/api/v1/standinginstructions/1?command=delete")
-    @RequestBody(content = @Content(schema = @Schema(implementation = StandingInstructionUpdatesRequest.class)))
-    @ApiResponses({
-            @ApiResponse(responseCode = "200", description = "OK", content = @Content(schema = @Schema(implementation = StandingInstructionApiResourceSwagger.PutStandingInstructionsStandingInstructionIdResponse.class))) })
-    public CommandProcessingResult update(
+    // @RequestBody(content = @Content(schema = @Schema(implementation = StandingInstructionUpdatesRequest.class)))
+    // @ApiResponses({
+    // @ApiResponse(responseCode = "200", description = "OK", content = @Content(schema = @Schema(implementation =
+    // StandingInstructionApiResourceSwagger.PutStandingInstructionsStandingInstructionIdResponse.class))) })
+    public StandingInstructionUpdateResponse update(
             @PathParam("standingInstructionId") @Parameter(description = "standingInstructionId") final Long standingInstructionId,
-            @Parameter(hidden = true) StandingInstructionUpdatesRequest updatesRequest,
+            @Parameter(hidden = true) StandingInstructionUpdateRequest updatesRequest,
+            @HeaderParam("Idempotency-Key") String idempotencyKey,
             @QueryParam("command") @Parameter(description = "command") final String commandParam) {
 
-        final String serializedUpdatesRequest = toApiJsonSerializer.serialize(updatesRequest);
-        final CommandWrapper commandRequest = COMMAND_HANDLER_REGISTRY.execute(commandParam, standingInstructionId,
-                serializedUpdatesRequest, new UnrecognizedQueryParamException("command", commandParam));
+        // final String serializedUpdatesRequest = toApiJsonSerializer.serialize(updatesRequest);
+        // final CommandWrapper commandRequest = COMMAND_HANDLER_REGISTRY.execute(commandParam, standingInstructionId,
+        // serializedUpdatesRequest, new UnrecognizedQueryParamException("command", commandParam));
+        //
+        // return commandsSourceWritePlatformService.logCommandSource(commandRequest);
 
-        return commandsSourceWritePlatformService.logCommandSource(commandRequest);
+        final StandingInstructionUpdateCommand command = new StandingInstructionUpdateCommand();
+
+        final StandingInstructionUpdateRequest request = StandingInstructionUpdateRequest
+                .withCommandParamAndStandingInstructionId(commandParam, standingInstructionId, updatesRequest);
+
+        command.setId(UUID.randomUUID());
+        command.setIdempotencyKey(idempotencyKey);
+        command.setCreatedAt(DateUtils.getAuditOffsetDateTime());
+        command.setPayload(request);
+
+        final Supplier<StandingInstructionUpdateResponse> response = commandPipeline.send(command);
+        return response.get();
     }
 
     @GET

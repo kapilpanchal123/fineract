@@ -76,7 +76,7 @@ public class StandingInstructionCreateRequest implements Serializable {
     // @NotBlank(message = "{org.apache.fineract.portfolio.account.from.account.type.not.blank}")
     private Integer fromAccountType;
 
-//    @NotBlank(message = "{org.apache.fineract.portfolio.account.recurrence.interval.not.blank}")
+    // @NotBlank(message = "{org.apache.fineract.portfolio.account.recurrence.interval.not.blank}")
     private Integer recurrenceInterval;
 
     @NotBlank(message = "{org.apache.fineract.portfolio.account.month.day.format.not.blank}")
@@ -91,7 +91,7 @@ public class StandingInstructionCreateRequest implements Serializable {
     // @NotBlank(message = "{org.apache.fineract.portfolio.account.data.from.account.id.not.blank}")
     private Long fromAccountId;
 
-//    @NotBlank(message = "{org.apache.fineract.portfolio.account.data.recurrence.frequency.not.blank}")
+    // @NotBlank(message = "{org.apache.fineract.portfolio.account.data.recurrence.frequency.not.blank}")
     private Integer recurrenceFrequency;
 
     // @NotBlank(message = "{org.apache.fineract.portfolio.account.data.from.office.id.not.blank}")

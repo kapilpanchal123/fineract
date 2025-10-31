@@ -19,14 +19,14 @@
 package org.apache.fineract.portfolio.account.data;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
-import jakarta.validation.constraints.Size;
 import java.io.Serial;
 import java.io.Serializable;
+import java.math.BigDecimal;
+import java.time.LocalDate;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 import org.apache.fineract.portfolio.account.mapper.StandingInstructionUpdateRequestMapper;
-import org.apache.fineract.validation.constraints.Locale;
 
 @Getter
 @Setter
@@ -36,21 +36,21 @@ public class StandingInstructionUpdateRequest implements Serializable {
     @Serial
     private static final long serialVersionUID = 1L;
 
-    private String amount;
-    private String validTill;
-    private String dateFormat;
+    private BigDecimal amount;
+    private LocalDate validTill;
+    // private String dateFormat;
     private String recurrenceOnMonthDay;
-    private String validFrom;
-    @Size(max = 50, message = "{org.apache.fineract.portfolio.account.data.locale.size}")
-    @Locale
-    private String locale;
-    private String priority;
-    private String recurrenceType;
-    private String recurrenceInterval;
+    private LocalDate validFrom;
+    // @Size(max = 50, message = "{org.apache.fineract.portfolio.account.data.locale.size}")
+    // @Locale
+    // private String locale;
+    private Integer priority;
+    private Integer recurrenceType;
+    private Integer recurrenceInterval;
     private String monthDayFormat;
-    private String instructionType;
-    private String recurrenceFrequency;
-    private String status;
+    private Integer instructionType;
+    private Integer recurrenceFrequency;
+    private Integer status;
 
     @JsonIgnore
     private Long standingInstructionId;

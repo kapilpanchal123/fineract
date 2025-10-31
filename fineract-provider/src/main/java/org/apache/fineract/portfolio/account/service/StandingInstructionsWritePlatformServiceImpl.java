@@ -18,6 +18,10 @@
  */
 package org.apache.fineract.portfolio.account.service;
 
+import static org.apache.fineract.portfolio.account.api.StandingInstructionApiConstants.statusParamName;
+
+import java.util.Collections;
+import java.util.Map;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.fineract.command.core.Command;
@@ -26,10 +30,15 @@ import org.apache.fineract.infrastructure.core.exception.PlatformDataIntegrityEx
 import org.apache.fineract.portfolio.account.PortfolioAccountType;
 import org.apache.fineract.portfolio.account.data.StandingInstructionCreateRequest;
 import org.apache.fineract.portfolio.account.data.StandingInstructionCreateResponse;
+import org.apache.fineract.portfolio.account.data.StandingInstructionUpdateRequest;
+import org.apache.fineract.portfolio.account.data.StandingInstructionUpdateResponse;
 import org.apache.fineract.portfolio.account.domain.AccountTransferDetailRepository;
 import org.apache.fineract.portfolio.account.domain.AccountTransferDetails;
+import org.apache.fineract.portfolio.account.domain.AccountTransferStandingInstruction;
 import org.apache.fineract.portfolio.account.domain.StandingInstructionRepository;
+import org.apache.fineract.portfolio.account.domain.StandingInstructionStatus;
 import org.apache.fineract.portfolio.account.domain.StandingInstructionsAssembler;
+import org.apache.fineract.portfolio.account.exception.StandingInstructionNotFoundException;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.dao.NonTransientDataAccessException;
 import org.springframework.orm.jpa.JpaSystemException;
@@ -82,6 +91,55 @@ public class StandingInstructionsWritePlatformServiceImpl implements StandingIns
         // return builder.build();
 
         return StandingInstructionCreateResponse.builder().clientId(fromClientId).resourceId(standingInstructionId).build();
+    }
+
+    @Transactional
+    @Override
+    public StandingInstructionUpdateResponse update(Command<StandingInstructionUpdateRequest> command) {
+
+        final StandingInstructionUpdateRequest request = command.getPayload();
+        AccountTransferStandingInstruction standingInstructionsForUpdate = standingInstructionRepository
+                .findById(request.getStandingInstructionId())
+                .orElseThrow(() -> new StandingInstructionNotFoundException(request.getStandingInstructionId()));
+
+        if (standingInstructionsForUpdate.getStatus().equals(StandingInstructionStatus.DELETED.getValue())
+                && standingInstructionsForUpdate.getName().contains("_deleted_")) {
+            return StandingInstructionUpdateResponse.builder().resourceId(request.getStandingInstructionId())
+                    .changes(Collections.singletonMap("Error", "Standing instruction is already deleted and cannot be modified")).build();
+        }
+
+        final Map<String, Object> actualChanges = standingInstructionsForUpdate.update(command);
+
+        if (!actualChanges.isEmpty()) {
+            standingInstructionRepository.saveAndFlush(standingInstructionsForUpdate);
+            return StandingInstructionUpdateResponse.builder().resourceId(request.getStandingInstructionId()).changes(actualChanges)
+                    .build();
+        }
+        // standingInstructionRepository.saveAndFlush(standingInstructionsForUpdate);
+        // return new
+        // CommandProcessingResultBuilder().withCommandId(command.commandId()).withEntityId(id).with(actualChanges).build();
+        return StandingInstructionUpdateResponse.builder().resourceId(request.getStandingInstructionId())
+                .changes(Collections.singletonMap("message", "no changes detected")).build();
+    }
+
+    @Override
+    public StandingInstructionUpdateResponse delete(Command<StandingInstructionUpdateRequest> command) {
+        StandingInstructionUpdateRequest request = command.getPayload();
+
+        AccountTransferStandingInstruction standingInstructionsForUpdate = standingInstructionRepository
+                .findById(request.getStandingInstructionId()).orElseThrow();
+        // update the "deleted" and "name" properties of the standing
+        // instruction
+
+        if (!standingInstructionsForUpdate.getName().contains("_deleted_")) {
+            standingInstructionsForUpdate.delete();
+            standingInstructionRepository.saveAndFlush(standingInstructionsForUpdate);
+            return StandingInstructionUpdateResponse.builder().resourceId(request.getStandingInstructionId())
+                    .changes(Collections.singletonMap(statusParamName, StandingInstructionStatus.DELETED.getValue())).build();
+        }
+
+        return StandingInstructionUpdateResponse.builder().resourceId(request.getStandingInstructionId())
+                .changes(Collections.singletonMap("alreadyDeleted", -1L)).build();
     }
 
     private void handleDataIntegrityIssues(final Command<StandingInstructionCreateRequest> command, Throwable realCause,

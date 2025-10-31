@@ -18,11 +18,13 @@
  */
 package org.apache.fineract.portfolio.account.handler;
 
+import java.util.Collections;
 import lombok.RequiredArgsConstructor;
 import org.apache.fineract.command.core.Command;
 import org.apache.fineract.command.core.CommandHandler;
 import org.apache.fineract.portfolio.account.data.StandingInstructionUpdateRequest;
 import org.apache.fineract.portfolio.account.data.StandingInstructionUpdateResponse;
+import org.apache.fineract.portfolio.account.service.StandingInstructionsWritePlatformService;
 import org.springframework.stereotype.Component;
 
 @Component
@@ -30,8 +32,18 @@ import org.springframework.stereotype.Component;
 public class StandingInstructionUpdateCommandHandler
         implements CommandHandler<StandingInstructionUpdateRequest, StandingInstructionUpdateResponse> {
 
+    private final StandingInstructionsWritePlatformService standingInstructionsWritePlatformService;
+
     @Override
     public StandingInstructionUpdateResponse handle(Command<StandingInstructionUpdateRequest> command) {
-        return null;
+
+        if (command.getPayload().getCommandParam().equalsIgnoreCase("UPDATE")) {
+            return standingInstructionsWritePlatformService.update(command);
+        } else if (command.getPayload().getCommandParam().equalsIgnoreCase("DELETE")) {
+            return standingInstructionsWritePlatformService.delete(command);
+        } else {
+            return StandingInstructionUpdateResponse.builder().resourceId(command.getPayload().getStandingInstructionId())
+                    .changes(Collections.singletonMap("Error, command parameter does not exist", -1L)).build();
+        }
     }
 }

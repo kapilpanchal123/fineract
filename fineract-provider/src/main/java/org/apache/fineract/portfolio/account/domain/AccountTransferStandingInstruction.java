@@ -44,14 +44,20 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import org.apache.fineract.command.core.Command;
 import org.apache.fineract.infrastructure.core.api.JsonCommand;
 import org.apache.fineract.infrastructure.core.data.ApiParameterError;
 import org.apache.fineract.infrastructure.core.data.DataValidatorBuilder;
 import org.apache.fineract.infrastructure.core.domain.AbstractPersistableCustom;
 import org.apache.fineract.infrastructure.core.exception.PlatformApiDataValidationException;
+import org.apache.fineract.portfolio.account.data.StandingInstructionUpdateRequest;
 import org.apache.fineract.portfolio.common.domain.PeriodFrequencyType;
 
+@NoArgsConstructor
 @Entity
+@Getter
 @Table(name = "m_account_transfer_standing_instructions", uniqueConstraints = {
         @UniqueConstraint(columnNames = { "name" }, name = "name") })
 public class AccountTransferStandingInstruction extends AbstractPersistableCustom<Long> {
@@ -97,11 +103,7 @@ public class AccountTransferStandingInstruction extends AbstractPersistableCusto
     private Integer recurrenceOnMonth;
 
     @Column(name = "last_run_date")
-    private LocalDate latsRunDate;
-
-    protected AccountTransferStandingInstruction() {
-
-    }
+    private LocalDate lastRunDate;
 
     public static AccountTransferStandingInstruction create(final AccountTransferDetails accountTransferDetails, final String name,
             final Integer priority, final Integer instructionType, final Integer status, final BigDecimal amount, final LocalDate validFrom,
@@ -142,6 +144,162 @@ public class AccountTransferStandingInstruction extends AbstractPersistableCusto
         if (!dataValidationErrors.isEmpty()) {
             throw new PlatformApiDataValidationException(dataValidationErrors);
         }
+    }
+
+    public Map<String, Object> update(Command<StandingInstructionUpdateRequest> command) {
+        final Map<String, Object> actualChanges = new HashMap<>();
+
+        StandingInstructionUpdateRequest request = command.getPayload();
+
+        final List<ApiParameterError> dataValidationErrors = new ArrayList<>();
+        final DataValidatorBuilder baseDataValidator = new DataValidatorBuilder(dataValidationErrors)
+                .resource(STANDING_INSTRUCTION_RESOURCE_NAME);
+
+        if (StandingInstructionStatus.fromInt(this.status).isDeleted()) {
+            baseDataValidator.reset().parameter(statusParamName).failWithCode("can.not.modify.once.deleted");
+        }
+
+        // if (command.isChangeInDateParameterNamed(validFromParamName, this.validFrom)) {
+        // this.validFrom = command.localDateValueOfParameterNamed(validFromParamName);
+        // actualChanges.put(validFromParamName, this.validFrom);
+        // }
+
+        if (request.getValidFrom() != null && !request.getValidFrom().equals(this.validFrom)) {
+            this.validFrom = request.getValidFrom();
+            actualChanges.put(validFromParamName, this.validFrom);
+        }
+
+        // if (command.isChangeInDateParameterNamed(validTillParamName, this.validTill)) {
+        // this.validTill = command.localDateValueOfParameterNamed(validTillParamName);
+        // actualChanges.put(validTillParamName, this.validTill);
+        // }
+
+        if (request.getValidTill() != null && !request.getValidTill().equals(this.validTill)) {
+            this.validTill = request.getValidTill();
+            actualChanges.put(validTillParamName, this.validTill);
+        }
+
+        // if (command.isChangeInBigDecimalParameterNamed(amountParamName, this.amount)) {
+        // final BigDecimal newValue = command.bigDecimalValueOfParameterNamed(amountParamName);
+        // actualChanges.put(amountParamName, newValue);
+        // this.amount = newValue;
+        // }
+
+        if (request.getAmount() != null && !request.getAmount().equals(this.amount)) {
+            final BigDecimal newValue = request.getAmount();
+            this.amount = newValue;
+            actualChanges.put(amountParamName, newValue);
+        }
+
+        // if (command.isChangeInIntegerParameterNamed(statusParamName, this.status)) {
+        // final Integer newValue = command.integerValueOfParameterNamed(statusParamName);
+        // actualChanges.put(statusParamName, newValue);
+        // this.status = newValue;
+        // }
+
+        if (request.getStatus() != null && !request.getStatus().equals(this.status)) {
+            final Integer newValue = request.getStatus();
+            this.status = newValue;
+            actualChanges.put(statusParamName, newValue);
+        }
+
+        // if (command.isChangeInIntegerParameterNamed(priorityParamName, this.priority)) {
+        // final Integer newValue = command.integerValueOfParameterNamed(priorityParamName);
+        // actualChanges.put(priorityParamName, newValue);
+        // this.priority = newValue;
+        // }
+
+        if (request.getPriority() != null && !request.getPriority().equals(this.priority)) {
+            final Integer newValue = request.getPriority();
+            this.priority = newValue;
+            actualChanges.put(priorityParamName, newValue);
+        }
+
+        // if (command.isChangeInIntegerParameterNamed(instructionTypeParamName, this.instructionType)) {
+        // final Integer newValue = command.integerValueOfParameterNamed(instructionTypeParamName);
+        // actualChanges.put(instructionTypeParamName, newValue);
+        // this.instructionType = newValue;
+        // }
+
+        if (request.getInstructionType() != null && !request.getInstructionType().equals(this.instructionType)) {
+            final Integer newValue = request.getInstructionType();
+            this.instructionType = newValue;
+            actualChanges.put(instructionTypeParamName, newValue);
+        }
+
+        // if (command.isChangeInIntegerParameterNamed(recurrenceTypeParamName, this.recurrenceType)) {
+        // final Integer newValue = command.integerValueOfParameterNamed(recurrenceTypeParamName);
+        // actualChanges.put(recurrenceTypeParamName, newValue);
+        // this.recurrenceType = newValue;
+        // }
+
+        if (request.getRecurrenceType() != null && !request.getRecurrenceType().equals(this.recurrenceType)) {
+            final Integer newValue = request.getRecurrenceType();
+            this.recurrenceType = newValue;
+            actualChanges.put(recurrenceTypeParamName, newValue);
+        }
+
+        // if (command.isChangeInIntegerParameterNamed(recurrenceFrequencyParamName, this.recurrenceFrequency)) {
+        // final Integer newValue = command.integerValueOfParameterNamed(recurrenceFrequencyParamName);
+        // actualChanges.put(recurrenceFrequencyParamName, newValue);
+        // this.recurrenceFrequency = newValue;
+        // }
+
+        if (request.getRecurrenceFrequency() != null && !request.getRecurrenceFrequency().equals(this.recurrenceFrequency)) {
+            final Integer newValue = request.getRecurrenceFrequency();
+            this.recurrenceFrequency = newValue;
+            actualChanges.put(recurrenceFrequencyParamName, newValue);
+        }
+
+        // if (command.hasParameter(recurrenceOnMonthDayParamName)) {
+        // final MonthDay monthDay = command.extractMonthDayNamed(recurrenceOnMonthDayParamName);
+        // final String actualValueEntered = command.stringValueOfParameterNamed(recurrenceOnMonthDayParamName);
+        // final Integer dayOfMonthValue = monthDay.getDayOfMonth();
+        // if (!this.recurrenceOnDay.equals(dayOfMonthValue)) {
+        // actualChanges.put(recurrenceOnMonthDayParamName, actualValueEntered);
+        // this.recurrenceOnDay = dayOfMonthValue;
+        // }
+        //
+        // final Integer monthOfYear = monthDay.getMonthValue();
+        // if (!this.recurrenceOnMonth.equals(monthOfYear)) {
+        // actualChanges.put(recurrenceOnMonthDayParamName, actualValueEntered);
+        // this.recurrenceOnMonth = monthOfYear;
+        // }
+        // }
+
+        if (request.getRecurrenceOnMonthDay() != null) {
+            final MonthDay monthDay = MonthDay.parse(request.getRecurrenceOnMonthDay());
+            final String actualValueEntered = request.getRecurrenceOnMonthDay();
+            final Integer dayOfMonthValue = monthDay.getDayOfMonth();
+            if (!this.recurrenceOnDay.equals(dayOfMonthValue)) {
+                this.recurrenceOnDay = dayOfMonthValue;
+                actualChanges.put(recurrenceOnMonthDayParamName, actualValueEntered);
+            }
+
+            final Integer monthOfYear = monthDay.getMonthValue();
+            if (!this.recurrenceOnMonth.equals(monthOfYear)) {
+                this.recurrenceOnMonth = monthOfYear;
+                actualChanges.put(recurrenceOnMonthDayParamName, actualValueEntered);
+            }
+        }
+
+        // if (command.isChangeInIntegerParameterNamed(recurrenceIntervalParamName, this.recurrenceInterval)) {
+        // final Integer newValue = command.integerValueOfParameterNamed(recurrenceIntervalParamName);
+        // actualChanges.put(recurrenceIntervalParamName, newValue);
+        // this.recurrenceInterval = newValue;
+        // }
+
+        if (request.getRecurrenceInterval() != null && !request.getRecurrenceInterval().equals(this.recurrenceInterval)) {
+            final Integer newValue = request.getRecurrenceInterval();
+            this.recurrenceInterval = newValue;
+            actualChanges.put(recurrenceIntervalParamName, newValue);
+        }
+
+        // validateDependencies(baseDataValidator);
+        // if (!dataValidationErrors.isEmpty()) {
+        // throw new PlatformApiDataValidationException(dataValidationErrors);
+        // }
+        return actualChanges;
     }
 
     public Map<String, Object> update(JsonCommand command) {
@@ -273,7 +431,7 @@ public class AccountTransferStandingInstruction extends AbstractPersistableCusto
     }
 
     public void updateLatsRunDate(LocalDate latsRunDate) {
-        this.latsRunDate = latsRunDate;
+        this.lastRunDate = latsRunDate;
     }
 
     public void updateStatus(Integer status) {
@@ -284,7 +442,15 @@ public class AccountTransferStandingInstruction extends AbstractPersistableCusto
      * delete the standing instruction by setting the status to 3 and appending "_deleted_" and the id to the name
      **/
     public void delete() {
-        this.status = StandingInstructionStatus.DELETED.getValue();
-        this.name = this.name + "_deleted_" + this.getId();
+        // this.status = StandingInstructionStatus.DELETED.getValue();
+        // this.name = this.name + "_deleted_" + this.getId();
+        if (!StandingInstructionStatus.fromInt(this.status).isDeleted()) {
+            this.status = StandingInstructionStatus.DELETED.getValue();
+
+            final String deletedMarker = "_deleted_";
+            if (this.name == null || !this.name.contains(deletedMarker)) {
+                this.name = this.name + deletedMarker + this.getId();
+            }
+        }
     }
 }

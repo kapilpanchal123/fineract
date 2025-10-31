@@ -26,9 +26,11 @@ import io.swagger.v3.oas.annotations.parameters.RequestBody;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import jakarta.validation.Valid;
 import jakarta.ws.rs.BeanParam;
 import jakarta.ws.rs.Consumes;
 import jakarta.ws.rs.GET;
+import jakarta.ws.rs.HeaderParam;
 import jakarta.ws.rs.POST;
 import jakarta.ws.rs.PUT;
 import jakarta.ws.rs.Path;
@@ -42,8 +44,11 @@ import java.time.LocalDate;
 import java.util.Arrays;
 import java.util.Map;
 import java.util.Set;
+import java.util.UUID;
+import java.util.function.Supplier;
 import lombok.RequiredArgsConstructor;
 import org.apache.fineract.batch.command.CommandHandlerRegistry;
+import org.apache.fineract.command.core.CommandPipeline;
 import org.apache.fineract.commands.domain.CommandWrapper;
 import org.apache.fineract.commands.service.CommandWrapperBuilder;
 import org.apache.fineract.commands.service.PortfolioCommandSourceWritePlatformService;
@@ -52,14 +57,17 @@ import org.apache.fineract.infrastructure.core.data.CommandProcessingResult;
 import org.apache.fineract.infrastructure.core.exception.UnrecognizedQueryParamException;
 import org.apache.fineract.infrastructure.core.serialization.DefaultToApiJsonSerializer;
 import org.apache.fineract.infrastructure.core.service.CommandParameterUtil;
+import org.apache.fineract.infrastructure.core.service.DateUtils;
 import org.apache.fineract.infrastructure.core.service.Page;
 import org.apache.fineract.infrastructure.core.service.SearchParameters;
 import org.apache.fineract.infrastructure.security.service.PlatformSecurityContext;
 import org.apache.fineract.infrastructure.security.service.SqlValidator;
+import org.apache.fineract.portfolio.account.command.StandingInstructionCreateCommand;
 import org.apache.fineract.portfolio.account.data.AccountTransferData;
+import org.apache.fineract.portfolio.account.data.StandingInstructionCreateRequest;
+import org.apache.fineract.portfolio.account.data.StandingInstructionCreateResponse;
 import org.apache.fineract.portfolio.account.data.StandingInstructionDTO;
 import org.apache.fineract.portfolio.account.data.StandingInstructionData;
-import org.apache.fineract.portfolio.account.data.request.StandingInstructionCreationRequest;
 import org.apache.fineract.portfolio.account.data.request.StandingInstructionSearchParam;
 import org.apache.fineract.portfolio.account.data.request.StandingInstructionUpdatesRequest;
 import org.apache.fineract.portfolio.account.service.AccountTransfersReadPlatformService;
@@ -79,6 +87,7 @@ public class StandingInstructionApiResource {
     private final StandingInstructionReadPlatformService standingInstructionReadPlatformService;
     private final AccountTransfersReadPlatformService accountTransfersReadPlatformService;
     private final SqlValidator sqlValidator;
+    private final CommandPipeline commandPipeline;
 
     private static final CommandHandlerRegistry<String, Long, String, CommandWrapper> COMMAND_HANDLER_REGISTRY = new CommandHandlerRegistry<>(
             Map.of(CommandParameterUtil.UPDATE_COMMAND_VALUE,
@@ -110,14 +119,27 @@ public class StandingInstructionApiResource {
     @Consumes({ MediaType.APPLICATION_JSON })
     @Produces({ MediaType.APPLICATION_JSON })
     @Operation(summary = "Create new Standing Instruction", description = "Ability to create new instruction for transfer of monetary funds from one account to another")
-    @RequestBody(required = true, content = @Content(schema = @Schema(implementation = StandingInstructionCreationRequest.class)))
-    @ApiResponses({
-            @ApiResponse(responseCode = "200", description = "OK", content = @Content(schema = @Schema(implementation = StandingInstructionApiResourceSwagger.PostStandingInstructionsResponse.class))) })
-    public CommandProcessingResult create(@Parameter(hidden = true) StandingInstructionCreationRequest creationRequest) {
-        final CommandWrapper commandRequest = new CommandWrapperBuilder().createStandingInstruction()
-                .withJson(toApiJsonSerializer.serialize(creationRequest)).build();
+    // @RequestBody(required = true, content = @Content(schema = @Schema(implementation =
+    // StandingInstructionCreationRequest.class)))
+    // @ApiResponses({
+    // @ApiResponse(responseCode = "200", description = "OK", content = @Content(schema = @Schema(implementation =
+    // StandingInstructionApiResourceSwagger.PostStandingInstructionsResponse.class))) })
+    public StandingInstructionCreateResponse create(@HeaderParam("Idempotency-Key") String idempotencyKey,
+            @Valid StandingInstructionCreateRequest standingInstructionCreateRequest) {
+        // final CommandWrapper commandRequest = new CommandWrapperBuilder().createStandingInstruction()
+        // .withJson(toApiJsonSerializer.serialize(creationRequest)).build();
+        //
+        // return commandsSourceWritePlatformService.logCommandSource(commandRequest);
 
-        return commandsSourceWritePlatformService.logCommandSource(commandRequest);
+        final StandingInstructionCreateCommand command = new StandingInstructionCreateCommand();
+
+        command.setId(UUID.randomUUID());
+        command.setIdempotencyKey(idempotencyKey);
+        command.setCreatedAt(DateUtils.getAuditOffsetDateTime());
+        command.setPayload(standingInstructionCreateRequest);
+
+        final Supplier<StandingInstructionCreateResponse> response = commandPipeline.send(command);
+        return response.get();
     }
 
     @PUT

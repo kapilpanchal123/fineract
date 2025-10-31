@@ -38,6 +38,8 @@ import org.apache.fineract.portfolio.account.data.AccountTransferDTO;
 import org.apache.fineract.portfolio.account.data.AccountTransferRequest;
 import org.apache.fineract.portfolio.account.data.AccountTransferResponse;
 import org.apache.fineract.portfolio.account.data.AccountTransfersDataValidator;
+import org.apache.fineract.portfolio.account.data.RefundByTransferRequest;
+import org.apache.fineract.portfolio.account.data.RefundByTransferResponse;
 import org.apache.fineract.portfolio.account.domain.AccountTransferAssembler;
 import org.apache.fineract.portfolio.account.domain.AccountTransferDetailRepository;
 import org.apache.fineract.portfolio.account.domain.AccountTransferDetails;
@@ -51,6 +53,7 @@ import org.apache.fineract.portfolio.loanaccount.domain.Loan;
 import org.apache.fineract.portfolio.loanaccount.domain.LoanAccountDomainService;
 import org.apache.fineract.portfolio.loanaccount.domain.LoanTransaction;
 import org.apache.fineract.portfolio.loanaccount.domain.LoanTransactionType;
+import org.apache.fineract.portfolio.loanaccount.exception.InvalidPaidInAdvanceAmountException;
 import org.apache.fineract.portfolio.loanaccount.service.LoanAssembler;
 import org.apache.fineract.portfolio.loanaccount.service.LoanReadPlatformService;
 import org.apache.fineract.portfolio.paymentdetail.domain.PaymentDetail;
@@ -471,6 +474,50 @@ public class AccountTransferWritePlatformServiceImpl implements AccountTransferW
         accountTransferDetailRepository.saveAndFlush(accountTransferDetails);
 
         return accountTransferDetails;
+    }
+
+    @Transactional
+    @Override
+    public RefundByTransferResponse refundByTransfer(Command<RefundByTransferRequest> command) {
+
+        final RefundByTransferRequest request = command.getPayload();
+        final LocalDate transactionDate = request.getTransferDate();
+        final BigDecimal transactionAmount = request.getTransferAmount();
+        final DateTimeFormatter fmt = DateTimeFormatter.ofPattern("dd MMMM yyyy").withLocale(Locale.of("en"));
+
+        final PaymentDetail paymentDetail = null;
+        Long transferTransactionId = null;
+
+        final Long fromLoanAccountId = request.getFromAccountId();
+        final Loan fromLoanAccount = loanAccountAssembler.assembleFrom(fromLoanAccountId);
+
+        BigDecimal overpaid = loanReadPlatformService.retrieveTotalPaidInAdvance(fromLoanAccountId).getPaidInAdvance();
+        final boolean backdatedTxnsAllowedTill = false;
+
+        if (overpaid == null || overpaid.compareTo(BigDecimal.ZERO) == 0 || transactionAmount.floatValue() > overpaid.floatValue()) {
+            if (overpaid == null) {
+                overpaid = BigDecimal.ZERO;
+            }
+            throw new InvalidPaidInAdvanceAmountException(overpaid.toPlainString());
+        }
+
+        final ExternalId externalId = externalIdFactory.create();
+
+        final LoanTransaction loanRefundTransaction = loanAccountDomainService.makeRefundForActiveLoan(fromLoanAccountId,
+                new CommandProcessingResultBuilder(), transactionDate, transactionAmount, paymentDetail, null, externalId);
+
+        final Long toSavingsAccountId = request.getToAccountId();
+        final SavingsAccount toSavingsAccount = savingsAccountAssembler.assembleFrom(toSavingsAccountId, backdatedTxnsAllowedTill);
+
+        final SavingsAccountTransaction deposit = savingsAccountDomainService.handleDeposit(toSavingsAccount, fmt, transactionDate,
+                transactionAmount, paymentDetail, true, true, backdatedTxnsAllowedTill);
+
+        final AccountTransferDetails accountTransferDetails = accountTransfersAssembler.assembleLoanToSavingsTransferRefund(command,
+                fromLoanAccount, toSavingsAccount, deposit, loanRefundTransaction);
+        accountTransferDetailRepository.saveAndFlush(accountTransferDetails);
+        transferTransactionId = accountTransferDetails.getId();
+
+        return RefundByTransferResponse.builder().savingsId(toSavingsAccountId).resourceId(transferTransactionId).build();
     }
 
     private void undoTransactions(final List<AccountTransferTransaction> accountTransfers) {

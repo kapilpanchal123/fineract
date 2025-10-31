@@ -29,12 +29,16 @@ import jakarta.persistence.OneToOne;
 import jakarta.persistence.Table;
 import java.util.ArrayList;
 import java.util.List;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
 import org.apache.fineract.infrastructure.core.domain.AbstractPersistableCustom;
 import org.apache.fineract.organisation.office.domain.Office;
 import org.apache.fineract.portfolio.client.domain.Client;
 import org.apache.fineract.portfolio.loanaccount.domain.Loan;
 import org.apache.fineract.portfolio.savings.domain.SavingsAccount;
 
+@NoArgsConstructor
+@Getter
 @Entity
 @Table(name = "m_account_transfer_details")
 public class AccountTransferDetails extends AbstractPersistableCustom<Long> {
@@ -101,10 +105,6 @@ public class AccountTransferDetails extends AbstractPersistableCustom<Long> {
                 transferType, null);
     }
 
-    protected AccountTransferDetails() {
-        //
-    }
-
     private AccountTransferDetails(final Office fromOffice, final Client fromClient, final SavingsAccount fromSavingsAccount,
             final Loan fromLoanAccount, final Office toOffice, final Client toClient, final SavingsAccount toSavingsAccount,
             final Loan toLoanAccount, final Integer transferType,
@@ -159,7 +159,4 @@ public class AccountTransferDetails extends AbstractPersistableCustom<Long> {
                 transferType, null);
     }
 
-    public List<AccountTransferTransaction> getAccountTransferTransactions() {
-        return accountTransferTransactions;
-    }
 }

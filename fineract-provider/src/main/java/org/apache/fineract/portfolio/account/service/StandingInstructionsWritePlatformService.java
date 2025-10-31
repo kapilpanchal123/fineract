@@ -16,26 +16,13 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package org.apache.fineract.portfolio.account.data;
+package org.apache.fineract.portfolio.account.service;
 
-import java.io.Serial;
-import java.io.Serializable;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
+import org.apache.fineract.command.core.Command;
+import org.apache.fineract.portfolio.account.data.StandingInstructionCreateRequest;
+import org.apache.fineract.portfolio.account.data.StandingInstructionCreateResponse;
 
-@Getter
-@Setter
-@NoArgsConstructor
-@AllArgsConstructor
-@Builder
-public class StandingInstructionCreateResponse implements Serializable {
+public interface StandingInstructionsWritePlatformService {
 
-    @Serial
-    private static final long serialVersionUID = 1L;
-
-    private Long clientId;
-    private Long resourceId;
+    StandingInstructionCreateResponse create(Command<StandingInstructionCreateRequest> command);
 }

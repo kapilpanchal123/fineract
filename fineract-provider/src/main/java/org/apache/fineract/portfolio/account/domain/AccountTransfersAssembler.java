@@ -22,6 +22,7 @@ import lombok.RequiredArgsConstructor;
 import org.apache.fineract.command.core.Command;
 import org.apache.fineract.organisation.monetary.domain.Money;
 import org.apache.fineract.portfolio.account.data.AccountTransferRequest;
+import org.apache.fineract.portfolio.account.data.RefundByTransferRequest;
 import org.apache.fineract.portfolio.loanaccount.domain.Loan;
 import org.apache.fineract.portfolio.loanaccount.domain.LoanTransaction;
 import org.apache.fineract.portfolio.savings.domain.SavingsAccount;
@@ -73,6 +74,22 @@ public class AccountTransfersAssembler {
         AccountTransferRequest request = command.getPayload();
 
         final AccountTransferDetails accountTransferDetails = accountTransfersDetailAssembler.assembleLoanToSavingsTransfer(command,
+                fromLoanAccount, toSavingsAccount);
+
+        final Money transactionMonetaryAmount = Money.of(toSavingsAccount.getCurrency(), request.getTransferAmount());
+
+        AccountTransferTransaction accountTransferTransaction = AccountTransferTransaction.loanTosavingsTransfer(accountTransferDetails,
+                deposit, loanRefundTransaction, request.getTransferDate(), transactionMonetaryAmount, request.getTransferDescription());
+        accountTransferDetails.addAccountTransferTransaction(accountTransferTransaction);
+        return accountTransferDetails;
+    }
+
+    public AccountTransferDetails assembleLoanToSavingsTransferRefund(Command<RefundByTransferRequest> command, Loan fromLoanAccount,
+            SavingsAccount toSavingsAccount, SavingsAccountTransaction deposit, LoanTransaction loanRefundTransaction) {
+
+        RefundByTransferRequest request = command.getPayload();
+
+        final AccountTransferDetails accountTransferDetails = accountTransfersDetailAssembler.assembleLoanToSavingsTransferRefund(command,
                 fromLoanAccount, toSavingsAccount);
 
         final Money transactionMonetaryAmount = Money.of(toSavingsAccount.getCurrency(), request.getTransferAmount());

@@ -23,6 +23,7 @@ import org.apache.fineract.command.core.Command;
 import org.apache.fineract.command.core.CommandHandler;
 import org.apache.fineract.portfolio.account.data.StandingInstructionCreateRequest;
 import org.apache.fineract.portfolio.account.data.StandingInstructionCreateResponse;
+import org.apache.fineract.portfolio.account.service.StandingInstructionsWritePlatformService;
 import org.springframework.stereotype.Component;
 
 @Component
@@ -30,8 +31,10 @@ import org.springframework.stereotype.Component;
 public class StandingInstructionCreateCommandHandler
         implements CommandHandler<StandingInstructionCreateRequest, StandingInstructionCreateResponse> {
 
+    private final StandingInstructionsWritePlatformService standingInstructionsWritePlatformService;
+
     @Override
     public StandingInstructionCreateResponse handle(Command<StandingInstructionCreateRequest> command) {
-        return null;
+        return standingInstructionsWritePlatformService.create(command);
     }
 }

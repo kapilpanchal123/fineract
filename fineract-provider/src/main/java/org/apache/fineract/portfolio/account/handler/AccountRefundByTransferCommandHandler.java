@@ -23,14 +23,19 @@ import org.apache.fineract.command.core.Command;
 import org.apache.fineract.command.core.CommandHandler;
 import org.apache.fineract.portfolio.account.data.RefundByTransferRequest;
 import org.apache.fineract.portfolio.account.data.RefundByTransferResponse;
+import org.apache.fineract.portfolio.account.service.AccountTransferWritePlatformService;
 import org.springframework.stereotype.Component;
+import org.springframework.transaction.annotation.Transactional;
 
 @Component
 @RequiredArgsConstructor
 public class AccountRefundByTransferCommandHandler implements CommandHandler<RefundByTransferRequest, RefundByTransferResponse> {
 
+    private final AccountTransferWritePlatformService accountTransferWritePlatformService;
+
+    @Transactional
     @Override
     public RefundByTransferResponse handle(Command<RefundByTransferRequest> command) {
-        return null;
+        return accountTransferWritePlatformService.refundByTransfer(command);
     }
 }

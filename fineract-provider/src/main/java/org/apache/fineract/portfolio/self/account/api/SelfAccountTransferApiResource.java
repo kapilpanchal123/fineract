@@ -140,7 +140,12 @@ public class SelfAccountTransferApiResource {
     public AccountTransferResponse create(@DefaultValue("") @QueryParam("type") @Parameter(name = "type") final String type,
             @HeaderParam("Idempotency-Key") String idempotencyKey, @Valid AccountTransferRequest accountTransferRequest) {
         final String apiRequestBodyAsJson = toApiJsonSerializer.serialize(accountTransferRequest);
-        final Map<String, Object> params = dataValidator.validateCreate(type, apiRequestBodyAsJson);
+        // final Map<String, Object> params = dataValidator.validateCreate(type, apiRequestBodyAsJson);
+
+        final Map<String, Object> params = Map.of("fromAccount", accountTransferRequest.getFromAccountId(), "toAccount",
+                accountTransferRequest.getToAccountId(), "transactionDate", accountTransferRequest.getTransferDate(), "transactionAmount",
+                accountTransferRequest.getTransferAmount());
+
         if (type.equals("tpt")) {
             checkForLimits(params);
         }

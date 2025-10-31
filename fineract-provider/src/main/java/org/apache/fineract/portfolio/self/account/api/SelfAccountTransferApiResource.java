@@ -26,9 +26,11 @@ import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import jakarta.validation.Valid;
 import jakarta.ws.rs.Consumes;
 import jakarta.ws.rs.DefaultValue;
 import jakarta.ws.rs.GET;
+import jakarta.ws.rs.HeaderParam;
 import jakarta.ws.rs.POST;
 import jakarta.ws.rs.Path;
 import jakarta.ws.rs.Produces;
@@ -40,15 +42,20 @@ import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.util.Collection;
 import java.util.Map;
+import java.util.UUID;
+import java.util.function.Supplier;
 import lombok.RequiredArgsConstructor;
+import org.apache.fineract.command.core.CommandPipeline;
 import org.apache.fineract.infrastructure.configuration.domain.ConfigurationDomainService;
 import org.apache.fineract.infrastructure.core.api.ApiRequestParameterHelper;
-import org.apache.fineract.infrastructure.core.data.CommandProcessingResult;
 import org.apache.fineract.infrastructure.core.serialization.ApiRequestJsonSerializationSettings;
 import org.apache.fineract.infrastructure.core.serialization.DefaultToApiJsonSerializer;
+import org.apache.fineract.infrastructure.core.service.DateUtils;
 import org.apache.fineract.infrastructure.security.service.PlatformSecurityContext;
 import org.apache.fineract.portfolio.account.api.AccountTransfersApiResource;
-import org.apache.fineract.portfolio.account.data.request.AccountTransferRequest;
+import org.apache.fineract.portfolio.account.command.AccountTransferCreateCommand;
+import org.apache.fineract.portfolio.account.data.AccountTransferRequest;
+import org.apache.fineract.portfolio.account.data.AccountTransferResponse;
 import org.apache.fineract.portfolio.account.service.AccountTransfersReadPlatformService;
 import org.apache.fineract.portfolio.self.account.data.SelfAccountTemplateData;
 import org.apache.fineract.portfolio.self.account.data.SelfAccountTransferData;
@@ -78,6 +85,7 @@ public class SelfAccountTransferApiResource {
     private final SelfBeneficiariesTPTReadPlatformService tptBeneficiaryReadPlatformService;
     private final ConfigurationDomainService configurationDomainService;
     private final AccountTransfersReadPlatformService accountTransfersReadPlatformService;
+    private final CommandPipeline commandPipeline;
 
     @GET
     @Path("template")
@@ -103,32 +111,59 @@ public class SelfAccountTransferApiResource {
         return this.toApiJsonSerializer.serialize(settings, new SelfAccountTransferData(selfTemplateData, selfTemplateData));
     }
 
+    // @POST
+    // @Consumes({ MediaType.APPLICATION_JSON })
+    // @Produces({ MediaType.APPLICATION_JSON })
+    // @Operation(summary = "Create new Transfer", description = "Ability to create new transfer of monetary funds from
+    // one account to another.\n"
+    // + "\n" + "\n" + "Example Requests:\n" + "\n" + " self/accounttransfers/\n")
+    // @ApiResponses({
+    // @ApiResponse(responseCode = "200", description = "OK", content = @Content(array = @ArraySchema(schema =
+    // @Schema(implementation = SelfAccountTransferApiResourceSwagger.PostNewTransferResponse.class)))) })
+    // public CommandProcessingResult create(@DefaultValue("") @QueryParam("type") @Parameter(name = "type") final
+    // String type,
+    // AccountTransferRequest accountTransferRequest) {
+    // final String apiRequestBodyAsJson = toApiJsonSerializer.serialize(accountTransferRequest);
+    // Map<String, Object> params = this.dataValidator.validateCreate(type, apiRequestBodyAsJson);
+    // if (type.equals("tpt")) {
+    // checkForLimits(params);
+    // }
+    // return this.accountTransfersApiResource.create(accountTransferRequest);
+    //// return null;
+    // }
+
     @POST
     @Consumes({ MediaType.APPLICATION_JSON })
     @Produces({ MediaType.APPLICATION_JSON })
     @Operation(summary = "Create new Transfer", description = "Ability to create new transfer of monetary funds from one account to another.\n"
             + "\n" + "\n" + "Example Requests:\n" + "\n" + " self/accounttransfers/\n")
-    @ApiResponses({
-            @ApiResponse(responseCode = "200", description = "OK", content = @Content(array = @ArraySchema(schema = @Schema(implementation = SelfAccountTransferApiResourceSwagger.PostNewTransferResponse.class)))) })
-    public CommandProcessingResult create(@DefaultValue("") @QueryParam("type") @Parameter(name = "type") final String type,
-            AccountTransferRequest accountTransferRequest) {
+    public AccountTransferResponse create(@DefaultValue("") @QueryParam("type") @Parameter(name = "type") final String type,
+            @HeaderParam("Idempotency-Key") String idempotencyKey, @Valid AccountTransferRequest accountTransferRequest) {
         final String apiRequestBodyAsJson = toApiJsonSerializer.serialize(accountTransferRequest);
-        Map<String, Object> params = this.dataValidator.validateCreate(type, apiRequestBodyAsJson);
+        final Map<String, Object> params = dataValidator.validateCreate(type, apiRequestBodyAsJson);
         if (type.equals("tpt")) {
             checkForLimits(params);
         }
-        // return this.accountTransfersApiResource.create(accountTransferRequest);
-        return null;
+
+        final AccountTransferCreateCommand command = new AccountTransferCreateCommand();
+
+        command.setId(UUID.randomUUID());
+        command.setIdempotencyKey(idempotencyKey);
+        command.setCreatedAt(DateUtils.getAuditOffsetDateTime());
+        command.setPayload(accountTransferRequest);
+
+        final Supplier<AccountTransferResponse> response = commandPipeline.send(command);
+        return response.get();
     }
 
     private void checkForLimits(Map<String, Object> params) {
-        SelfAccountTemplateData fromAccount = (SelfAccountTemplateData) params.get("fromAccount");
-        SelfAccountTemplateData toAccount = (SelfAccountTemplateData) params.get("toAccount");
-        LocalDate transactionDate = (LocalDate) params.get("transactionDate");
-        BigDecimal transactionAmount = (BigDecimal) params.get("transactionAmount");
+        final SelfAccountTemplateData fromAccount = (SelfAccountTemplateData) params.get("fromAccount");
+        final SelfAccountTemplateData toAccount = (SelfAccountTemplateData) params.get("toAccount");
+        final LocalDate transactionDate = (LocalDate) params.get("transactionDate");
+        final BigDecimal transactionAmount = (BigDecimal) params.get("transactionAmount");
 
-        AppUser user = this.context.authenticatedUser();
-        Long transferLimit = this.tptBeneficiaryReadPlatformService.getTransferLimit(user.getId(), toAccount.getAccountId(),
+        final AppUser user = context.authenticatedUser();
+        final Long transferLimit = tptBeneficiaryReadPlatformService.getTransferLimit(user.getId(), toAccount.getAccountId(),
                 toAccount.getAccountType());
         if (transferLimit != null && transferLimit > 0) {
             if (transactionAmount.compareTo(new BigDecimal(transferLimit)) > 0) {
@@ -136,11 +171,11 @@ public class SelfAccountTransferApiResource {
             }
         }
 
-        if (this.configurationDomainService.isDailyTPTLimitEnabled()) {
-            Long dailyTPTLimit = this.configurationDomainService.getDailyTPTLimit();
+        if (configurationDomainService.isDailyTPTLimitEnabled()) {
+            final Long dailyTPTLimit = configurationDomainService.getDailyTPTLimit();
             if (dailyTPTLimit != null && dailyTPTLimit > 0) {
-                BigDecimal dailyTPTLimitBD = new BigDecimal(dailyTPTLimit);
-                BigDecimal totTransactionAmount = this.accountTransfersReadPlatformService
+                final BigDecimal dailyTPTLimitBD = new BigDecimal(dailyTPTLimit);
+                final BigDecimal totTransactionAmount = accountTransfersReadPlatformService
                         .getTotalTransactionAmount(fromAccount.getAccountId(), fromAccount.getAccountType(), transactionDate);
                 if (totTransactionAmount != null && totTransactionAmount.compareTo(BigDecimal.ZERO) > 0) {
                     if (dailyTPTLimitBD.compareTo(totTransactionAmount) <= 0
@@ -151,5 +186,4 @@ public class SelfAccountTransferApiResource {
             }
         }
     }
-
 }

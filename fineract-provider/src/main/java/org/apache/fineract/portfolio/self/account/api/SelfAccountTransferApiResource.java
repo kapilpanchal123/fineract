@@ -139,7 +139,7 @@ public class SelfAccountTransferApiResource {
             + "\n" + "\n" + "Example Requests:\n" + "\n" + " self/accounttransfers/\n")
     public AccountTransferResponse create(@DefaultValue("") @QueryParam("type") @Parameter(name = "type") final String type,
             @HeaderParam("Idempotency-Key") String idempotencyKey, @Valid AccountTransferRequest accountTransferRequest) {
-        final String apiRequestBodyAsJson = toApiJsonSerializer.serialize(accountTransferRequest);
+        // final String apiRequestBodyAsJson = toApiJsonSerializer.serialize(accountTransferRequest);
         // final Map<String, Object> params = dataValidator.validateCreate(type, apiRequestBodyAsJson);
 
         final Map<String, Object> params = Map.of("fromAccount", accountTransferRequest.getFromAccountId(), "toAccount",

@@ -19,23 +19,19 @@
 package org.apache.fineract.infrastructure.core.service;
 
 import java.util.Properties;
+import lombok.RequiredArgsConstructor;
 import org.apache.fineract.infrastructure.configuration.data.SMTPCredentialsData;
 import org.apache.fineract.infrastructure.configuration.service.ExternalServicesPropertiesReadPlatformService;
 import org.apache.fineract.infrastructure.core.domain.EmailDetail;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.mail.SimpleMailMessage;
 import org.springframework.mail.javamail.JavaMailSenderImpl;
 import org.springframework.stereotype.Service;
 
 @Service
+@RequiredArgsConstructor
 public class GmailBackedPlatformEmailService implements PlatformEmailService {
 
     private final ExternalServicesPropertiesReadPlatformService externalServicesReadPlatformService;
-
-    @Autowired
-    public GmailBackedPlatformEmailService(final ExternalServicesPropertiesReadPlatformService externalServicesReadPlatformService) {
-        this.externalServicesReadPlatformService = externalServicesReadPlatformService;
-    }
 
     @Override
     public void sendToUserAccount(String organisationName, String contactName, String address, String username, String unencodedPassword) {
@@ -77,9 +73,11 @@ public class GmailBackedPlatformEmailService implements PlatformEmailService {
         props.put("mail.smtp.starttls.enable", "true");
         // props.put("mail.smtp.ssl.enable", "true");
 
-        props.put("mail.smtp.socketFactory.port", Integer.parseInt(smtpCredentialsData.getPort()));
-        props.put("mail.smtp.socketFactory.class", "javax.net.ssl.SSLSocketFactory");// NOSONAR
-        props.put("mail.smtp.socketFactory.fallback", "true");
+        // props.put("mail.smtp.socketFactory.port", Integer.parseInt(smtpCredentialsData.getPort()));
+        //// props.put("mail.smtp.socketFactory.class", "javax.net.ssl.SSLSocketFactory");// NOSONAR
+        //// props.put("mail.smtp.socketFactory.fallback", "true");
+
+        props.put("mail.smtp.starttls.required", "true");
 
         try {
             SimpleMailMessage message = new SimpleMailMessage();

@@ -58,7 +58,7 @@ import org.apache.fineract.portfolio.loanaccount.loanschedule.domain.LoanSchedul
 import org.apache.fineract.portfolio.loanproduct.data.AdvancedPaymentData;
 import org.apache.fineract.portfolio.loanproduct.data.AdvancedPaymentData.PaymentAllocationOrder;
 import org.apache.fineract.portfolio.loanproduct.data.CreditAllocationData;
-import org.apache.fineract.portfolio.loanproduct.data.LoanProductBorrowerCycleVariationData;
+import org.apache.fineract.portfolio.loanproduct.data.LoanProductBorrowerCycleVariationData1;
 import org.apache.fineract.portfolio.loanproduct.data.LoanProductData;
 import org.apache.fineract.portfolio.loanproduct.data.LoanProductGuaranteeData;
 import org.apache.fineract.portfolio.loanproduct.data.LoanProductInterestRecalculationData;
@@ -93,7 +93,7 @@ public class LoanProductReadPlatformServiceImpl implements LoanProductReadPlatfo
         try {
             final Collection<ChargeData> charges = this.chargeReadPlatformService.retrieveLoanProductCharges(loanProductId);
             final Collection<RateData> rates = this.rateReadService.retrieveProductLoanRates(loanProductId);
-            final Collection<LoanProductBorrowerCycleVariationData> borrowerCycleVariationDatas = retrieveLoanProductBorrowerCycleVariations(
+            final Collection<LoanProductBorrowerCycleVariationData1> borrowerCycleVariationDatas = retrieveLoanProductBorrowerCycleVariations(
                     loanProductId);
             final Collection<AdvancedPaymentData> advancedPaymentData = retrieveAdvancedPaymentData(loanProductId);
             final Collection<CreditAllocationData> creditAllocationData = retrieveCreditAllocationData(loanProductId);
@@ -120,7 +120,7 @@ public class LoanProductReadPlatformServiceImpl implements LoanProductReadPlatfo
     }
 
     @Override
-    public Collection<LoanProductBorrowerCycleVariationData> retrieveLoanProductBorrowerCycleVariations(final Long loanProductId) {
+    public Collection<LoanProductBorrowerCycleVariationData1> retrieveLoanProductBorrowerCycleVariations(final Long loanProductId) {
         final LoanProductBorrowerCycleMapper rm = new LoanProductBorrowerCycleMapper();
         final String sql = "select " + rm.schema() + " where bc.loan_product_id=?  order by bc.borrower_cycle_number,bc.value_condition";
         return this.jdbcTemplate.query(sql, rm, loanProductId); // NOSONAR
@@ -220,7 +220,7 @@ public class LoanProductReadPlatformServiceImpl implements LoanProductReadPlatfo
 
         private final Collection<ChargeData> charges;
 
-        private final Collection<LoanProductBorrowerCycleVariationData> borrowerCycleVariationDatas;
+        private final Collection<LoanProductBorrowerCycleVariationData1> borrowerCycleVariationDatas;
 
         private final Collection<AdvancedPaymentData> advancedPaymentData;
 
@@ -231,9 +231,9 @@ public class LoanProductReadPlatformServiceImpl implements LoanProductReadPlatfo
         private final Collection<DelinquencyBucketData> delinquencyBucketOptions;
 
         LoanProductMapper(final Collection<ChargeData> charges,
-                final Collection<LoanProductBorrowerCycleVariationData> borrowerCycleVariationDatas, final Collection<RateData> rates,
-                final Collection<DelinquencyBucketData> delinquencyBucketOptions, Collection<AdvancedPaymentData> advancedPaymentData,
-                Collection<CreditAllocationData> creditAllocationData) {
+                          final Collection<LoanProductBorrowerCycleVariationData1> borrowerCycleVariationDatas, final Collection<RateData> rates,
+                          final Collection<DelinquencyBucketData> delinquencyBucketOptions, Collection<AdvancedPaymentData> advancedPaymentData,
+                          Collection<CreditAllocationData> creditAllocationData) {
             this.charges = charges;
             this.borrowerCycleVariationDatas = borrowerCycleVariationDatas;
             this.rates = rates;
@@ -417,8 +417,8 @@ public class LoanProductReadPlatformServiceImpl implements LoanProductReadPlatfo
             }
             final String externalId = rs.getString("externalId");
             final Collection<LoanProductBorrowerCycleVariationData> principalVariationsForBorrowerCycle = new ArrayList<>();
-            final Collection<LoanProductBorrowerCycleVariationData> interestRateVariationsForBorrowerCycle = new ArrayList<>();
-            final Collection<LoanProductBorrowerCycleVariationData> numberOfRepaymentVariationsForBorrowerCycle = new ArrayList<>();
+            final Collection<LoanProductBorrowerCycleVariationData1> interestRateVariationsForBorrowerCycle = new ArrayList<>();
+            final Collection<LoanProductBorrowerCycleVariationData1> numberOfRepaymentVariationsForBorrowerCycle = new ArrayList<>();
             if (this.borrowerCycleVariationDatas != null) {
                 for (final LoanProductBorrowerCycleVariationData borrowerCycleVariationData : this.borrowerCycleVariationDatas) {
                     final LoanProductParamType loanProductParamType = borrowerCycleVariationData.getLoanProductParamType();
@@ -697,7 +697,7 @@ public class LoanProductReadPlatformServiceImpl implements LoanProductReadPlatfo
 
     }
 
-    private static final class LoanProductBorrowerCycleMapper implements RowMapper<LoanProductBorrowerCycleVariationData> {
+    private static final class LoanProductBorrowerCycleMapper implements RowMapper<LoanProductBorrowerCycleVariationData1> {
 
         public String schema() {
             return "bc.id as id,bc.borrower_cycle_number as cycleNumber,bc.value_condition as conditionType,bc.param_type as paramType,"
@@ -706,7 +706,7 @@ public class LoanProductReadPlatformServiceImpl implements LoanProductReadPlatfo
         }
 
         @Override
-        public LoanProductBorrowerCycleVariationData mapRow(final ResultSet rs, @SuppressWarnings("unused") final int rowNum)
+        public LoanProductBorrowerCycleVariationData1 mapRow(final ResultSet rs, @SuppressWarnings("unused") final int rowNum)
                 throws SQLException {
             final Long id = rs.getLong("id");
             final Integer cycleNumber = JdbcSupport.getInteger(rs, "cycleNumber");
@@ -718,7 +718,7 @@ public class LoanProductReadPlatformServiceImpl implements LoanProductReadPlatfo
             final BigDecimal maxValue = rs.getBigDecimal("maxVal");
             final BigDecimal minValue = rs.getBigDecimal("minVal");
 
-            return new LoanProductBorrowerCycleVariationData(id, cycleNumber, paramTypeData, conditionTypeData, defaultValue, minValue,
+            return new LoanProductBorrowerCycleVariationData1(id, cycleNumber, paramTypeData, conditionTypeData, defaultValue, minValue,
                     maxValue);
         }
 

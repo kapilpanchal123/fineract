@@ -50,7 +50,7 @@ import org.apache.fineract.portfolio.group.data.GroupGeneralData;
 import org.apache.fineract.portfolio.loanaccount.domain.LoanStatus;
 import org.apache.fineract.portfolio.loanaccount.guarantor.data.IGuarantor;
 import org.apache.fineract.portfolio.loanaccount.loanschedule.data.LoanScheduleData;
-import org.apache.fineract.portfolio.loanproduct.data.LoanProductBorrowerCycleVariationData;
+import org.apache.fineract.portfolio.loanproduct.data.LoanProductBorrowerCycleVariationData1;
 import org.apache.fineract.portfolio.loanproduct.data.LoanProductData;
 import org.apache.fineract.portfolio.loanproduct.data.TransactionProcessingStrategyData;
 import org.apache.fineract.portfolio.loanproduct.domain.LoanProductValueConditionType;
@@ -374,11 +374,11 @@ public class LoanAccountData {
 
         Integer numberOfRepayments = null;
         if (product.isUseBorrowerCycle() && loanCycleNumber != null && loanCycleNumber > 0) {
-            Collection<LoanProductBorrowerCycleVariationData> principalVariationsForBorrowerCycle = product
+            Collection<LoanProductBorrowerCycleVariationData1> principalVariationsForBorrowerCycle = product
                     .getPrincipalVariationsForBorrowerCycle();
-            Collection<LoanProductBorrowerCycleVariationData> interestForVariationsForBorrowerCycle = product
+            Collection<LoanProductBorrowerCycleVariationData1> interestForVariationsForBorrowerCycle = product
                     .getInterestRateVariationsForBorrowerCycle();
-            Collection<LoanProductBorrowerCycleVariationData> repaymentVariationsForBorrowerCycle = product
+            Collection<LoanProductBorrowerCycleVariationData1> repaymentVariationsForBorrowerCycle = product
                     .getNumberOfRepaymentVariationsForBorrowerCycle();
             principal = fetchLoanCycleDefaultValue(principalVariationsForBorrowerCycle, loanCycleNumber);
             proposedPrincipal = principal;
@@ -615,11 +615,11 @@ public class LoanAccountData {
             Long clientId = mapEntry.getKey();
             Integer loanCycleNumber = mapEntry.getValue();
             if (product.isUseBorrowerCycle() && loanCycleNumber != null && loanCycleNumber > 0) {
-                Collection<LoanProductBorrowerCycleVariationData> principalVariationsForBorrowerCycle = product
+                Collection<LoanProductBorrowerCycleVariationData1> principalVariationsForBorrowerCycle = product
                         .getPrincipalVariationsForBorrowerCycle();
-                Collection<LoanProductBorrowerCycleVariationData> interestForVariationsForBorrowerCycle = product
+                Collection<LoanProductBorrowerCycleVariationData1> interestForVariationsForBorrowerCycle = product
                         .getInterestRateVariationsForBorrowerCycle();
-                Collection<LoanProductBorrowerCycleVariationData> repaymentVariationsForBorrowerCycle = product
+                Collection<LoanProductBorrowerCycleVariationData1> repaymentVariationsForBorrowerCycle = product
                         .getNumberOfRepaymentVariationsForBorrowerCycle();
                 principal = fetchLoanCycleDefaultValue(principalVariationsForBorrowerCycle, loanCycleNumber);
                 interestRatePerPeriod = fetchLoanCycleDefaultValue(interestForVariationsForBorrowerCycle, loanCycleNumber);
@@ -661,11 +661,11 @@ public class LoanAccountData {
         return clientOfLoan1.compareTo(clientOfLoan2);
     };
 
-    private static BigDecimal fetchLoanCycleDefaultValue(Collection<LoanProductBorrowerCycleVariationData> borrowerCycleVariationData,
+    private static BigDecimal fetchLoanCycleDefaultValue(Collection<LoanProductBorrowerCycleVariationData1> borrowerCycleVariationData,
             Integer loanCycleNumber) {
         BigDecimal defaultValue = null;
         Integer cycleNumberSelected = 0;
-        for (LoanProductBorrowerCycleVariationData data : borrowerCycleVariationData) {
+        for (LoanProductBorrowerCycleVariationData1 data : borrowerCycleVariationData) {
             if (isLoanCycleValuesWhenConditionEqual(loanCycleNumber, data)
                     || isLoanCycleValuesWhenConditionGreterthan(loanCycleNumber, cycleNumberSelected, data)) {
                 cycleNumberSelected = data.getBorrowerCycleNumber();
@@ -677,13 +677,13 @@ public class LoanAccountData {
     }
 
     private static boolean isLoanCycleValuesWhenConditionGreterthan(Integer loanCycleNumber, Integer cycleNumberSelected,
-            LoanProductBorrowerCycleVariationData data) {
+            LoanProductBorrowerCycleVariationData1 data) {
         return data.getBorrowerCycleNumber() < loanCycleNumber
                 && data.getLoanProductValueConditionType().equals(LoanProductValueConditionType.GREATERTHAN)
                 && cycleNumberSelected < data.getBorrowerCycleNumber();
     }
 
-    private static boolean isLoanCycleValuesWhenConditionEqual(Integer loanCycleNumber, LoanProductBorrowerCycleVariationData data) {
+    private static boolean isLoanCycleValuesWhenConditionEqual(Integer loanCycleNumber, LoanProductBorrowerCycleVariationData1 data) {
         return data.getBorrowerCycleNumber().equals(loanCycleNumber)
                 && data.getLoanProductValueConditionType().equals(LoanProductValueConditionType.EQUAL);
     }

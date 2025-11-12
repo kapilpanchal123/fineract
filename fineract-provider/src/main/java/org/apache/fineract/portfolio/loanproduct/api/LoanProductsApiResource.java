@@ -96,6 +96,7 @@ import org.apache.fineract.portfolio.loanaccount.loanschedule.domain.LoanSchedul
 import org.apache.fineract.portfolio.loanaccount.loanschedule.domain.LoanScheduleType;
 import org.apache.fineract.portfolio.loanproduct.LoanProductConstants;
 import org.apache.fineract.portfolio.loanproduct.data.LoanProductData;
+import org.apache.fineract.portfolio.loanproduct.data.LoanProductRequestDTO;
 import org.apache.fineract.portfolio.loanproduct.data.TransactionProcessingStrategyData;
 import org.apache.fineract.portfolio.loanproduct.domain.AllocationType;
 import org.apache.fineract.portfolio.loanproduct.domain.CreditAllocationTransactionType;
@@ -172,6 +173,63 @@ public class LoanProductsApiResource {
     private final DelinquencyReadPlatformService delinquencyReadPlatformService;
     private final CodeValueReadPlatformService codeValueReadPlatformService;
 
+    // @POST
+    // @Consumes({ MediaType.APPLICATION_JSON })
+    // @Produces({ MediaType.APPLICATION_JSON })
+    // @Operation(summary = "Create a Loan Product", description = "Depending of the Accounting Rule (accountingRule)
+    // selected, additional fields with details of the appropriate Ledger Account identifiers would need to be passed
+    // in.\n"
+    // + "\n" + "Refer MifosX Accounting Specs Draft for more details regarding the significance of the selected
+    // accounting rule\n\n"
+    // + "Mandatory Fields: name, shortName, currencyCode, digitsAfterDecimal, inMultiplesOf, principal,
+    // numberOfRepayments, repaymentEvery, repaymentFrequencyType, interestRatePerPeriod, interestRateFrequencyType,
+    // amortizationType, interestType, interestCalculationPeriodType, transactionProcessingStrategyCode, accountingRule,
+    // isInterestRecalculationEnabled, daysInYearType, daysInMonthType\n\n"
+    // + "Optional Fields: inArrearsTolerance, graceOnPrincipalPayment, graceOnInterestPayment, graceOnInterestCharged,
+    // graceOnArrearsAgeing, charges, paymentChannelToFundSourceMappings, feeToIncomeAccountMappings,
+    // penaltyToIncomeAccountMappings, chargeOffReasonToExpenseAccountMappings, includeInBorrowerCycle,
+    // useBorrowerCycle,principalVariationsForBorrowerCycle, numberOfRepaymentVariationsForBorrowerCycle,
+    // interestRateVariationsForBorrowerCycle, multiDisburseLoan,maxTrancheCount,
+    // outstandingLoanBalance,overdueDaysForNPA,holdGuaranteeFunds, principalThresholdForLastInstalment,
+    // accountMovesOutOfNPAOnlyOnArrearsCompletion, canDefineInstallmentAmount, installmentAmountInMultiplesOf,
+    // allowAttributeOverrides,
+    // allowPartialPeriodInterestCalcualtion,dueDaysForRepaymentEvent,overDueDaysForRepaymentEvent,enableDownPayment,disbursedAmountPercentageDownPayment,enableAutoRepaymentForDownPayment,repaymentStartDateType,enableBuyDownFee\n\n"
+    // + "Additional Mandatory Fields for Cash(2) based accounting: fundSourceAccountId, loanPortfolioAccountId,
+    // interestOnLoanAccountId, incomeFromFeeAccountId, incomeFromPenaltyAccountId, writeOffAccountId,
+    // transfersInSuspenseAccountId, overpaymentLiabilityAccountId\n\n"
+    // + "Additional Mandatory Fields for periodic (3) and upfront (4)accrual accounting: fundSourceAccountId,
+    // loanPortfolioAccountId, interestOnLoanAccountId, incomeFromFeeAccountId, incomeFromPenaltyAccountId,
+    // writeOffAccountId, receivableInterestAccountId, receivableFeeAccountId, receivablePenaltyAccountId,
+    // transfersInSuspenseAccountId, overpaymentLiabilityAccountId\n\n"
+    // + "Additional Mandatory Fields if interest recalculation is enabled(true):
+    // interestRecalculationCompoundingMethod, rescheduleStrategyMethod, recalculationRestFrequencyType\n\n"
+    // + "Additional Optional Fields if interest recalculation is enabled(true): isArrearsBasedOnOriginalSchedule,
+    // preClosureInterestCalculationStrategy\n\n"
+    // + "Additional Optional Fields if interest recalculation is enabled(true) and recalculationRestFrequencyType is
+    // not same as repayment period: recalculationRestFrequencyInterval, recalculationRestFrequencyDate\n\n"
+    // + "Additional Optional Fields if interest recalculation is enabled(true) and
+    // interestRecalculationCompoundingMethod is enabled: recalculationCompoundingFrequencyType\n\n"
+    // + "Additional Optional Fields if interest recalculation is enabled(true) and
+    // interestRecalculationCompoundingMethod is enabled and recalculationCompoundingFrequencyType is not same as
+    // repayment period: recalculationCompoundingFrequencyInterval, recalculationCompoundingFrequencyDate\n\n"
+    // + "Additional Mandatory Fields if Hold Guarantee funds is enabled(true): mandatoryGuarantee\n\n"
+    // + "Additional Optional Fields if Hold Guarantee funds is enabled(true):
+    // minimumGuaranteeFromOwnFunds,minimumGuaranteeFromGuarantor")
+    // @RequestBody(required = true, content = @Content(schema = @Schema(implementation =
+    // LoanProductsApiResourceSwagger.PostLoanProductsRequest.class)))
+    // @ApiResponses({
+    // @ApiResponse(responseCode = "200", description = "OK", content = @Content(schema = @Schema(implementation =
+    // LoanProductsApiResourceSwagger.PostLoanProductsResponse.class))) })
+    // public String createLoanProduct(@Parameter(hidden = true) final String apiRequestBodyAsJson) {
+    //
+    // final CommandWrapper commandRequest = new
+    // CommandWrapperBuilder().createLoanProduct().withJson(apiRequestBodyAsJson).build();
+    //
+    // final CommandProcessingResult result = this.commandsSourceWritePlatformService.logCommandSource(commandRequest);
+    //
+    // return this.toApiJsonSerializer.serialize(result);
+    // }
+
     @POST
     @Consumes({ MediaType.APPLICATION_JSON })
     @Produces({ MediaType.APPLICATION_JSON })
@@ -188,16 +246,21 @@ public class LoanProductsApiResource {
             + "Additional Optional Fields if interest recalculation is enabled(true) and interestRecalculationCompoundingMethod is enabled and recalculationCompoundingFrequencyType is not same as repayment period: recalculationCompoundingFrequencyInterval, recalculationCompoundingFrequencyDate\n\n"
             + "Additional Mandatory Fields if Hold Guarantee funds is enabled(true): mandatoryGuarantee\n\n"
             + "Additional Optional Fields if Hold Guarantee funds is enabled(true): minimumGuaranteeFromOwnFunds,minimumGuaranteeFromGuarantor")
-    @RequestBody(required = true, content = @Content(schema = @Schema(implementation = LoanProductsApiResourceSwagger.PostLoanProductsRequest.class)))
-    @ApiResponses({
-            @ApiResponse(responseCode = "200", description = "OK", content = @Content(schema = @Schema(implementation = LoanProductsApiResourceSwagger.PostLoanProductsResponse.class))) })
-    public String createLoanProduct(@Parameter(hidden = true) final String apiRequestBodyAsJson) {
+    // @RequestBody(required = true, content = @Content(schema = @Schema(implementation =
+    // LoanProductsApiResourceSwagger.PostLoanProductsRequest.class)))
+    // @ApiResponses({
+    // @ApiResponse(responseCode = "200", description = "OK", content = @Content(schema = @Schema(implementation =
+    // LoanProductsApiResourceSwagger.PostLoanProductsResponse.class))) })
+    public LoanProductRequestDTO createLoanProduct(@Parameter(hidden = false) final LoanProductRequestDTO loanProductRequestDTO) {
 
-        final CommandWrapper commandRequest = new CommandWrapperBuilder().createLoanProduct().withJson(apiRequestBodyAsJson).build();
-
-        final CommandProcessingResult result = this.commandsSourceWritePlatformService.logCommandSource(commandRequest);
-
-        return this.toApiJsonSerializer.serialize(result);
+        // final CommandWrapper commandRequest = new
+        // CommandWrapperBuilder().createLoanProduct().withJson(apiRequestBodyAsJson).build();
+        //
+        // final CommandProcessingResult result =
+        // this.commandsSourceWritePlatformService.logCommandSource(commandRequest);
+        //
+        // return this.toApiJsonSerializer.serialize(result);
+        return loanProductRequestDTO;
     }
 
     @GET

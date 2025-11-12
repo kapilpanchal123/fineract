@@ -251,7 +251,7 @@ public class LoanProductsApiResource {
     // @ApiResponses({
     // @ApiResponse(responseCode = "200", description = "OK", content = @Content(schema = @Schema(implementation =
     // LoanProductsApiResourceSwagger.PostLoanProductsResponse.class))) })
-    public LoanProductRequestDTO createLoanProduct(@Parameter(hidden = false) final LoanProductRequestDTO loanProductRequestDTO) {
+    public LoanProductRequestDTO createLoanProduct(@Parameter final LoanProductRequestDTO loanProductRequestDTO) {
 
         // final CommandWrapper commandRequest = new
         // CommandWrapperBuilder().createLoanProduct().withJson(apiRequestBodyAsJson).build();

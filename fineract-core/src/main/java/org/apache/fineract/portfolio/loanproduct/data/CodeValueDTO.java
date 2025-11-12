@@ -37,9 +37,9 @@ public class CodeValueDTO implements Serializable {
     private static final long serialVersionUID = 1L;
 
     private String label;
-    private int position;
+    private Integer position;
     private String description;
     private CodeDTO code;
-    private boolean isActive;
-    private boolean mandatory;
+    private Boolean isActive;
+    private Boolean mandatory;
 }

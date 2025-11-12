@@ -40,6 +40,6 @@ public class RateDTO implements Serializable {
     private String name;
     private BigDecimal percentage;
     private Integer productApply;
-    private boolean active;
+    private Boolean active;
     private AppUserDTO approveUser;
 }

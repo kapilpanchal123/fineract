@@ -43,18 +43,18 @@ public class AppUserDTO implements Serializable {
     private String firstname;
     private String lastname;
     private String password;
-    private boolean accountNonExpired;
-    private boolean accountNonLocked;
-    private boolean credentialsNonExpired;
-    private boolean enabled;
-    private boolean firstTimeLoginRemaining;
-    private boolean deleted;
+    private Boolean accountNonExpired;
+    private Boolean accountNonLocked;
+    private Boolean credentialsNonExpired;
+    private Boolean enabled;
+    private Boolean firstTimeLoginRemaining;
+    private Boolean deleted;
     private OfficeDTO office;
     private StaffDTO staff;
     private Set<RoleDTO> roles;
     private LocalDate lastTimePasswordUpdated;
-    private boolean passwordNeverExpires;
-    private boolean isSelfServiceUser;
+    private Boolean passwordNeverExpires;
+    private Boolean isSelfServiceUser;
     private Set<AppUserClientMappingDTO> appUserClientMappings;
     private Boolean cannotChangePassword;
 }

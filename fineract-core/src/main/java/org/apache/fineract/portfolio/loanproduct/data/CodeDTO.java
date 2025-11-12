@@ -38,6 +38,6 @@ public class CodeDTO implements Serializable {
     private static final long serialVersionUID = 1L;
 
     private String name;
-    private boolean systemDefined;
+    private Boolean systemDefined;
     private Set<CodeValueDTO> values;
 }

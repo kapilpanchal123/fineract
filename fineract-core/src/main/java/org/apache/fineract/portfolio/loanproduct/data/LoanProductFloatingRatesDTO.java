@@ -43,5 +43,5 @@ public class LoanProductFloatingRatesDTO implements Serializable {
     private BigDecimal minDifferentialLendingRate;
     private BigDecimal defaultDifferentialLendingRate;
     private BigDecimal maxDifferentialLendingRate;
-    private boolean isFloatingInterestRateCalculationAllowed;
+    private Boolean isFloatingInterestRateCalculationAllowed;
 }

@@ -44,10 +44,10 @@ public class ChargeDataDTO implements Serializable {
     private Long id;
     private String name;
 
-    private boolean active;
-    private boolean penalty;
-    private boolean freeWithdrawal;
-    private boolean isPaymentType;
+    private Boolean active;
+    private Boolean penalty;
+    private Boolean freeWithdrawal;
+    private Boolean isPaymentType;
 
     private Integer freeWithdrawalChargeFrequency;
     private Integer restartFrequency;

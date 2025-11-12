@@ -49,7 +49,7 @@ public class LoanProductInterestRecalculationDetailsDTO implements Serializable 
     private Integer compoundingFrequencyNthDay;
     private Integer compoundingFrequencyWeekday;
     private Integer compoundingFrequencyOnDay;
-    private boolean isArrearsBasedOnOriginalSchedule;
+    private Boolean isArrearsBasedOnOriginalSchedule;
     private Integer preCloseInterestCalculationStrategy;
     private Boolean isCompoundingToBePostedAsTransaction;
     private Boolean allowCompoundingOnEod;

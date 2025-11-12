@@ -38,7 +38,7 @@ public class FloatingRateDTO implements Serializable {
     private static final long serialVersionUID = 1L;
 
     private String name;
-    private boolean isBaseLendingRate;
-    private boolean isActive;
+    private Boolean isBaseLendingRate;
+    private Boolean isActive;
     private List<FloatingRatePeriodDTO> floatingRatePeriods;
 }

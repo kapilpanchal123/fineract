@@ -42,8 +42,8 @@ public class GLAccountDTO implements Serializable {
     private List<GLAccountDTO> children;
     private String name;
     private String glCode;
-    private boolean disabled;
-    private boolean manualEntriesAllowed;
+    private Boolean disabled;
+    private Boolean manualEntriesAllowed;
     private Integer type;
     private Integer usage;
     private String description;

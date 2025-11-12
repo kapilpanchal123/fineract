@@ -44,9 +44,9 @@ public class StaffDTO implements Serializable {
     private String externalId;
     private String emailAddress;
     private OfficeDTO office;
-    private boolean loanOfficer;
+    private Boolean loanOfficer;
     private Integer organisationalRoleType;
-    private boolean active;
+    private Boolean active;
     private LocalDate joiningDate;
     private StaffDTO organisationalRoleParentStaff;
     private ImageDTO image;

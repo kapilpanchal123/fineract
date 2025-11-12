@@ -48,8 +48,8 @@ public class LoanProductRequestDTO implements Serializable {
     private String description;
     private Long fundId;
     private String fundName;
-    private boolean includeInBorrowerCycle;
-    private boolean useBorrowerCycle;
+    private Boolean includeInBorrowerCycle;
+    private Boolean useBorrowerCycle;
     private LocalDate startDate;
     private LocalDate closeDate;
     private String status;
@@ -71,17 +71,17 @@ public class LoanProductRequestDTO implements Serializable {
     private EnumOptionData interestRateFrequencyType;
     private BigDecimal annualInterestRate;
 
-    private boolean isLinkedToFloatingInterestRates;
+    private Boolean isLinkedToFloatingInterestRates;
     private Integer floatingRateId;
     private String floatingRateName;
     private BigDecimal interestRateDifferential;
     private BigDecimal minDifferentialLendingRate;
     private BigDecimal defaultDifferentialLendingRate;
     private BigDecimal maxDifferentialLendingRate;
-    private boolean isFloatingInterestRateCalculationAllowed;
+    private Boolean isFloatingInterestRateCalculationAllowed;
 
     // Variable Installments Settings
-    private boolean allowVariableInstallments;
+    private Boolean allowVariableInstallments;
     private Integer minimumGap;
     private Integer maximumGap;
 
@@ -103,10 +103,10 @@ public class LoanProductRequestDTO implements Serializable {
     private Integer overdueDaysForNPA;
     private EnumOptionData daysInMonthType;
     private EnumOptionData daysInYearType;
-    private boolean isInterestRecalculationEnabled;
+    private Boolean isInterestRecalculationEnabled;
     private LoanProductInterestRecalculationDataDTO interestRecalculationData;
     private Integer minimumDaysBetweenDisbursalAndFirstRepayment;
-    private boolean canDefineInstallmentAmount;
+    private Boolean canDefineInstallmentAmount;
     private Integer installmentAmountInMultiplesOf;
     private EnumOptionData repaymentStartDateType;
     private List<StringEnumOptionData> supportedInterestRefundTypes;
@@ -120,17 +120,17 @@ public class LoanProductRequestDTO implements Serializable {
     private List<LoanProductBorrowerCycleVariationDataDTO> numberOfRepaymentVariationsForBorrowerCycle;
     // accounting
     private EnumOptionData accountingRule;
-    private boolean canUseForTopup;
+    private Boolean canUseForTopup;
     private Map<String, Object> accountingMappings;
     private List<PaymentTypeToGLAccountMapperDTO> paymentChannelToFundSourceMappings;
     private List<ChargeToGLAccountMapperDTO> feeToIncomeAccountMappings;
     private List<ChargeToGLAccountMapperDTO> penaltyToIncomeAccountMappings;
     private List<AdvancedMappingToExpenseAccountDataDTO> chargeOffReasonToExpenseAccountMappings;
-    private boolean enableAccrualActivityPosting;
+    private Boolean enableAccrualActivityPosting;
     private List<AdvancedMappingToExpenseAccountDataDTO> writeOffReasonsToExpenseMappings;
     private List<CodeValueDataDTO> writeOffReasonOptions;
     // rates
-    private boolean isRatesEnabled;
+    private Boolean isRatesEnabled;
     private List<RateDataDTO> rates;
 
     // template related
@@ -186,8 +186,8 @@ public class LoanProductRequestDTO implements Serializable {
     private LoanProductGuaranteeDataDTO productGuaranteeData;
     private Boolean accountMovesOutOfNPAOnlyOnArrearsCompletion;
     private LoanProductConfigurableAttributesDTO allowAttributeOverrides;
-    private boolean syncExpectedWithDisbursementDate;
-    private boolean isEqualAmortization;
+    private Boolean syncExpectedWithDisbursementDate;
+    private Boolean isEqualAmortization;
     private BigDecimal fixedPrincipalPercentagePerInstallment;
 
     private List<CodeValueDataDTO> chargeOffReasonOptions;
@@ -199,14 +199,14 @@ public class LoanProductRequestDTO implements Serializable {
     private Integer dueDaysForRepaymentEvent;
     private Integer overDueDaysForRepaymentEvent;
 
-    private boolean enableDownPayment;
+    private Boolean enableDownPayment;
     private BigDecimal disbursedAmountPercentageForDownPayment;
-    private boolean enableAutoRepaymentForDownPayment;
-    private boolean enableInstallmentLevelDelinquency;
+    private Boolean enableAutoRepaymentForDownPayment;
+    private Boolean enableInstallmentLevelDelinquency;
 
     private EnumOptionData loanScheduleType;
     private EnumOptionData loanScheduleProcessingType;
-    private boolean interestRecognitionOnDisbursementDate;
+    private Boolean interestRecognitionOnDisbursementDate;
     private List<StringEnumOptionData> daysInYearCustomStrategyOptions;
     private StringEnumOptionData daysInYearCustomStrategy;
     private Boolean enableIncomeCapitalization;
@@ -220,7 +220,7 @@ public class LoanProductRequestDTO implements Serializable {
     private StringEnumOptionData buyDownFeeCalculationType;
     private StringEnumOptionData buyDownFeeStrategy;
     private StringEnumOptionData buyDownFeeIncomeType;
-    private boolean merchantBuyDownFee;
+    private Boolean merchantBuyDownFee;
     private List<StringEnumOptionData> buyDownFeeCalculationTypeOptions;
     private List<StringEnumOptionData> buyDownFeeStrategyOptions;
     private List<StringEnumOptionData> buyDownFeeIncomeTypeOptions;

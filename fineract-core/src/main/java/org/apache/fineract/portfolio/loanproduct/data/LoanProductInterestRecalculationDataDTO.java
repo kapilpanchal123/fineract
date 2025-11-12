@@ -51,9 +51,9 @@ public class LoanProductInterestRecalculationDataDTO implements Serializable {
     private EnumOptionData recalculationCompoundingFrequencyNthDay;
     private EnumOptionData recalculationCompoundingFrequencyWeekday;
     private Integer recalculationCompoundingFrequencyOnDay;
-    private boolean isArrearsBasedOnOriginalSchedule;
-    private boolean isCompoundingToBePostedAsTransaction;
+    private Boolean isArrearsBasedOnOriginalSchedule;
+    private Boolean isCompoundingToBePostedAsTransaction;
     private EnumOptionData preClosureInterestCalculationStrategy;
-    private boolean allowCompoundingOnEod;
+    private Boolean allowCompoundingOnEod;
     private Boolean disallowInterestCalculationOnPastDue;
 }

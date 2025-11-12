@@ -53,7 +53,7 @@ public class ClientDTO implements Serializable {
     private String displayName;
     private String mobileNo;
     private String emailAddress;
-    private boolean isStaff;
+    private Boolean isStaff;
     private ExternalIdDTO externalId;
     private LocalDate dateOfBirth;
     private CodeValueDTO gender;

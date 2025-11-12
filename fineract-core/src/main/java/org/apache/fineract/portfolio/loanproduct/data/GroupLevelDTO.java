@@ -37,8 +37,8 @@ public class GroupLevelDTO implements Serializable {
     private static final long serialVersionUID = 1L;
 
     private Long parentId;
-    private boolean superParent;
+    private Boolean superParent;
     private String levelName;
-    private boolean recursable;
-    private boolean canHaveClients;
+    private Boolean recursable;
+    private Boolean canHaveClients;
 }

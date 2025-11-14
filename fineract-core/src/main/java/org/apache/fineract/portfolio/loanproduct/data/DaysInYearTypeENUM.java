@@ -23,22 +23,31 @@ import lombok.AllArgsConstructor;
 import lombok.Getter;
 
 @AllArgsConstructor
-public enum DaysInYearCustomStrategyTypeENUM implements Serializable {
+public enum DaysInYearTypeENUM implements Serializable {
 
-    FULL_LEAP_YEAR("DaysInYearCustomStrategyType.fullLeapYear", "Full Leap Year"), //
-    FEB_29_PERIOD_ONLY("DaysInYearCustomStrategyType.feb29PeriodOnly", "Feb 29 Period Only"); //
+  INVALID(0, "DaysInYearType.invalid"), //
+  ACTUAL(1, "DaysInYearType.actual"), //
+  DAYS_360(360, "DaysInYearType.days360"), //
+  DAYS_364(364, "DaysInYearType.days364"), //
+  DAYS_365(365, "DaysInYearType.days365");
 
-    @Getter
-    private final String code;
+  @Getter
+  private final Integer value;
 
-    @Getter
-    private final String humanReadableName;
+  @Getter
+  private final String code;
 
-    public static DaysInYearCustomStrategyTypeENUM fromInt(final Integer selectedMethod) {
-      return switch (selectedMethod) {
-        case 0 -> DaysInYearCustomStrategyTypeENUM.FULL_LEAP_YEAR;
-        case 1 -> DaysInYearCustomStrategyTypeENUM.FEB_29_PERIOD_ONLY;
-        default -> DaysInYearCustomStrategyTypeENUM.FULL_LEAP_YEAR;
+  public static DaysInYearTypeENUM fromInt(final Integer type) {
+    DaysInYearTypeENUM repaymentFrequencyType = DaysInYearTypeENUM.INVALID;
+    if (type != null) {
+      repaymentFrequencyType = switch (type) {
+        case 1 -> DaysInYearTypeENUM.ACTUAL;
+        case 360 -> DaysInYearTypeENUM.DAYS_360;
+        case 364 -> DaysInYearTypeENUM.DAYS_364;
+        case 365 -> DaysInYearTypeENUM.DAYS_365;
+        default -> repaymentFrequencyType;
       };
     }
+    return repaymentFrequencyType;
+  }
 }

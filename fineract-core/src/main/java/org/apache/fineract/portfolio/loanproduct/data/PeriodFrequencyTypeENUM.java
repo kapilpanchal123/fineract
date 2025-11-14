@@ -37,4 +37,19 @@ public enum PeriodFrequencyTypeENUM implements Serializable {
 
     @Getter
     private final String code;
+
+    public static PeriodFrequencyTypeENUM fromInt(final Integer v) {
+      if (v == null) {
+        return INVALID;
+      }
+
+      return switch (v) {
+        case 0 -> DAYS;
+        case 1 -> WEEKS;
+        case 2 -> MONTHS;
+        case 3 -> YEARS;
+        case 4 -> WHOLE_TERM;
+        default -> INVALID;
+      };
+    }
 }

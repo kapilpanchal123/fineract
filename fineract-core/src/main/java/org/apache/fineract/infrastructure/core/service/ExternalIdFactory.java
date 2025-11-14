@@ -25,6 +25,7 @@ import org.apache.commons.lang3.StringUtils;
 import org.apache.fineract.infrastructure.configuration.domain.ConfigurationDomainService;
 import org.apache.fineract.infrastructure.core.api.JsonCommand;
 import org.apache.fineract.infrastructure.core.domain.ExternalId;
+import org.apache.fineract.portfolio.loanproduct.data.ExternalIdDTO;
 import org.springframework.stereotype.Component;
 
 @Component
@@ -35,6 +36,10 @@ public class ExternalIdFactory {
 
     public static ExternalId produce(String value) {
         return StringUtils.isBlank(value) ? ExternalId.empty() : new ExternalId(value);
+    }
+
+    public static ExternalIdDTO produceDTO(String value) {
+      return StringUtils.isBlank(value) ? ExternalIdDTO.empty() : new ExternalIdDTO(value);
     }
 
     public static List<ExternalId> produce(List<String> values) {

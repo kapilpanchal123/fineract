@@ -23,34 +23,31 @@ import java.util.HashMap;
 import java.util.Map;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
-import org.apache.fineract.accounting.common.AccountingRuleType;
 
 @AllArgsConstructor
-public enum AccountingRuleTypeENUM implements Serializable {
+public enum LoanRescheduleStrategyMethodENUM implements Serializable {
 
-    NONE(1, "accountingRuleType.none", "No accounting"), //
-    CASH_BASED(2, "accountingRuleType.cash", "Cash based accounting"), //
-    ACCRUAL_PERIODIC(3, "accountingRuleType.accrual.periodic", "Periodic accrual accounting"), //
-    ACCRUAL_UPFRONT(4, "accountingRuleType.accrual.upfront", "Upfront accrual accounting"); //
+  INVALID(0, "loanRescheduleStrategyMethod.invalid"), //
+  RESCHEDULE_NEXT_REPAYMENTS(1, "loanRescheduleStrategyMethod.reschedule.next.repayments"), //
+  REDUCE_NUMBER_OF_INSTALLMENTS(2, "loanRescheduleStrategyMethod.reduce.number.of.installments"), //
+  REDUCE_EMI_AMOUNT(3, "loanRescheduleStrategyMethod.reduce.emi.amount"), //
+  ADJUST_LAST_UNPAID_PERIOD(4, "loanRescheduleStrategyMethod.adjust.last.unpaid.period");
 
-    @Getter
-    private final Integer value;
+  @Getter
+  private final Integer value;
 
-    @Getter
-    private final String code;
+  @Getter
+  private final String code;
 
-    @Getter
-    private final String description;
+  private static final Map<Integer, LoanRescheduleStrategyMethodENUM> intToEnumMap = new HashMap<>();
 
-    private static final Map<Integer, AccountingRuleTypeENUM> intToEnumMap = new HashMap<>();
-
-    static {
-      for (final AccountingRuleTypeENUM type : AccountingRuleTypeENUM.values()) {
-        intToEnumMap.put(type.getValue(), type);
-      }
+  static {
+    for (final LoanRescheduleStrategyMethodENUM type : LoanRescheduleStrategyMethodENUM.values()) {
+      intToEnumMap.put(type.value, type);
     }
+  }
 
-    public static AccountingRuleTypeENUM fromInt(final Integer ruleTypeValue) {
-      return intToEnumMap.get(ruleTypeValue);
-    }
+  public static LoanRescheduleStrategyMethodENUM fromInt(final Integer ruleTypeValue) {
+    return intToEnumMap.get(ruleTypeValue);
+  }
 }

@@ -33,4 +33,15 @@ public enum LoanBuyDownFeeIncomeTypeENUM implements Serializable {
 
     @Getter
     private final String humanReadableName;
+
+    public static LoanBuyDownFeeIncomeTypeENUM fromString(String code) {
+      if (code == null) {
+        return LoanBuyDownFeeIncomeTypeENUM.INTEREST;
+      }
+      return switch (code) {
+        case "fee" -> LoanBuyDownFeeIncomeTypeENUM.FEE;
+        case "interest" -> LoanBuyDownFeeIncomeTypeENUM.INTEREST;
+        default -> LoanBuyDownFeeIncomeTypeENUM.INTEREST;
+      };
+    }
 }

@@ -34,4 +34,15 @@ public enum AmortizationMethodENUM implements Serializable {
 
     @Getter
     private final String code;
+
+    public static AmortizationMethodENUM fromInt(final Integer selectedMethod) {
+      if (selectedMethod == null) {
+        return null;
+      }
+      return switch (selectedMethod) {
+        case 0 -> AmortizationMethodENUM.EQUAL_PRINCIPAL;
+        case 1 -> AmortizationMethodENUM.EQUAL_INSTALLMENTS;
+        default -> AmortizationMethodENUM.INVALID;
+      };
+    }
 }

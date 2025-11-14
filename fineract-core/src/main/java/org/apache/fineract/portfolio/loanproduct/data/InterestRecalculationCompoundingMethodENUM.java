@@ -19,26 +19,33 @@
 package org.apache.fineract.portfolio.loanproduct.data;
 
 import java.io.Serializable;
+import java.util.HashMap;
+import java.util.Map;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 
 @AllArgsConstructor
-public enum DaysInYearCustomStrategyTypeENUM implements Serializable {
+public enum InterestRecalculationCompoundingMethodENUM implements Serializable {
+  NONE(0, "interestRecalculationCompoundingMethod.none"), //
+  INTEREST(1, "interestRecalculationCompoundingMethod.interest"), //
+  FEE(2, "interestRecalculationCompoundingMethod.fee"), //
+  INTEREST_AND_FEE(3, "interestRecalculationCompoundingMethod.interest.and.fee"); //
 
-    FULL_LEAP_YEAR("DaysInYearCustomStrategyType.fullLeapYear", "Full Leap Year"), //
-    FEB_29_PERIOD_ONLY("DaysInYearCustomStrategyType.feb29PeriodOnly", "Feb 29 Period Only"); //
+  @Getter
+  private final Integer value;
 
-    @Getter
-    private final String code;
+  @Getter
+  private final String code;
 
-    @Getter
-    private final String humanReadableName;
+  private static final Map<Integer, InterestRecalculationCompoundingMethodENUM> intToEnumMap = new HashMap<>();
 
-    public static DaysInYearCustomStrategyTypeENUM fromInt(final Integer selectedMethod) {
-      return switch (selectedMethod) {
-        case 0 -> DaysInYearCustomStrategyTypeENUM.FULL_LEAP_YEAR;
-        case 1 -> DaysInYearCustomStrategyTypeENUM.FEB_29_PERIOD_ONLY;
-        default -> DaysInYearCustomStrategyTypeENUM.FULL_LEAP_YEAR;
-      };
+  static {
+    for (final InterestRecalculationCompoundingMethodENUM type : InterestRecalculationCompoundingMethodENUM.values()) {
+      intToEnumMap.put(type.value, type);
     }
+  }
+
+  public static InterestRecalculationCompoundingMethodENUM fromInt(final Integer ruleTypeValue) {
+    return intToEnumMap.get(ruleTypeValue);
+  }
 }

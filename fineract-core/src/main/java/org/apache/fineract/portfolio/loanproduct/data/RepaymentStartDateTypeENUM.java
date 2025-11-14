@@ -34,4 +34,15 @@ public enum RepaymentStartDateTypeENUM implements Serializable {
 
     @Getter
     private final String code;
+
+  public static RepaymentStartDateTypeENUM fromInt(final Integer repaymentStartDateType) {
+    if (repaymentStartDateType == null) {
+      return RepaymentStartDateTypeENUM.DISBURSEMENT_DATE;
+    }
+    return switch (repaymentStartDateType) {
+      case 1 -> RepaymentStartDateTypeENUM.DISBURSEMENT_DATE;
+      case 2 -> RepaymentStartDateTypeENUM.SUBMITTED_ON_DATE;
+      default -> RepaymentStartDateTypeENUM.INVALID;
+    };
+  }
 }

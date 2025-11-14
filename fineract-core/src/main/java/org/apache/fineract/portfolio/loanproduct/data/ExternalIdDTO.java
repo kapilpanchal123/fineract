@@ -37,4 +37,8 @@ public class ExternalIdDTO implements Serializable {
     private static final long serialVersionUID = 1L;
 
     private String value;
+
+    public static ExternalIdDTO empty() {
+      return new ExternalIdDTO();
+    }
 }

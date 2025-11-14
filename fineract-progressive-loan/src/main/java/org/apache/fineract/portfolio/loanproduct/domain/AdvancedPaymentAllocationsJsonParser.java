@@ -21,12 +21,16 @@ package org.apache.fineract.portfolio.loanproduct.domain;
 import com.google.common.base.Enums;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
+import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
 import lombok.AllArgsConstructor;
 import org.apache.commons.lang3.tuple.Pair;
 import org.apache.fineract.infrastructure.core.api.JsonCommand;
+import org.apache.fineract.portfolio.loanproduct.data.AdvancedPaymentDataDTO;
+import org.apache.fineract.portfolio.loanproduct.data.LoanProductRequestDTO;
+import org.apache.fineract.portfolio.loanproduct.data.PaymentAllocationOrderDTO;
 import org.springframework.lang.NonNull;
 import org.springframework.stereotype.Service;
 
@@ -98,6 +102,20 @@ public class AdvancedPaymentAllocationsJsonParser {
         }
     }
 
+    @NonNull
+    private List<PaymentAllocationType> getPaymentAllocationTypesDTO(AdvancedPaymentDataDTO element) {
+      List<PaymentAllocationType> results = new ArrayList<>();
+      if (!element.getPaymentAllocationOrder().isEmpty()) {
+        for (PaymentAllocationOrderDTO innerElement : element.getPaymentAllocationOrder()) {
+          String paymentAllocationRule = innerElement.getPaymentAllocationRule();
+          if (!paymentAllocationRule.isEmpty()) {
+            results.add(Enums.getIfPresent(PaymentAllocationType.class, paymentAllocationRule).orNull());
+          }
+        }
+      }
+      return results;
+    }
+
     private Integer asIntegerOrNull(JsonElement element) {
         if (!element.isJsonNull()) {
             return element.getAsInt();
@@ -119,4 +137,15 @@ public class AdvancedPaymentAllocationsJsonParser {
         return null;
     }
 
+    public List<LoanProductPaymentAllocationRule> assembleLoanProductPaymentAllocationRules(LoanProductRequestDTO loanProductRequestDTO) {
+      List<LoanProductPaymentAllocationRule> productPaymentAllocationRules = new ArrayList<>();
+        for(AdvancedPaymentDataDTO element : loanProductRequestDTO.getPaymentAllocation()) {
+          LoanProductPaymentAllocationRule loanProductPaymentAllocationRule = new LoanProductPaymentAllocationRule();
+          loanProductPaymentAllocationRule.setAllocationTypes(getPaymentAllocationTypesDTO(element));
+          loanProductPaymentAllocationRule.setFutureInstallmentAllocationRule(Enums.getIfPresent(FutureInstallmentAllocationRule.class, element.getFutureInstallmentAllocationRule()).orNull());
+          loanProductPaymentAllocationRule.setTransactionType(Enums.getIfPresent(PaymentAllocationTransactionType.class, element.getTransactionType()).orNull());
+          productPaymentAllocationRules.add(loanProductPaymentAllocationRule);
+        }
+      return productPaymentAllocationRules;
+    }
 }

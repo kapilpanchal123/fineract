@@ -16,27 +16,16 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package org.apache.fineract.portfolio.loanproduct.data;
+package org.apache.fineract.portfolio.loanproduct.data.mapper;
 
-import java.io.Serializable;
-import lombok.AllArgsConstructor;
-import lombok.Getter;
+import org.apache.fineract.infrastructure.core.config.MapstructMapperConfig;
+import org.apache.fineract.portfolio.loanproduct.data.AppUserDTO;
+import org.apache.fineract.useradministration.domain.AppUser;
+import org.mapstruct.Mapper;
 
-@AllArgsConstructor
-public enum LoanCapitalizedIncomeStrategyENUM implements Serializable {
+@Mapper(config = MapstructMapperConfig.class)
+public interface UserToUserDTOMapper {
 
-    EQUAL_AMORTIZATION("capitalizedIncome.strategy.equalAmortization", "Equal amortization");
-
-    @Getter
-    private final String code;
-
-    @Getter
-    private final String humanReadableName;
-
-    public static LoanCapitalizedIncomeStrategyENUM fromInt(final String code) {
-      if(code.equalsIgnoreCase("EQUAL_AMORTIZATION")) {
-        return LoanCapitalizedIncomeStrategyENUM.EQUAL_AMORTIZATION;
-      }
-      return null;
-    }
+  AppUserDTO toDto(AppUser user);
+  AppUser fromDto(AppUserDTO userDto);
 }

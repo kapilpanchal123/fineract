@@ -21,24 +21,30 @@ package org.apache.fineract.portfolio.loanproduct.data;
 import java.io.Serializable;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
+import org.apache.fineract.portfolio.common.domain.DaysInMonthType;
 
 @AllArgsConstructor
-public enum DaysInYearCustomStrategyTypeENUM implements Serializable {
+public enum DaysInMonthTypeENUM implements Serializable {
 
-    FULL_LEAP_YEAR("DaysInYearCustomStrategyType.fullLeapYear", "Full Leap Year"), //
-    FEB_29_PERIOD_ONLY("DaysInYearCustomStrategyType.feb29PeriodOnly", "Feb 29 Period Only"); //
+  INVALID(0, "DaysInMonthType.invalid"), //
+  ACTUAL(1, "DaysInMonthType.actual"), //
+  DAYS_30(30, "DaysInMonthType.days360");
 
-    @Getter
-    private final String code;
+  @Getter
+  private final Integer value;
 
-    @Getter
-    private final String humanReadableName;
+  @Getter
+  private final String code;
 
-    public static DaysInYearCustomStrategyTypeENUM fromInt(final Integer selectedMethod) {
-      return switch (selectedMethod) {
-        case 0 -> DaysInYearCustomStrategyTypeENUM.FULL_LEAP_YEAR;
-        case 1 -> DaysInYearCustomStrategyTypeENUM.FEB_29_PERIOD_ONLY;
-        default -> DaysInYearCustomStrategyTypeENUM.FULL_LEAP_YEAR;
+  public static DaysInMonthTypeENUM fromInt(final Integer type) {
+    DaysInMonthTypeENUM repaymentFrequencyType = DaysInMonthTypeENUM.INVALID;
+    if (type != null) {
+      repaymentFrequencyType = switch (type) {
+        case 1 -> DaysInMonthTypeENUM.ACTUAL;
+        case 30 -> DaysInMonthTypeENUM.DAYS_30;
+        default -> repaymentFrequencyType;
       };
     }
+    return repaymentFrequencyType;
+  }
 }

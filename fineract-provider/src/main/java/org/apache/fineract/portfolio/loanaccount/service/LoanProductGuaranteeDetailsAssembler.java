@@ -22,6 +22,8 @@ import java.math.BigDecimal;
 import lombok.RequiredArgsConstructor;
 import org.apache.fineract.infrastructure.core.api.JsonCommand;
 import org.apache.fineract.portfolio.loanproduct.LoanProductConstants;
+import org.apache.fineract.portfolio.loanproduct.data.LoanProductGuaranteeDetailsDTO;
+import org.apache.fineract.portfolio.loanproduct.data.LoanProductRequestDTO;
 import org.apache.fineract.portfolio.loanproduct.domain.LoanProductGuaranteeDetails;
 import org.springframework.stereotype.Service;
 
@@ -38,5 +40,26 @@ public class LoanProductGuaranteeDetailsAssembler {
                 .bigDecimalValueOfParameterNamed(LoanProductConstants.minimumGuaranteeFromOwnFundsParamName);
 
         return new LoanProductGuaranteeDetails(mandatoryGuarantee, minimumGuaranteeFromOwnFunds, minimumGuaranteeFromGuarantor);
+    }
+
+    public LoanProductGuaranteeDetailsDTO createFromDTO(LoanProductRequestDTO loanProductRequestDTO) {
+
+//        final BigDecimal mandatoryGuarantee = command.bigDecimalValueOfParameterNamed(LoanProductConstants.mandatoryGuaranteeParamName);
+        final BigDecimal mandatoryGuarantee = loanProductRequestDTO.getProductGuaranteeData().getMandatoryGuarantee();
+
+//        final BigDecimal minimumGuaranteeFromGuarantor = command
+//            .bigDecimalValueOfParameterNamed(LoanProductConstants.minimumGuaranteeFromGuarantorParamName);
+        final BigDecimal minimumGuaranteeFromGuarantor = loanProductRequestDTO.getProductGuaranteeData().getMinimumGuaranteeFromGuarantor();
+
+//        final BigDecimal minimumGuaranteeFromOwnFunds = command
+//            .bigDecimalValueOfParameterNamed(LoanProductConstants.minimumGuaranteeFromOwnFundsParamName);
+        final BigDecimal minimumGuaranteeFromOwnFunds = loanProductRequestDTO.getProductGuaranteeData().getMinimumGuaranteeFromOwnFunds();
+
+//        return new LoanProductGuaranteeDetailsDTO(mandatoryGuarantee, minimumGuaranteeFromOwnFunds, minimumGuaranteeFromGuarantor);
+        return LoanProductGuaranteeDetailsDTO.builder()
+            .mandatoryGuarantee(mandatoryGuarantee)
+            .minimumGuaranteeFromOwnFunds(minimumGuaranteeFromOwnFunds)
+            .minimumGuaranteeFromGuarantor(minimumGuaranteeFromGuarantor)
+            .build();
     }
 }

@@ -32,4 +32,11 @@ public enum LoanCapitalizedIncomeCalculationTypeENUM implements Serializable {
 
     @Getter
     private final String humanReadableName;
+
+  public static LoanCapitalizedIncomeCalculationTypeENUM fromInt(final String code) {
+    if (code.equalsIgnoreCase("FLAT")) {
+      return LoanCapitalizedIncomeCalculationTypeENUM.FLAT;
+    }
+    return null;
+  }
 }

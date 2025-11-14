@@ -21,12 +21,21 @@ package org.apache.fineract.portfolio.loanproduct.domain;
 import com.google.common.base.Enums;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
+
+import java.util.ArrayList;
+import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
 import lombok.AllArgsConstructor;
 import org.apache.commons.lang3.tuple.Pair;
 import org.apache.fineract.infrastructure.core.api.JsonCommand;
+import org.apache.fineract.portfolio.loanproduct.data.AllocationTypeENUM;
+import org.apache.fineract.portfolio.loanproduct.data.CreditAllocationDataDTO;
+import org.apache.fineract.portfolio.loanproduct.data.CreditAllocationOrderDTO;
+import org.apache.fineract.portfolio.loanproduct.data.CreditAllocationTransactionTypeENUM;
+import org.apache.fineract.portfolio.loanproduct.data.LoanProductCreditAllocationRuleDTO;
+import org.apache.fineract.portfolio.loanproduct.data.LoanProductRequestDTO;
 import org.springframework.lang.NonNull;
 import org.springframework.stereotype.Service;
 
@@ -86,6 +95,35 @@ public class CreditAllocationsJsonParser {
         }
     }
 
+    @NonNull
+    private List<AllocationTypeENUM> getAllocationTypesDTO(CreditAllocationDataDTO allocationOrder) {
+      List<AllocationTypeENUM> results = new ArrayList<>();
+//      if (allocationOrder != null) {
+//        List<Pair<Integer, AllocationType>> parsedListWithOrder = allocationOrder.asList().stream().map(json -> {
+//          Map<String, JsonElement> map = json.getAsJsonObject().asMap();
+//          AllocationType allocationType = null;
+//          String creditAllocationRule = asStringOrNull(map.get("creditAllocationRule"));
+//          if (creditAllocationRule != null) {
+//            allocationType = Enums.getIfPresent(AllocationType.class, creditAllocationRule).orNull();
+//          }
+//          return Pair.of(asIntegerOrNull(map.get("order")), allocationType);
+//        } else {
+//          return List.of();
+//        }  }).sorted(Comparator.comparing(Pair::getLeft)).toList();
+//        creditAllocationsValidator.validatePairOfOrderAndCreditAllocationType(parsedListWithOrder);
+//        return parsedListWithOrder.stream().map(Pair::getRight).toList();
+
+      if(!allocationOrder.getCreditAllocationOrder().isEmpty()) {
+        for(CreditAllocationOrderDTO orderElement: allocationOrder.getCreditAllocationOrder()) {
+          String creditAllocationRule = orderElement.getCreditAllocationRule();
+          if(!creditAllocationRule.isEmpty()) {
+            results.add(Enums.getIfPresent(AllocationTypeENUM.class, creditAllocationRule).orNull());
+          }
+        }
+      }
+      return results;
+    }
+
     private Integer asIntegerOrNull(JsonElement element) {
         if (!element.isJsonNull()) {
             return element.getAsInt();
@@ -107,4 +145,38 @@ public class CreditAllocationsJsonParser {
         return null;
     }
 
+    public List<LoanProductCreditAllocationRuleDTO> assembleLoanProductCreditAllocationRules(LoanProductRequestDTO loanProductRequestDTO) {
+//      JsonArray creditAllocation = command.arrayOfParameterNamed("creditAllocation");
+      List<LoanProductCreditAllocationRuleDTO> productCreditAllocationRules = new ArrayList<>();
+//      if (creditAllocation != null) {
+//        productCreditAllocationRules = creditAllocation.asList().stream().map(json -> {
+//          Map<String, JsonElement> map = json.getAsJsonObject().asMap();
+//          LoanProductCreditAllocationRule creditAllocationRule = new LoanProductCreditAllocationRule();
+//          populateCreditAllocationRules(map, creditAllocationRule);
+//          populateTransactionType(map, creditAllocationRule);
+//          return creditAllocationRule;
+//        }).toList();
+//      }
+
+      if (!loanProductRequestDTO.getCreditAllocation().isEmpty()) {
+//        productCreditAllocationRules = creditAllocation.asList().stream().map(json -> {
+//          Map<String, JsonElement> map = json.getAsJsonObject().asMap();
+//          LoanProductCreditAllocationRule creditAllocationRule = new LoanProductCreditAllocationRule();
+//          populateCreditAllocationRules(map, creditAllocationRule);
+//          populateTransactionType(map, creditAllocationRule);
+//          return creditAllocationRule;
+//        }).toList();
+
+        for(CreditAllocationDataDTO innerElement: loanProductRequestDTO.getCreditAllocation()) {
+          LoanProductCreditAllocationRuleDTO creditAllocationRule = new LoanProductCreditAllocationRuleDTO();
+          creditAllocationRule.setAllocationTypes(getAllocationTypesDTO(innerElement));
+          creditAllocationRule.setTransactionType(Enums.getIfPresent(CreditAllocationTransactionTypeENUM.class, innerElement.getTransactionType()).orNull());
+          productCreditAllocationRules.add(creditAllocationRule);
+        }
+      }
+      return productCreditAllocationRules;
+//      creditAllocationsValidator.validate(productCreditAllocationRules, loanTransactionProcessingStrategyCode);
+//      return productCreditAllocationRules;
+//      return Collections.emptyList();
+    }
 }

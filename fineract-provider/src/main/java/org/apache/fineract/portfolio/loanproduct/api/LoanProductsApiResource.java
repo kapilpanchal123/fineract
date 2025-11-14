@@ -109,6 +109,7 @@ import org.apache.fineract.portfolio.loanproduct.productmix.data.ProductMixData;
 import org.apache.fineract.portfolio.loanproduct.productmix.service.ProductMixReadPlatformService;
 import org.apache.fineract.portfolio.loanproduct.service.LoanDropdownReadPlatformService;
 import org.apache.fineract.portfolio.loanproduct.service.LoanProductReadPlatformService;
+import org.apache.fineract.portfolio.loanproduct.service.LoanProductWritePlatformService;
 import org.apache.fineract.portfolio.paymenttype.data.PaymentTypeData;
 import org.apache.fineract.portfolio.paymenttype.service.PaymentTypeReadPlatformService;
 import org.apache.fineract.portfolio.rate.data.RateData;
@@ -172,6 +173,7 @@ public class LoanProductsApiResource {
     private final ConfigurationDomainService configurationDomainService;
     private final DelinquencyReadPlatformService delinquencyReadPlatformService;
     private final CodeValueReadPlatformService codeValueReadPlatformService;
+    private final LoanProductWritePlatformService loanProductWritePlatformService;
 
     // @POST
     // @Consumes({ MediaType.APPLICATION_JSON })
@@ -251,7 +253,7 @@ public class LoanProductsApiResource {
     // @ApiResponses({
     // @ApiResponse(responseCode = "200", description = "OK", content = @Content(schema = @Schema(implementation =
     // LoanProductsApiResourceSwagger.PostLoanProductsResponse.class))) })
-    public LoanProductRequestDTO createLoanProduct(@Parameter final LoanProductRequestDTO loanProductRequestDTO) {
+    public Map<String, String> createLoanProduct(@Parameter final LoanProductRequestDTO loanProductRequestDTO) {
 
         // final CommandWrapper commandRequest = new
         // CommandWrapperBuilder().createLoanProduct().withJson(apiRequestBodyAsJson).build();
@@ -260,7 +262,8 @@ public class LoanProductsApiResource {
         // this.commandsSourceWritePlatformService.logCommandSource(commandRequest);
         //
         // return this.toApiJsonSerializer.serialize(result);
-        return loanProductRequestDTO;
+
+      return loanProductWritePlatformService.createLoanProduct(loanProductRequestDTO);
     }
 
     @GET

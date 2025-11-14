@@ -45,4 +45,85 @@ public class LoanProductConfigurableAttributesDTO implements Serializable {
     private Boolean repaymentEvery;
     private Boolean graceOnPrincipalAndInterestPayment;
     private Boolean graceOnArrearsAgeing;
+
+  public static LoanProductConfigurableAttributesDTO createFrom(LoanProductRequestDTO loanProductRequestDTO) {
+
+//    final Boolean amortization = command.parsedJson().getAsJsonObject()
+//        .getAsJsonObject(LoanProductConstants.allowAttributeOverridesParamName)
+//        .getAsJsonPrimitive(LoanProductConstants.amortizationTypeParamName).getAsBoolean();
+    final Boolean amortization = loanProductRequestDTO.getIsEqualAmortization();
+
+//    final Boolean interestMethod = command.parsedJson().getAsJsonObject()
+//        .getAsJsonObject(LoanProductConstants.allowAttributeOverridesParamName)
+//        .getAsJsonPrimitive(LoanProductConstants.interestTypeParamName).getAsBoolean();
+    final Boolean interestMethod = Boolean.getBoolean(loanProductRequestDTO.getInterestType().getCode());
+
+//    final Boolean transactionProcessingStrategy = command.parsedJson().getAsJsonObject()
+//        .getAsJsonObject(LoanProductConstants.allowAttributeOverridesParamName)
+//        .getAsJsonPrimitive(LoanProductConstants.transactionProcessingStrategyCodeParamName).getAsBoolean();
+    final Boolean transactionProcessingStrategy = Boolean.getBoolean(loanProductRequestDTO.getTransactionProcessingStrategyCode());
+
+//    final Boolean interestCalcPeriod = command.parsedJson().getAsJsonObject()
+//        .getAsJsonObject(LoanProductConstants.allowAttributeOverridesParamName)
+//        .getAsJsonPrimitive(LoanProductConstants.interestCalculationPeriodTypeParamName).getAsBoolean();
+    final Boolean interestCalcPeriod = Boolean.getBoolean(loanProductRequestDTO.getInterestCalculationPeriodType().getCode());
+
+//    final Boolean arrearsTolerance = command.parsedJson().getAsJsonObject()
+//        .getAsJsonObject(LoanProductConstants.allowAttributeOverridesParamName)
+//        .getAsJsonPrimitive(LoanProductConstants.inArrearsToleranceParamName).getAsBoolean();
+    final Boolean arrearsTolerance = loanProductRequestDTO.getInArrearsTolerance() != null;
+
+//    final Boolean repaymentEvery = command.parsedJson().getAsJsonObject()
+//        .getAsJsonObject(LoanProductConstants.allowAttributeOverridesParamName)
+//        .getAsJsonPrimitive(LoanProductConstants.repaymentEveryParamName).getAsBoolean();
+    final Boolean repaymentEvery = loanProductRequestDTO.getRepaymentEvery() != null;
+
+//    final Boolean graceOnPrincipalAndInterestPayment = command.parsedJson().getAsJsonObject()
+//        .getAsJsonObject(LoanProductConstants.allowAttributeOverridesParamName)
+//        .getAsJsonPrimitive(LoanProductConstants.graceOnPrincipalAndInterestPaymentParamName).getAsBoolean();
+    final Boolean graceOnPrincipalAndInterestPayment = loanProductRequestDTO.getGraceOnPrincipalPayment() != null && loanProductRequestDTO.getGraceOnInterestPayment() != null;
+
+//    final Boolean graceOnArrearsAging = command.parsedJson().getAsJsonObject()
+//        .getAsJsonObject(LoanProductConstants.allowAttributeOverridesParamName)
+//        .getAsJsonPrimitive(LoanProductConstants.GRACE_ON_ARREARS_AGEING_PARAMETER_NAME).getAsBoolean();
+    final Boolean graceOnArrearsAging = loanProductRequestDTO.getGraceOnArrearsAgeing() != null;
+
+//    return new LoanProductConfigurableAttributes(amortization, interestMethod, transactionProcessingStrategy, interestCalcPeriod,
+//        arrearsTolerance, repaymentEvery, graceOnPrincipalAndInterestPayment, graceOnArrearsAging);
+
+    return LoanProductConfigurableAttributesDTO.builder()
+        .amortizationType(amortization)
+        .interestType(interestMethod)
+        .transactionProcessingStrategyCode(transactionProcessingStrategy)
+        .interestCalculationPeriodType(interestCalcPeriod)
+        .inArrearsTolerance(arrearsTolerance)
+        .repaymentEvery(repaymentEvery)
+        .graceOnPrincipalAndInterestPayment(graceOnPrincipalAndInterestPayment)
+        .graceOnArrearsAgeing(graceOnArrearsAging)
+        .build();
+  }
+
+  public static LoanProductConfigurableAttributesDTO populateDefaultsForConfigurableAttributes() {
+    final Boolean amortization = true;
+    final Boolean interestMethod = true;
+    final Boolean transactionProcessingStrategy = true;
+    final Boolean interestCalcPeriod = true;
+    final Boolean arrearsTolerance = true;
+    final Boolean repaymentEvery = true;
+    final Boolean graceOnPrincipalAndInterestPayment = true;
+    final Boolean graceOnArrearsAging = true;
+
+//    return new LoanProductConfigurableAttributesDTO(amortization, interestMethod, transactionProcessingStrategy, interestCalcPeriod,
+//        arrearsTolerance, repaymentEvery, graceOnPrincipalAndInterestPayment, graceOnArrearsAging);
+
+    return LoanProductConfigurableAttributesDTO.builder()
+        .amortizationType(amortization)
+        .interestType(interestMethod)
+        .transactionProcessingStrategyCode(transactionProcessingStrategy)
+        .graceOnArrearsAgeing(arrearsTolerance)
+        .repaymentEvery(repaymentEvery)
+        .graceOnPrincipalAndInterestPayment(graceOnPrincipalAndInterestPayment)
+        .graceOnArrearsAgeing(graceOnArrearsAging)
+        .build();
+  }
 }

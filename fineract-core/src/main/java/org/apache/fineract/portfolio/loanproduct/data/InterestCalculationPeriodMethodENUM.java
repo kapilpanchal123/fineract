@@ -34,4 +34,12 @@ public enum InterestCalculationPeriodMethodENUM implements Serializable {
 
     @Getter
     private final String code;
+
+    public static InterestCalculationPeriodMethodENUM fromInt(final Integer selectedMethod) {
+      return switch (selectedMethod) {
+        case 0 -> InterestCalculationPeriodMethodENUM.DAILY;
+        case 1 -> InterestCalculationPeriodMethodENUM.SAME_AS_REPAYMENT_PERIOD;
+        default -> InterestCalculationPeriodMethodENUM.INVALID;
+      };
+    }
 }

@@ -32,4 +32,11 @@ public enum LoanBuyDownFeeStrategyENUM implements Serializable {
 
     @Getter
     private final String humanReadableName;
+
+    public static LoanBuyDownFeeStrategyENUM fromString(final String code) {
+      if(code.equalsIgnoreCase("EQUAL_AMORTIZATION")) {
+        return LoanBuyDownFeeStrategyENUM.EQUAL_AMORTIZATION;
+      }
+      return null;
+    }
 }

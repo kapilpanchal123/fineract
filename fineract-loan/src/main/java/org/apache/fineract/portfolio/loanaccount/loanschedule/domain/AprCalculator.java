@@ -22,6 +22,8 @@ import java.math.BigDecimal;
 import org.apache.fineract.organisation.monetary.domain.MoneyHelper;
 import org.apache.fineract.portfolio.common.domain.DaysInYearType;
 import org.apache.fineract.portfolio.common.domain.PeriodFrequencyType;
+import org.apache.fineract.portfolio.loanproduct.data.DaysInYearTypeENUM;
+import org.apache.fineract.portfolio.loanproduct.data.PeriodFrequencyTypeENUM;
 import org.springframework.stereotype.Component;
 
 @Component
@@ -73,5 +75,52 @@ public class AprCalculator {
 
         return defaultAnnualNominalInterestRate;
     }
+
+  public BigDecimal calculateFrom(final PeriodFrequencyTypeENUM interestPeriodFrequencyType, final BigDecimal interestRatePerPeriod,
+                                  final Integer numberOfRepayments, final Integer repaymentEvery, final PeriodFrequencyTypeENUM repaymentPeriodFrequencyType,
+                                  final DaysInYearTypeENUM daysInYearType) {
+    BigDecimal defaultAnnualNominalInterestRate = BigDecimal.ZERO;
+    switch (interestPeriodFrequencyType) {
+      case DAYS:
+        defaultAnnualNominalInterestRate = interestRatePerPeriod.multiply(BigDecimal.valueOf(daysInYearType.getValue()));
+        break;
+      case WEEKS:
+        defaultAnnualNominalInterestRate = interestRatePerPeriod.multiply(BigDecimal.valueOf(52));
+        break;
+      case MONTHS:
+        defaultAnnualNominalInterestRate = interestRatePerPeriod.multiply(BigDecimal.valueOf(12));
+        break;
+      case YEARS:
+        defaultAnnualNominalInterestRate = interestRatePerPeriod.multiply(BigDecimal.valueOf(1));
+        break;
+      case WHOLE_TERM:
+        final BigDecimal ratePerPeriod = interestRatePerPeriod.divide(BigDecimal.valueOf((long) numberOfRepayments * repaymentEvery), 8,
+            MoneyHelper.getRoundingMode());
+
+        switch (repaymentPeriodFrequencyType) {
+          case DAYS:
+            defaultAnnualNominalInterestRate = ratePerPeriod.multiply(BigDecimal.valueOf(daysInYearType.getValue()));
+            break;
+          case WEEKS:
+            defaultAnnualNominalInterestRate = ratePerPeriod.multiply(BigDecimal.valueOf(52));
+            break;
+          case MONTHS:
+            defaultAnnualNominalInterestRate = ratePerPeriod.multiply(BigDecimal.valueOf(12));
+            break;
+          case YEARS:
+            defaultAnnualNominalInterestRate = ratePerPeriod.multiply(BigDecimal.valueOf(1));
+            break;
+          case WHOLE_TERM:
+            break;
+          case INVALID:
+            break;
+        }
+        break;
+      case INVALID:
+        break;
+    }
+
+    return defaultAnnualNominalInterestRate;
+  }
 
 }

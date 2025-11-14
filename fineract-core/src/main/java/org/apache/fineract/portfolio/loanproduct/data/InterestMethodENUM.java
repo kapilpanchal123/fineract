@@ -34,4 +34,12 @@ public enum InterestMethodENUM implements Serializable {
 
     @Getter
     private final String code;
+
+    public static InterestMethodENUM fromInt(final Integer selectedMethod) {
+      return switch (selectedMethod) {
+        case 0 -> InterestMethodENUM.DECLINING_BALANCE;
+        case 1 -> InterestMethodENUM.FLAT;
+        default -> InterestMethodENUM.INVALID;
+      };
+    }
 }

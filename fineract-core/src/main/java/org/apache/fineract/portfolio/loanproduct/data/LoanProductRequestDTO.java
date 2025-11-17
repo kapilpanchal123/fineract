@@ -48,6 +48,7 @@ public class LoanProductRequestDTO implements Serializable {
     private String description;
     private Long fundId;
     private String fundName;
+    private String currencyCode;
     private Boolean includeInBorrowerCycle;
     private Boolean useBorrowerCycle;
     private LocalDate startDate;

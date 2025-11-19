@@ -43,4 +43,5 @@ public class PaymentTypeDataDTO implements Serializable {
     private Integer position;
     private String codeName;
     private Boolean isSystemDefined;
+
 }

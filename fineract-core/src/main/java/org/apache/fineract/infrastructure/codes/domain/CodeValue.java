@@ -26,6 +26,7 @@ import jakarta.persistence.Table;
 import jakarta.persistence.UniqueConstraint;
 import java.util.LinkedHashMap;
 import java.util.Map;
+import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
@@ -42,6 +43,7 @@ import org.apache.fineract.infrastructure.core.domain.AbstractPersistableCustom;
 @Getter
 @Setter
 @NoArgsConstructor
+@AllArgsConstructor
 @Accessors(chain = true)
 public class CodeValue extends AbstractPersistableCustom<Long> {
 
@@ -49,7 +51,7 @@ public class CodeValue extends AbstractPersistableCustom<Long> {
     private String label;
 
     @Column(name = "order_position")
-    private int position;
+    private Integer position;
 
     @Column(name = "code_description")
     private String description;
@@ -59,19 +61,18 @@ public class CodeValue extends AbstractPersistableCustom<Long> {
     private Code code;
 
     @Column(name = "is_active")
-    private boolean isActive;
+    private Boolean isActive;
 
     @Column(name = "is_mandatory")
-    private boolean mandatory;
+    private Boolean mandatory;
 
     public static CodeValue createNew(final Code code, final String label, final int position, final String description,
             final boolean isActive, final boolean mandatory) {
         return new CodeValue().setCode(code).setLabel(StringUtils.defaultIfEmpty(label, null)).setPosition(position)
-                .setDescription(description).setActive(isActive).setMandatory(mandatory);
+                .setDescription(description).setIsActive(isActive).setMandatory(mandatory);
     }
 
     public static CodeValue fromJson(final Code code, final JsonCommand command) {
-
         final String label = command.stringValueOfParameterNamed(CodevalueJSONinputParams.NAME.getValue());
         Integer position = command.integerValueSansLocaleOfParameterNamed(CodevalueJSONinputParams.POSITION.getValue());
         String description = command.stringValueOfParameterNamed(CodevalueJSONinputParams.DESCRIPTION.getValue());
@@ -87,11 +88,10 @@ public class CodeValue extends AbstractPersistableCustom<Long> {
         Boolean mandatory = command.booleanPrimitiveValueOfParameterNamed(CodevalueJSONinputParams.IS_MANDATORY.getValue());
 
         return new CodeValue().setCode(code).setLabel(StringUtils.defaultIfEmpty(label, null)).setPosition(position)
-                .setDescription(description).setActive(isActive).setMandatory(mandatory);
+                .setDescription(description).setIsActive(isActive).setMandatory(mandatory);
     }
 
     public Map<String, Object> update(final JsonCommand command) {
-
         final Map<String, Object> actualChanges = new LinkedHashMap<>(2);
 
         final String labelParamName = CodevalueJSONinputParams.NAME.getValue();

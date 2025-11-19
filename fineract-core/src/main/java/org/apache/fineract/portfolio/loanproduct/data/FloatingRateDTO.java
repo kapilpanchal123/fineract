@@ -41,4 +41,5 @@ public class FloatingRateDTO implements Serializable {
     private Boolean isBaseLendingRate;
     private Boolean isActive;
     private List<FloatingRatePeriodDTO> floatingRatePeriods;
+
 }

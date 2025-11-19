@@ -19,38 +19,33 @@
 
 package org.apache.fineract.portfolio.rate.data;
 
+import java.io.Serial;
 import java.io.Serializable;
 import java.math.BigDecimal;
+import lombok.AllArgsConstructor;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 import org.apache.fineract.infrastructure.core.data.EnumOptionData;
 
 /**
  * Bowpi GT Created by Jose on 19/07/2017.
  */
 @Getter
+@NoArgsConstructor
+@AllArgsConstructor
 public final class RateData implements Serializable {
 
+    @Serial
+    private static final long serialVersionUID = 1L;
+
     private Long id;
-
     private String name;
-
     private BigDecimal percentage;
-
     private EnumOptionData productApply;
-
-    private boolean active;
+    private Boolean active;
 
     public static RateData instance(final Long id, final String name, final BigDecimal percentage, final EnumOptionData productApply,
-            final boolean active) {
+            final Boolean active) {
         return new RateData(id, name, percentage, productApply, active);
-    }
-
-    private RateData(final Long id, final String name, final BigDecimal percentage, final EnumOptionData productApply,
-            final boolean active) {
-        this.id = id;
-        this.name = name;
-        this.percentage = percentage;
-        this.productApply = productApply;
-        this.active = active;
     }
 }

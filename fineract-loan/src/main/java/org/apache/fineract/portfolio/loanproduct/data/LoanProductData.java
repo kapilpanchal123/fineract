@@ -1447,7 +1447,7 @@ public class LoanProductData implements Serializable {
 
     @SuppressFBWarnings("NP_BOOLEAN_RETURN_NULL")
     public Boolean allowCompoundingOnEod() {
-        return isInterestRecalculationEnabled() ? this.interestRecalculationData.isAllowCompoundingOnEod() : null;
+        return isInterestRecalculationEnabled() ? this.interestRecalculationData.getAllowCompoundingOnEod() : null;
     }
 
     @SuppressFBWarnings("NP_BOOLEAN_RETURN_NULL")

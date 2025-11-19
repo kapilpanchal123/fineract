@@ -20,6 +20,7 @@ package org.apache.fineract.infrastructure.core.domain;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.MappedSuperclass;
+import java.io.Serial;
 import java.time.LocalDateTime;
 import java.util.Optional;
 import org.springframework.data.domain.Auditable;
@@ -41,6 +42,7 @@ import org.springframework.data.jpa.domain.AbstractAuditable;
 @MappedSuperclass
 public abstract class AbstractAuditableCustom extends AbstractPersistableCustom<Long> implements Auditable<Long, Long, LocalDateTime> {
 
+    @Serial
     private static final long serialVersionUID = 141481953116476081L;
 
     @Column(name = "createdby_id")
@@ -55,42 +57,34 @@ public abstract class AbstractAuditableCustom extends AbstractPersistableCustom<
     @Column(name = "lastmodified_date")
     private LocalDateTime lastModifiedDate;
 
-    @Override
     public Optional<Long> getCreatedBy() {
         return Optional.ofNullable(this.createdBy);
     }
 
-    @Override
     public void setCreatedBy(final Long createdBy) {
         this.createdBy = createdBy;
     }
 
-    @Override
     public Optional<LocalDateTime> getCreatedDate() {
         return Optional.ofNullable(this.createdDate);
     }
 
-    @Override
     public void setCreatedDate(final LocalDateTime createdDate) {
         this.createdDate = createdDate;
     }
 
-    @Override
     public Optional<Long> getLastModifiedBy() {
         return Optional.ofNullable(this.lastModifiedBy);
     }
 
-    @Override
     public void setLastModifiedBy(final Long lastModifiedBy) {
         this.lastModifiedBy = lastModifiedBy;
     }
 
-    @Override
     public Optional<LocalDateTime> getLastModifiedDate() {
         return Optional.ofNullable(this.lastModifiedDate);
     }
 
-    @Override
     public void setLastModifiedDate(final LocalDateTime lastModifiedDate) {
         this.lastModifiedDate = lastModifiedDate;
     }

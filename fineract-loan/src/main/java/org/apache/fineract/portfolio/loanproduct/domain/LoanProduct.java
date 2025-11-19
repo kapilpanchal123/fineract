@@ -601,7 +601,7 @@ public class LoanProduct extends AbstractPersistableCustom<Long> {
     }
 
     public boolean isMultiDisburseLoan() {
-        return this.loanProductTrancheDetails.isMultiDisburseLoan();
+        return this.loanProductTrancheDetails.getMultiDisburseLoan();
     }
 
     public BigDecimal outstandingLoanBalance() {

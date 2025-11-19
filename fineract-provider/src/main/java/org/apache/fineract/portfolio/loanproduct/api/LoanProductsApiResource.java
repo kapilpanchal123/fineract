@@ -262,7 +262,8 @@ public class LoanProductsApiResource {
         // this.commandsSourceWritePlatformService.logCommandSource(commandRequest);
         // return this.toApiJsonSerializer.serialize(result);
 
-        return loanProductWritePlatformService.createLoanProduct(loanProductRequestDTO);
+        // return loanProductWritePlatformService.createLoanProduct(loanProductRequestDTO);
+        return null;
     }
 
     @GET

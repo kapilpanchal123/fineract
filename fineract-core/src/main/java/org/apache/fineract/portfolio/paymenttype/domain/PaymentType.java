@@ -25,6 +25,7 @@ import java.util.LinkedHashMap;
 import java.util.Map;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 import lombok.Setter;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.fineract.infrastructure.core.api.JsonCommand;
@@ -33,6 +34,7 @@ import org.apache.fineract.portfolio.paymenttype.api.PaymentTypeApiResourceConst
 
 @Getter
 @Setter
+@NoArgsConstructor
 @Entity
 @Table(name = "m_payment_type")
 @AllArgsConstructor
@@ -56,10 +58,7 @@ public class PaymentType extends AbstractPersistableCustom<Long> {
     @Column(name = "is_system_defined")
     private Boolean isSystemDefined;
 
-    protected PaymentType() {}
-
     public Map<String, Object> update(final JsonCommand command) {
-
         final Map<String, Object> actualChanges = new LinkedHashMap<>(3);
 
         if (command.isChangeInStringParameterNamed(PaymentTypeApiResourceConstants.NAME, this.name)) {
@@ -88,5 +87,4 @@ public class PaymentType extends AbstractPersistableCustom<Long> {
 
         return actualChanges;
     }
-
 }

@@ -18,6 +18,7 @@
  */
 package org.apache.fineract.portfolio.loanproduct.data;
 
+import java.io.Serial;
 import java.io.Serializable;
 import java.util.List;
 import lombok.AllArgsConstructor;
@@ -26,6 +27,9 @@ import lombok.Getter;
 @Getter
 @AllArgsConstructor
 public class AdvancedPaymentData implements Serializable {
+
+    @Serial
+    private static final long serialVersionUID = 1L;
 
     private final String transactionType;
     private final String futureInstallmentAllocationRule;

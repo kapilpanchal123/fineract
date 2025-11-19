@@ -322,10 +322,10 @@ public class JournalEntryWritePlatformServiceJpaRepositoryImpl implements Journa
         /***
          * validate that the account allows manual adjustments and is not disabled
          **/
-        if (creditOrDebitAccountHead.isDisabled()) {
+        if (creditOrDebitAccountHead.getDisabled()) {
             throw new JournalEntryInvalidException(GlJournalEntryInvalidReason.GL_ACCOUNT_DISABLED, null,
                     creditOrDebitAccountHead.getName(), creditOrDebitAccountHead.getGlCode());
-        } else if (!creditOrDebitAccountHead.isManualEntriesAllowed()) {
+        } else if (!creditOrDebitAccountHead.getManualEntriesAllowed()) {
             throw new JournalEntryInvalidException(GlJournalEntryInvalidReason.GL_ACCOUNT_MANUAL_ENTRIES_NOT_PERMITTED, null,
                     creditOrDebitAccountHead.getName(), creditOrDebitAccountHead.getGlCode());
         }

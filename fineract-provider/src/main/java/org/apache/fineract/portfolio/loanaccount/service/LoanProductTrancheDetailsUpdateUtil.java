@@ -33,13 +33,13 @@ public class LoanProductTrancheDetailsUpdateUtil {
     public void update(final LoanProductTrancheDetails loanProductTrancheDetails, final JsonCommand command,
             final Map<String, Object> actualChanges) {
         if (command.isChangeInBooleanParameterNamed(LoanProductConstants.MULTI_DISBURSE_LOAN_PARAMETER_NAME,
-                loanProductTrancheDetails.isMultiDisburseLoan())) {
+                loanProductTrancheDetails.getMultiDisburseLoan())) {
             final boolean newValue = command.booleanPrimitiveValueOfParameterNamed(LoanProductConstants.MULTI_DISBURSE_LOAN_PARAMETER_NAME);
             actualChanges.put(LoanProductConstants.MULTI_DISBURSE_LOAN_PARAMETER_NAME, newValue);
             loanProductTrancheDetails.setMultiDisburseLoan(newValue);
         }
 
-        if (loanProductTrancheDetails.isMultiDisburseLoan()) {
+        if (loanProductTrancheDetails.getMultiDisburseLoan()) {
             if (command.isChangeInIntegerParameterNamed(LoanProductConstants.MAX_TRANCHE_COUNT_PARAMETER_NAME,
                     loanProductTrancheDetails.getMaxTrancheCount())) {
                 final Integer newValue = command.integerValueOfParameterNamed(LoanProductConstants.MAX_TRANCHE_COUNT_PARAMETER_NAME);

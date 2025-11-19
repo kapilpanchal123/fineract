@@ -48,4 +48,5 @@ public class FloatingRatePeriodDataDTO implements Serializable {
     private OffsetDateTime createdOn;
     private String modifiedBy;
     private OffsetDateTime modifiedOn;
+
 }

@@ -20,33 +20,34 @@ package org.apache.fineract.organisation.monetary.domain;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Embeddable;
-import lombok.AccessLevel;
+import java.io.Serial;
+import java.io.Serializable;
+import lombok.AllArgsConstructor;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 import org.apache.fineract.organisation.monetary.data.CurrencyData;
 
 @Getter
+@NoArgsConstructor
+@AllArgsConstructor
 @Embeddable
-public class MonetaryCurrency {
+public class MonetaryCurrency implements Serializable {
+
+    @Serial
+    private static final long serialVersionUID = 1L;
 
     @Column(name = "currency_code", length = 3, nullable = false)
     private String code;
 
     @Column(name = "currency_digits", nullable = false)
-    private int digitsAfterDecimal;
+    private Integer digitsAfterDecimal;
 
     @Column(name = "currency_multiplesof")
     private Integer inMultiplesOf;
 
-    @Getter(AccessLevel.PRIVATE)
     private transient CurrencyData currencyData;
 
-    protected MonetaryCurrency() {
-        this.code = null;
-        this.digitsAfterDecimal = 0;
-        this.inMultiplesOf = 0;
-    }
-
-    public MonetaryCurrency(final String code, final int digitsAfterDecimal, final Integer inMultiplesOf) {
+    public MonetaryCurrency(final String code, final Integer digitsAfterDecimal, final Integer inMultiplesOf) {
         this.code = code;
         this.digitsAfterDecimal = digitsAfterDecimal;
         this.inMultiplesOf = inMultiplesOf;

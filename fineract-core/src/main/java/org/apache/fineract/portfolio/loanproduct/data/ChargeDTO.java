@@ -56,7 +56,7 @@ public class ChargeDTO implements Serializable {
     private Integer feeOnMonth;
     private Boolean penalty;
     private Boolean active;
-    private Boolean deleted = false;
+    private Boolean deleted;
     private BigDecimal minCap;
     private BigDecimal maxCap;
     private Integer feeFrequency;

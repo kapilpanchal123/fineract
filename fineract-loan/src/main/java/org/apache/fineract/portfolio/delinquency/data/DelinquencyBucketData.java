@@ -23,9 +23,7 @@ import java.util.List;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.Setter;
-import lombok.ToString;
 
-@ToString
 @AllArgsConstructor
 @Getter
 @Setter
@@ -34,5 +32,4 @@ public class DelinquencyBucketData implements Serializable {
     private Long id;
     private String name;
     private List<DelinquencyRangeData> ranges;
-
 }

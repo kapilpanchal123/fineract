@@ -18,6 +18,7 @@
  */
 package org.apache.fineract.portfolio.tax.data;
 
+import java.io.Serial;
 import java.io.Serializable;
 import java.math.BigDecimal;
 import java.time.LocalDate;
@@ -30,9 +31,12 @@ import org.apache.fineract.accounting.glaccount.data.GLAccountData;
 import org.apache.fineract.infrastructure.core.data.EnumOptionData;
 import org.apache.fineract.infrastructure.core.service.DateUtils;
 
-@AllArgsConstructor
 @Getter
+@AllArgsConstructor
 public final class TaxComponentData implements Serializable {
+
+    @Serial
+    private static final long serialVersionUID = 1L;
 
     private final Long id;
     private final String name;
@@ -124,5 +128,4 @@ public final class TaxComponentData implements Serializable {
     private boolean occursOnDayFrom(final LocalDate target) {
         return DateUtils.isAfter(target, getStartDate());
     }
-
 }

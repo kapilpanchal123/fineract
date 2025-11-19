@@ -56,4 +56,5 @@ public class LoanProductInterestRecalculationDataDTO implements Serializable {
     private EnumOptionData preClosureInterestCalculationStrategy;
     private Boolean allowCompoundingOnEod;
     private Boolean disallowInterestCalculationOnPastDue;
+
 }

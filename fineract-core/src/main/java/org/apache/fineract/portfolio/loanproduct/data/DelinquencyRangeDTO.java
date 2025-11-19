@@ -40,4 +40,5 @@ public class DelinquencyRangeDTO implements Serializable {
     private Integer minimumAgeDays;
     private Integer maximumAgeDays;
     private Long version;
+
 }

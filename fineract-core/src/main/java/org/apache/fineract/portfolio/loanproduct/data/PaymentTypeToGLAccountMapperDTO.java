@@ -38,4 +38,5 @@ public class PaymentTypeToGLAccountMapperDTO implements Serializable {
 
     private PaymentTypeDataDTO paymentType;
     private GLAccountDataDTO fundSourceAccount;
+
 }

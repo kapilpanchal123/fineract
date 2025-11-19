@@ -387,7 +387,7 @@ public class GroupingTypesWritePlatformServiceJpaRepositoryImpl implements Group
              * Ignoring parentId param, if group for update is super parent. TODO Need to check: Ignoring is correct or
              * need throw unsupported param
              */
-            if (!groupLevel.isSuperParent()) {
+            if (groupLevel != null && groupLevel.getSuperParent() != null && !groupLevel.getSuperParent()) {
 
                 Long parentId = null;
                 final Group presentParentGroup = groupForUpdate.getParent();

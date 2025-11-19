@@ -38,4 +38,5 @@ public class FundDTO implements Serializable {
 
     private String name;
     private String externalId;
+
 }

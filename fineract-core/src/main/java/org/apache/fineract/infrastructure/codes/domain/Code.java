@@ -28,6 +28,7 @@ import jakarta.persistence.UniqueConstraint;
 import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.Set;
+import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
@@ -42,6 +43,7 @@ import org.apache.fineract.infrastructure.core.domain.AbstractPersistableCustom;
 @Getter
 @Setter
 @NoArgsConstructor
+@AllArgsConstructor
 @Accessors(chain = true)
 public class Code extends AbstractPersistableCustom<Long> {
 
@@ -49,7 +51,7 @@ public class Code extends AbstractPersistableCustom<Long> {
     private String name;
 
     @Column(name = "is_system_defined")
-    private boolean systemDefined;
+    private Boolean systemDefined;
 
     @OneToMany(fetch = FetchType.EAGER, cascade = CascadeType.ALL, mappedBy = "code", orphanRemoval = true)
     private Set<CodeValue> values;

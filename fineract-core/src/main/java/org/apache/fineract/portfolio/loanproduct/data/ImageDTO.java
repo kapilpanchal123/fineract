@@ -38,4 +38,5 @@ public class ImageDTO implements Serializable {
 
     private String location;
     private Integer storageType;
+
 }

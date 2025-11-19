@@ -24,12 +24,16 @@ import java.io.Serializable;
 import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.time.OffsetDateTime;
+import lombok.AllArgsConstructor;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 import org.apache.commons.lang3.builder.CompareToBuilder;
 import org.apache.commons.lang3.builder.EqualsBuilder;
 import org.apache.commons.lang3.builder.HashCodeBuilder;
 
 @Getter
+@NoArgsConstructor
+@AllArgsConstructor
 @JsonInclude(JsonInclude.Include.NON_NULL)
 public class FloatingRatePeriodData implements Comparable<FloatingRatePeriodData>, Serializable {
 
@@ -42,19 +46,6 @@ public class FloatingRatePeriodData implements Comparable<FloatingRatePeriodData
     private OffsetDateTime createdOn;
     private String modifiedBy;
     private OffsetDateTime modifiedOn;
-
-    public FloatingRatePeriodData(Long id, LocalDate fromDate, BigDecimal interestRate, Boolean isDifferentialToBaseLendingRate,
-            Boolean isActive, String createdBy, OffsetDateTime createdOn, String modifiedBy, OffsetDateTime modifiedOn) {
-        this.id = id;
-        this.fromDate = fromDate;
-        this.interestRate = interestRate;
-        this.isDifferentialToBaseLendingRate = isDifferentialToBaseLendingRate;
-        this.isActive = isActive;
-        this.createdBy = createdBy;
-        this.createdOn = createdOn;
-        this.modifiedBy = modifiedBy;
-        this.modifiedOn = modifiedOn;
-    }
 
     public FloatingRatePeriodData(Long id, LocalDate fromDate, BigDecimal interestRate, Boolean isDifferentialToBaseLendingRate,
             Boolean isActive) {

@@ -38,4 +38,5 @@ public class AdvancedMappingToExpenseAccountDataDTO implements Serializable {
 
     private CodeValueDataDTO reasonCodeValue;
     private GLAccountDataDTO expenseAccount;
+
 }

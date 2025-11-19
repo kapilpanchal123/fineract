@@ -40,4 +40,5 @@ public class LoanProductTrancheDetailsDTO implements Serializable {
     private Boolean multiDisburseLoan;
     private Integer maxTrancheCount;
     private BigDecimal outstandingLoanBalance;
+
 }

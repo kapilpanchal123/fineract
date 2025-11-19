@@ -29,6 +29,7 @@ import org.mapstruct.Mapping;
 public interface CodeValueMapper {
 
     @Mapping(target = "name", source = "label")
+    @Mapping(target = "active", source = "isActive")
     CodeValueData map(CodeValue source);
 
     List<CodeValueData> map(List<CodeValue> source);

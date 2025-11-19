@@ -39,5 +39,6 @@ public class MonetaryCurrencyDTO implements Serializable {
     private String code;
     private Integer digitsAfterDecimal;
     private Integer inMultiplesOf;
-    private transient CurrencyDataDTO currencyData;
+    private CurrencyDataDTO currencyData;
+
 }

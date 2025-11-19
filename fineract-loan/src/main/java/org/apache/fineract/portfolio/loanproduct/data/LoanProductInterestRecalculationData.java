@@ -22,7 +22,9 @@ import static org.apache.fineract.portfolio.loanproduct.service.LoanEnumerations
 import static org.apache.fineract.portfolio.loanproduct.service.LoanEnumerations.preCloseInterestCalculationStrategy;
 import static org.apache.fineract.portfolio.loanproduct.service.LoanEnumerations.rescheduleStrategyType;
 
+import java.io.Serial;
 import java.io.Serializable;
+import lombok.AllArgsConstructor;
 import lombok.Getter;
 import org.apache.fineract.infrastructure.core.data.EnumOptionData;
 import org.apache.fineract.portfolio.loanproduct.domain.InterestRecalculationCompoundingMethod;
@@ -30,7 +32,11 @@ import org.apache.fineract.portfolio.loanproduct.domain.LoanPreCloseInterestCalc
 import org.apache.fineract.portfolio.loanproduct.domain.LoanRescheduleStrategyMethod;
 
 @Getter
+@AllArgsConstructor
 public class LoanProductInterestRecalculationData implements Serializable {
+
+    @Serial
+    private static final long serialVersionUID = 1L;
 
     private final Long id;
     private final Long productId;
@@ -46,42 +52,11 @@ public class LoanProductInterestRecalculationData implements Serializable {
     private final EnumOptionData recalculationCompoundingFrequencyNthDay;
     private final EnumOptionData recalculationCompoundingFrequencyWeekday;
     private final Integer recalculationCompoundingFrequencyOnDay;
-    private final boolean isArrearsBasedOnOriginalSchedule;
-    private final boolean isCompoundingToBePostedAsTransaction;
+    private final Boolean isArrearsBasedOnOriginalSchedule;
+    private final Boolean isCompoundingToBePostedAsTransaction;
     private final EnumOptionData preClosureInterestCalculationStrategy;
-    private final boolean allowCompoundingOnEod;
+    private final Boolean allowCompoundingOnEod;
     private final Boolean disallowInterestCalculationOnPastDue;
-
-    public LoanProductInterestRecalculationData(final Long id, final Long productId,
-            final EnumOptionData interestRecalculationCompoundingType, final EnumOptionData rescheduleStrategyType,
-            final EnumOptionData recalculationRestFrequencyType, final Integer recalculationRestFrequencyInterval,
-            final EnumOptionData recalculationRestFrequencyNthDay, final EnumOptionData recalculationRestFrequencyWeekday,
-            final Integer recalculationRestFrequencyOnDay, final EnumOptionData recalculationCompoundingFrequencyType,
-            final Integer recalculationCompoundingFrequencyInterval, final EnumOptionData recalculationCompoundingFrequencyNthDay,
-            final EnumOptionData recalculationCompoundingFrequencyWeekday, final Integer recalculationCompoundingFrequencyOnDay,
-            final boolean isArrearsBasedOnOriginalSchedule, boolean isCompoundingToBePostedAsTransaction,
-            final EnumOptionData preCloseInterestCalculationStrategy, final boolean allowCompoundingOnEod,
-            final Boolean disallowInterestCalculationOnPastDue) {
-        this.id = id;
-        this.productId = productId;
-        this.interestRecalculationCompoundingType = interestRecalculationCompoundingType;
-        this.rescheduleStrategyType = rescheduleStrategyType;
-        this.recalculationRestFrequencyType = recalculationRestFrequencyType;
-        this.recalculationRestFrequencyInterval = recalculationRestFrequencyInterval;
-        this.recalculationRestFrequencyNthDay = recalculationRestFrequencyNthDay;
-        this.recalculationRestFrequencyOnDay = recalculationRestFrequencyOnDay;
-        this.recalculationRestFrequencyWeekday = recalculationRestFrequencyWeekday;
-        this.recalculationCompoundingFrequencyType = recalculationCompoundingFrequencyType;
-        this.recalculationCompoundingFrequencyInterval = recalculationCompoundingFrequencyInterval;
-        this.recalculationCompoundingFrequencyNthDay = recalculationCompoundingFrequencyNthDay;
-        this.recalculationCompoundingFrequencyOnDay = recalculationCompoundingFrequencyOnDay;
-        this.recalculationCompoundingFrequencyWeekday = recalculationCompoundingFrequencyWeekday;
-        this.isArrearsBasedOnOriginalSchedule = isArrearsBasedOnOriginalSchedule;
-        this.preClosureInterestCalculationStrategy = preCloseInterestCalculationStrategy;
-        this.isCompoundingToBePostedAsTransaction = isCompoundingToBePostedAsTransaction;
-        this.allowCompoundingOnEod = allowCompoundingOnEod;
-        this.disallowInterestCalculationOnPastDue = disallowInterestCalculationOnPastDue;
-    }
 
     public static LoanProductInterestRecalculationData sensibleDefaultsForNewLoanProductCreation() {
         final Long id = null;

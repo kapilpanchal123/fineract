@@ -39,4 +39,5 @@ public class CreditAllocationDataDTO implements Serializable {
 
     private String transactionType;
     private List<CreditAllocationOrderDTO> creditAllocationOrder;
+
 }

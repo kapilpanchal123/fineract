@@ -27,10 +27,18 @@ import java.time.LocalDate;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import lombok.AllArgsConstructor;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
 import org.apache.fineract.infrastructure.core.domain.AbstractAuditableCustom;
 import org.apache.fineract.infrastructure.core.service.DateUtils;
 import org.apache.fineract.portfolio.tax.api.TaxApiConstants;
 
+@Getter
+@Setter
+@NoArgsConstructor
+@AllArgsConstructor
 @Entity
 @Table(name = "m_tax_group_mappings")
 public class TaxGroupMappings extends AbstractAuditableCustom {
@@ -49,8 +57,6 @@ public class TaxGroupMappings extends AbstractAuditableCustom {
     @Column(name = "end_date", nullable = true)
     private LocalDate endDate;
 
-    protected TaxGroupMappings() {}
-
     private TaxGroupMappings(final TaxComponent taxComponent, final LocalDate startDate, final LocalDate endDate) {
         this.taxComponent = taxComponent;
         this.startDate = startDate;
@@ -60,7 +66,6 @@ public class TaxGroupMappings extends AbstractAuditableCustom {
     public static TaxGroupMappings createTaxGroupMappings(final TaxComponent taxComponent, final LocalDate startDate) {
         final LocalDate endDate = null;
         return new TaxGroupMappings(taxComponent, startDate, endDate);
-
     }
 
     public static TaxGroupMappings createTaxGroupMappings(final Long id, final TaxComponent taxComponent, final LocalDate endDate) {
@@ -68,7 +73,6 @@ public class TaxGroupMappings extends AbstractAuditableCustom {
         TaxGroupMappings groupMappings = new TaxGroupMappings(taxComponent, startDate, endDate);
         groupMappings.setId(id);
         return groupMappings;
-
     }
 
     public void update(final LocalDate endDate, final List<Map<String, Object>> changes) {
@@ -85,27 +89,11 @@ public class TaxGroupMappings extends AbstractAuditableCustom {
         return DateUtils.isAfter(target, startDate()) && (endDate == null || !DateUtils.isAfter(target, endDate()));
     }
 
-    public TaxComponent getTaxComponent() {
-        return this.taxComponent;
-    }
-
-    public LocalDate getEndDate() {
-        return this.endDate;
-    }
-
     public LocalDate startDate() {
         return this.startDate;
     }
 
     public LocalDate endDate() {
         return this.endDate;
-    }
-
-    public TaxGroup getTaxGroup() {
-        return taxGroup;
-    }
-
-    public void setTaxGroup(TaxGroup taxGroup) {
-        this.taxGroup = taxGroup;
     }
 }

@@ -41,4 +41,5 @@ public class GroupLevelDTO implements Serializable {
     private String levelName;
     private Boolean recursable;
     private Boolean canHaveClients;
+
 }

@@ -52,4 +52,5 @@ public class TaxComponentDataDTO implements Serializable {
     private List<TaxComponentHistoryDataDTO> taxComponentHistories;
     private Map<String, List<GLAccountDataDTO>> glAccountOptions;
     private List<EnumOptionData> glAccountTypeOptions;
+
 }

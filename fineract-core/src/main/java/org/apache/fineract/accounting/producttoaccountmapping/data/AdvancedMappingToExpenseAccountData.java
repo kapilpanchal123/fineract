@@ -18,19 +18,24 @@
  */
 package org.apache.fineract.accounting.producttoaccountmapping.data;
 
+import java.io.Serial;
 import java.io.Serializable;
-import lombok.Data;
+import lombok.Getter;
 import lombok.NoArgsConstructor;
+import lombok.Setter;
 import lombok.experimental.Accessors;
 import org.apache.fineract.accounting.glaccount.data.GLAccountData;
 import org.apache.fineract.infrastructure.codes.data.CodeValueData;
 
-@Data
+@Getter
+@Setter
 @NoArgsConstructor
 @Accessors(chain = true)
 public class AdvancedMappingToExpenseAccountData implements Serializable {
 
+    @Serial
     private static final long serialVersionUID = 1L;
+
     private CodeValueData reasonCodeValue;
     private GLAccountData expenseAccount;
 }

@@ -38,4 +38,5 @@ public class CreditAllocationOrderDTO implements Serializable {
 
     private String creditAllocationRule;
     private Integer order;
+
 }

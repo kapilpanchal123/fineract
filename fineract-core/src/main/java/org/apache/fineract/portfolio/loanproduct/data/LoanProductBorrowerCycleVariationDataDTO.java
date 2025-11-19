@@ -45,4 +45,5 @@ public class LoanProductBorrowerCycleVariationDataDTO implements Serializable {
     private BigDecimal minValue;
     private BigDecimal maxValue;
     private BigDecimal defaultValue;
+
 }

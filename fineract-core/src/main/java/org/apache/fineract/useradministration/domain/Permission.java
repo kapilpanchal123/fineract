@@ -22,8 +22,16 @@ import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.Table;
 import java.io.Serializable;
+import lombok.AllArgsConstructor;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
 import org.apache.fineract.infrastructure.core.domain.AbstractPersistableCustom;
 
+@Getter
+@Setter
+@NoArgsConstructor
+@AllArgsConstructor
 @Entity
 @Table(name = "m_permission")
 public class Permission extends AbstractPersistableCustom<Long> implements Serializable {
@@ -41,7 +49,7 @@ public class Permission extends AbstractPersistableCustom<Long> implements Seria
     private String actionName;
 
     @Column(name = "can_maker_checker", nullable = false)
-    private boolean canMakerChecker;
+    private Boolean canMakerChecker;
 
     public Permission(final String grouping, final String entityName, final String actionName) {
         this.grouping = grouping;
@@ -51,28 +59,12 @@ public class Permission extends AbstractPersistableCustom<Long> implements Seria
         this.canMakerChecker = false;
     }
 
-    protected Permission() {
-        this.grouping = null;
-        this.entityName = null;
-        this.actionName = null;
-        this.code = null;
-        this.canMakerChecker = false;
-    }
-
     public boolean hasCode(final String checkCode) {
         return this.code.equalsIgnoreCase(checkCode);
     }
 
-    public String getCode() {
-        return this.code;
-    }
-
     public boolean hasMakerCheckerEnabled() {
         return this.canMakerChecker;
-    }
-
-    public String getGrouping() {
-        return this.grouping;
     }
 
     public boolean enableMakerChecker(final boolean canMakerChecker) {

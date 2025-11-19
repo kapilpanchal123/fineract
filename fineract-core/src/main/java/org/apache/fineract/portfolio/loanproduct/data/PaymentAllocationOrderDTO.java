@@ -38,4 +38,5 @@ public class PaymentAllocationOrderDTO implements Serializable {
 
     private String paymentAllocationRule;
     private Integer order;
+
 }

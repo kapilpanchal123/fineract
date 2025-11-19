@@ -65,10 +65,10 @@ public class GLAccount extends AbstractPersistableCustom<Long> {
     private String glCode;
 
     @Column(name = "disabled", nullable = false)
-    private boolean disabled;
+    private Boolean disabled;
 
     @Column(name = "manual_journal_entries_allowed", nullable = false)
-    private boolean manualEntriesAllowed = true;
+    private Boolean manualEntriesAllowed = true;
 
     @Column(name = "classification_enum", nullable = false)
     private Integer type;
@@ -184,7 +184,6 @@ public class GLAccount extends AbstractPersistableCustom<Long> {
     }
 
     public void generateHierarchy() {
-
         if (this.parent != null) {
             this.hierarchy = this.parent.hierarchyOf(getId());
         } else {

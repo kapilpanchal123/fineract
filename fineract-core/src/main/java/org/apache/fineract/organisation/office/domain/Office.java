@@ -33,7 +33,9 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import lombok.AllArgsConstructor;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 import lombok.Setter;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.fineract.infrastructure.core.api.JsonCommand;
@@ -49,6 +51,8 @@ import org.apache.fineract.organisation.office.exception.RootOfficeParentCannotB
         @UniqueConstraint(columnNames = { "external_id" }, name = "externalid_org") })
 @Getter
 @Setter
+@NoArgsConstructor
+@AllArgsConstructor
 public class Office extends AbstractPersistableCustom<Long> implements Serializable {
 
     @OneToMany(fetch = FetchType.LAZY)
@@ -76,18 +80,10 @@ public class Office extends AbstractPersistableCustom<Long> implements Serializa
     }
 
     public static Office fromJson(final Office parentOffice, final JsonCommand command) {
-
         final String name = command.stringValueOfParameterNamed("name");
         final LocalDate openingDate = command.localDateValueOfParameterNamed("openingDate");
         final String externalId = command.stringValueOfParameterNamed("externalId");
         return new Office(parentOffice, name, openingDate, ExternalIdFactory.produce(externalId));
-    }
-
-    protected Office() {
-        this.openingDate = null;
-        this.parent = null;
-        this.name = null;
-        this.externalId = null;
     }
 
     private Office(final Office parent, final String name, final LocalDate openingDate, final ExternalId externalId) {
@@ -110,12 +106,9 @@ public class Office extends AbstractPersistableCustom<Long> implements Serializa
     }
 
     public Map<String, Object> update(final JsonCommand command) {
-
         final Map<String, Object> actualChanges = new LinkedHashMap<>(7);
-
         final String dateFormatAsInput = command.dateFormat();
         final String localeAsInput = command.locale();
-
         final String parentIdParamName = "parentId";
 
         if (command.parameterExists(parentIdParamName) && this.parent == null) {
@@ -151,12 +144,7 @@ public class Office extends AbstractPersistableCustom<Long> implements Serializa
             actualChanges.put(externalIdParamName, newValue);
             this.externalId = ExternalIdFactory.produce(StringUtils.defaultIfEmpty(newValue, null));
         }
-
         return actualChanges;
-    }
-
-    public boolean isOpeningDateBefore(final LocalDate baseDate) {
-        return DateUtils.isBefore(getOpeningLocalDate(), baseDate);
     }
 
     public boolean isOpeningDateAfter(final LocalDate baseDate) {
@@ -168,7 +156,6 @@ public class Office extends AbstractPersistableCustom<Long> implements Serializa
     }
 
     public void update(final Office newParent) {
-
         if (this.parent == null) {
             throw new RootOfficeParentCannotBeUpdated();
         }
@@ -186,7 +173,6 @@ public class Office extends AbstractPersistableCustom<Long> implements Serializa
     }
 
     public void generateHierarchy() {
-
         if (this.parent != null) {
             this.hierarchy = this.parent.hierarchyOf(getId());
         } else {
@@ -198,19 +184,11 @@ public class Office extends AbstractPersistableCustom<Long> implements Serializa
         return this.hierarchy + id.toString() + ".";
     }
 
-    public boolean hasParentOf(final Office office) {
-        if (this.parent != null) {
-            return this.parent.equals(office);
-        }
-        return false;
-    }
-
     public boolean doesNotHaveAnOfficeInHierarchyWithId(final Long officeId) {
         return !hasAnOfficeInHierarchyWithId(officeId);
     }
 
     private boolean hasAnOfficeInHierarchyWithId(final Long officeId) {
-
         boolean match = false;
 
         if (identifiedBy(officeId)) {

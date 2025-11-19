@@ -41,4 +41,5 @@ public class ExternalIdDTO implements Serializable {
     public static ExternalIdDTO empty() {
         return new ExternalIdDTO();
     }
+
 }

@@ -21,8 +21,16 @@ package org.apache.fineract.infrastructure.documentmanagement.domain;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.Table;
+import lombok.AllArgsConstructor;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
 import org.apache.fineract.infrastructure.core.domain.AbstractPersistableCustom;
 
+@Getter
+@Setter
+@NoArgsConstructor
+@AllArgsConstructor
 @Entity
 @Table(name = "m_image")
 public final class Image extends AbstractPersistableCustom<Long> {
@@ -37,25 +45,4 @@ public final class Image extends AbstractPersistableCustom<Long> {
         this.location = location;
         this.storageType = storageType.getValue();
     }
-
-    Image() {
-
-    }
-
-    public String getLocation() {
-        return this.location;
-    }
-
-    public Integer getStorageType() {
-        return this.storageType;
-    }
-
-    public void setLocation(final String location) {
-        this.location = location;
-    }
-
-    public void setStorageType(final Integer storageType) {
-        this.storageType = storageType;
-    }
-
 }

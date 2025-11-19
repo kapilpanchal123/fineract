@@ -43,4 +43,5 @@ public class RateDataDTO implements Serializable {
     private BigDecimal percentage;
     private EnumOptionData productApply;
     private Boolean active;
+
 }

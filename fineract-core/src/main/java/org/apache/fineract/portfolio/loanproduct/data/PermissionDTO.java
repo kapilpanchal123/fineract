@@ -41,4 +41,5 @@ public class PermissionDTO implements Serializable {
     private String entityName;
     private String actionName;
     private Boolean canMakerChecker;
+
 }

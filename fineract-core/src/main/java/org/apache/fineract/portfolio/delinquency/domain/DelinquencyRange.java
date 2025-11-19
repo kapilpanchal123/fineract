@@ -58,5 +58,4 @@ public class DelinquencyRange extends AbstractAuditableWithUTCDateTimeCustom<Lon
     public static DelinquencyRange instance(@NotNull String classification, @NotNull Integer minimumAge, Integer maximumAge) {
         return new DelinquencyRange(classification, minimumAge, maximumAge);
     }
-
 }

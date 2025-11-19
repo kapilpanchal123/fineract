@@ -35,6 +35,10 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import lombok.AllArgsConstructor;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.fineract.accounting.glaccount.domain.GLAccount;
 import org.apache.fineract.accounting.glaccount.domain.GLAccountType;
@@ -43,6 +47,10 @@ import org.apache.fineract.infrastructure.core.domain.AbstractAuditableCustom;
 import org.apache.fineract.infrastructure.core.service.DateUtils;
 import org.apache.fineract.portfolio.tax.api.TaxApiConstants;
 
+@Getter
+@Setter
+@NoArgsConstructor
+@AllArgsConstructor
 @Entity
 @Table(name = "m_tax_component")
 public class TaxComponent extends AbstractAuditableCustom {
@@ -58,14 +66,14 @@ public class TaxComponent extends AbstractAuditableCustom {
 
     @ManyToOne
     @JoinColumn(name = "debit_account_id")
-    private GLAccount debitAcount;
+    private GLAccount debitAccount;
 
     @Column(name = "credit_account_type_enum")
     private Integer creditAccountType;
 
     @ManyToOne
     @JoinColumn(name = "credit_account_id")
-    private GLAccount creditAcount;
+    private GLAccount creditAccount;
 
     @Column(name = "start_date", nullable = false)
     private LocalDate startDate;
@@ -77,28 +85,24 @@ public class TaxComponent extends AbstractAuditableCustom {
     @OneToMany(cascade = CascadeType.DETACH, mappedBy = "taxComponent", orphanRemoval = false, fetch = FetchType.EAGER)
     private Set<TaxGroupMappings> taxGroupMappings = new HashSet<>();
 
-    protected TaxComponent() {
-
-    }
-
-    private TaxComponent(final String name, final BigDecimal percentage, final GLAccountType debitAccountType, final GLAccount debitAcount,
-            final GLAccountType creditAccountType, final GLAccount creditAcount, final LocalDate startDate) {
+    private TaxComponent(final String name, final BigDecimal percentage, final GLAccountType debitAccountType, final GLAccount debitAccount,
+            final GLAccountType creditAccountType, final GLAccount creditAccount, final LocalDate startDate) {
         this.name = name;
         this.percentage = percentage;
         if (debitAccountType != null) {
             this.debitAccountType = debitAccountType.getValue();
         }
-        this.debitAcount = debitAcount;
+        this.debitAccount = debitAccount;
         if (creditAccountType != null) {
             this.creditAccountType = creditAccountType.getValue();
         }
-        this.creditAcount = creditAcount;
+        this.creditAccount = creditAccount;
         this.startDate = startDate;
     }
 
     public static TaxComponent createTaxComponent(final String name, final BigDecimal percentage, final GLAccountType debitAccountType,
-            final GLAccount debitAcount, final GLAccountType creditAccountType, final GLAccount creditAcount, final LocalDate startDate) {
-        return new TaxComponent(name, percentage, debitAccountType, debitAcount, creditAccountType, creditAcount, startDate);
+            final GLAccount debitAccount, final GLAccountType creditAccountType, final GLAccount creditAccount, final LocalDate startDate) {
+        return new TaxComponent(name, percentage, debitAccountType, debitAccount, creditAccountType, creditAccount, startDate);
     }
 
     public Map<String, Object> update(final JsonCommand command) {
@@ -121,9 +125,7 @@ public class TaxComponent extends AbstractAuditableCustom {
             TaxComponentHistory history = TaxComponentHistory.createTaxComponentHistory(this.percentage, oldStartDate, newStartDate);
             this.taxComponentHistories.add(history);
             this.percentage = newValue;
-
         }
-
         return changes;
     }
 
@@ -140,11 +142,6 @@ public class TaxComponent extends AbstractAuditableCustom {
             changes.put(TaxApiConstants.startDateParamName, startDate);
             this.startDate = startDate;
         }
-
-    }
-
-    public BigDecimal getPercentage() {
-        return this.percentage;
     }
 
     public LocalDate startDate() {
@@ -170,37 +167,12 @@ public class TaxComponent extends AbstractAuditableCustom {
         return DateUtils.isAfter(target, startDate());
     }
 
-    public Set<TaxComponentHistory> getTaxComponentHistories() {
-        return this.taxComponentHistories;
-    }
-
-    public Set<TaxGroupMappings> getTaxGroupMappings() {
-        return this.taxGroupMappings;
-    }
-
     public Collection<LocalDate> allStartDates() {
         List<LocalDate> dates = new ArrayList<>();
         dates.add(startDate());
         for (TaxComponentHistory componentHistory : taxComponentHistories) {
             dates.add(componentHistory.startDate());
         }
-
         return dates;
-    }
-
-    public Integer getDebitAccountType() {
-        return this.debitAccountType;
-    }
-
-    public GLAccount getDebitAcount() {
-        return this.debitAcount;
-    }
-
-    public Integer getCreditAccountType() {
-        return this.creditAccountType;
-    }
-
-    public GLAccount getCreditAcount() {
-        return this.creditAcount;
     }
 }

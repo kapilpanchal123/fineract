@@ -18,11 +18,13 @@
  */
 package org.apache.fineract.accounting.glaccount.data;
 
+import java.io.Serial;
 import java.io.Serializable;
 import java.util.Collection;
 import java.util.List;
-import lombok.Data;
+import lombok.Getter;
 import lombok.NoArgsConstructor;
+import lombok.Setter;
 import lombok.experimental.Accessors;
 import org.apache.fineract.accounting.common.AccountingEnumerations;
 import org.apache.fineract.accounting.glaccount.domain.GLAccountType;
@@ -35,11 +37,14 @@ import org.apache.fineract.infrastructure.core.data.EnumOptionData;
  *
  * Note: no getter/setters required as google-gson will produce json from fields of object.
  */
-
-@Data
+@Getter
+@Setter
 @NoArgsConstructor
 @Accessors(chain = true)
 public class GLAccountData implements Serializable {
+
+    @Serial
+    private static final long serialVersionUID = 1L;
 
     private Long id;
     private String name;
@@ -78,13 +83,12 @@ public class GLAccountData implements Serializable {
     }
 
     public static GLAccountData createFrom(final Long id) {
-
         return new GLAccountData().setId(id);
     }
 
     public static GLAccountData sensibleDefaultsForNewGLAccountCreation(final Integer glAccType) {
-        final boolean disabled = false;
-        final boolean manualEntriesAllowed = true;
+        final Boolean disabled = false;
+        final Boolean manualEntriesAllowed = true;
         final EnumOptionData type;
         if (glAccType != null && glAccType >= GLAccountType.getMinValue() && glAccType <= GLAccountType.getMaxValue()) {
             type = AccountingEnumerations.gLAccountType(glAccType);

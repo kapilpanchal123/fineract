@@ -41,4 +41,5 @@ public class TaxComponentHistoryDTO implements Serializable {
     private BigDecimal percentage;
     private LocalDate startDate;
     private LocalDate endDate;
+
 }

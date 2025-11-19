@@ -25,18 +25,14 @@ import lombok.Getter;
 import lombok.Setter;
 import org.apache.fineract.infrastructure.core.service.DateUtils;
 
-@AllArgsConstructor
 @Getter
 @Setter
+@AllArgsConstructor
 public class TaxGroupMappingsData implements Serializable {
 
-    @SuppressWarnings("unused")
     private final Long id;
-    @SuppressWarnings("unused")
     private final TaxComponentData taxComponent;
-    @SuppressWarnings("unused")
     private final LocalDate startDate;
-    @SuppressWarnings("unused")
     private final LocalDate endDate;
 
     public boolean occursOnDayFromAndUpToAndIncluding(final LocalDate target) {

@@ -67,4 +67,5 @@ public class GLAccountDataDTO implements Serializable {
 
     // import fields
     private transient Integer rowIndex;
+
 }

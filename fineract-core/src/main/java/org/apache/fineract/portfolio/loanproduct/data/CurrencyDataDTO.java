@@ -43,4 +43,5 @@ public class CurrencyDataDTO implements Serializable {
     private String displaySymbol;
     private String nameCode;
     private String displayLabel;
+
 }

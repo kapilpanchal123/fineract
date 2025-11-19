@@ -40,4 +40,5 @@ public class AdvancedPaymentDataDTO implements Serializable {
     private String transactionType;
     private String futureInstallmentAllocationRule;
     private List<PaymentAllocationOrderDTO> paymentAllocationOrder;
+
 }

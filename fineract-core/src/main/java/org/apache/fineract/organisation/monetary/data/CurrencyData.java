@@ -22,11 +22,13 @@ import java.io.Serial;
 import java.io.Serializable;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
-import lombok.Data;
+import lombok.Getter;
 import lombok.NoArgsConstructor;
+import lombok.Setter;
 
 @Builder
-@Data
+@Setter
+@Getter
 @NoArgsConstructor
 @AllArgsConstructor
 public class CurrencyData implements Serializable {
@@ -36,7 +38,7 @@ public class CurrencyData implements Serializable {
 
     private String code;
     private String name;
-    private int decimalPlaces;
+    private Integer decimalPlaces;
     private Integer inMultiplesOf;
     private String displaySymbol;
     private String nameCode;
@@ -56,7 +58,7 @@ public class CurrencyData implements Serializable {
         this.displayLabel = null;
     }
 
-    public CurrencyData(final String code, final String name, final int decimalPlaces, final Integer inMultiplesOf,
+    public CurrencyData(final String code, final String name, final Integer decimalPlaces, final Integer inMultiplesOf,
             final String displaySymbol, final String nameCode) {
         this.code = code;
         this.name = name;
@@ -67,7 +69,7 @@ public class CurrencyData implements Serializable {
         this.displayLabel = generateDisplayLabel();
     }
 
-    public CurrencyData(final String code, final int decimalPlaces, final Integer inMultiplesOf) {
+    public CurrencyData(final String code, final Integer decimalPlaces, final Integer inMultiplesOf) {
         this.code = code;
         this.name = null;
         this.decimalPlaces = decimalPlaces;
@@ -78,7 +80,6 @@ public class CurrencyData implements Serializable {
     }
 
     private String generateDisplayLabel() {
-
         final StringBuilder builder = new StringBuilder(20);
         if (this.name != null) {
             builder.append(this.name).append(' ');
@@ -92,5 +93,4 @@ public class CurrencyData implements Serializable {
 
         return builder.toString();
     }
-
 }

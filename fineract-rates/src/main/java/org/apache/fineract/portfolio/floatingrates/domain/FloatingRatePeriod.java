@@ -25,10 +25,18 @@ import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
 import java.math.BigDecimal;
 import java.time.LocalDate;
+import lombok.AllArgsConstructor;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
 import org.apache.fineract.infrastructure.core.domain.AbstractAuditableWithUTCDateTimeCustom;
 import org.apache.fineract.portfolio.floatingrates.data.FloatingRateDTO;
 import org.apache.fineract.portfolio.floatingrates.data.FloatingRatePeriodData;
 
+@Getter
+@Setter
+@NoArgsConstructor
+@AllArgsConstructor
 @Entity
 @Table(name = "m_floating_rates_periods")
 public class FloatingRatePeriod extends AbstractAuditableWithUTCDateTimeCustom<Long> {
@@ -44,10 +52,10 @@ public class FloatingRatePeriod extends AbstractAuditableWithUTCDateTimeCustom<L
     private BigDecimal interestRate;
 
     @Column(name = "is_differential_to_base_lending_rate", nullable = false)
-    private boolean isDifferentialToBaseLendingRate;
+    private Boolean isDifferentialToBaseLendingRate;
 
     @Column(name = "is_active", nullable = false)
-    private boolean isActive;
+    private Boolean isActive;
 
     /*
      * Deprecated since common Auditable fields were introduced. Columns and data left untouched to help migration.
@@ -56,10 +64,6 @@ public class FloatingRatePeriod extends AbstractAuditableWithUTCDateTimeCustom<L
      *
      * @Column(name = "lastmodified_date", nullable = false) private LocalDateTime modifiedOn;
      */
-
-    public FloatingRatePeriod() {
-
-    }
 
     public FloatingRatePeriod(LocalDate fromDate, BigDecimal interestRate, boolean isDifferentialToBaseLendingRate, boolean isActive) {
         this.fromDate = fromDate;
@@ -72,28 +76,8 @@ public class FloatingRatePeriod extends AbstractAuditableWithUTCDateTimeCustom<L
         this.floatingRate = floatingRate;
     }
 
-    public FloatingRate getFloatingRate() {
-        return this.floatingRate;
-    }
-
-    public LocalDate getFromDate() {
-        return this.fromDate;
-    }
-
-    public BigDecimal getInterestRate() {
-        return this.interestRate;
-    }
-
     public boolean isDifferentialToBaseLendingRate() {
         return this.isDifferentialToBaseLendingRate;
-    }
-
-    public boolean isActive() {
-        return this.isActive;
-    }
-
-    public void setActive(boolean isActive) {
-        this.isActive = isActive;
     }
 
     public LocalDate fetchFromDate() {
@@ -101,14 +85,12 @@ public class FloatingRatePeriod extends AbstractAuditableWithUTCDateTimeCustom<L
     }
 
     public FloatingRatePeriodData toData(final FloatingRateDTO floatingRateDTO) {
-
         BigDecimal interest = getInterestRate().add(floatingRateDTO.getInterestRateDiff());
         if (isDifferentialToBaseLendingRate()) {
             interest = interest.add(floatingRateDTO.fetchBaseRate(fetchFromDate()));
         }
 
         final LocalDate fromDate = getFromDate();
-        return new FloatingRatePeriodData(getId(), fromDate, interest, isDifferentialToBaseLendingRate(), isActive());
+        return new FloatingRatePeriodData(getId(), fromDate, interest, isDifferentialToBaseLendingRate(), this.isActive);
     }
-
 }

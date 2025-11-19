@@ -44,4 +44,5 @@ public class OfficeDTO implements Serializable {
     private String hierarchy;
     private LocalDate openingDate;
     private ExternalIdDTO externalId;
+
 }

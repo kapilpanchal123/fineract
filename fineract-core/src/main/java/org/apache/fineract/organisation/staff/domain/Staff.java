@@ -28,7 +28,10 @@ import jakarta.persistence.UniqueConstraint;
 import java.time.LocalDate;
 import java.util.LinkedHashMap;
 import java.util.Map;
+import lombok.AllArgsConstructor;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.fineract.infrastructure.core.api.JsonCommand;
 import org.apache.fineract.infrastructure.core.data.EnumOptionData;
@@ -37,6 +40,8 @@ import org.apache.fineract.infrastructure.documentmanagement.domain.Image;
 import org.apache.fineract.organisation.office.domain.Office;
 
 @Getter
+@NoArgsConstructor
+@AllArgsConstructor
 @Entity
 @Table(name = "m_staff", uniqueConstraints = { @UniqueConstraint(columnNames = { "display_name" }, name = "display_name"),
         @UniqueConstraint(columnNames = { "external_id" }, name = "external_id_UNIQUE"),
@@ -66,13 +71,13 @@ public class Staff extends AbstractPersistableCustom<Long> {
     private Office office;
 
     @Column(name = "is_loan_officer", nullable = false)
-    private boolean loanOfficer;
+    private Boolean loanOfficer;
 
     @Column(name = "organisational_role_enum")
     private Integer organisationalRoleType;
 
     @Column(name = "is_active", nullable = false)
-    private boolean active;
+    private Boolean active;
 
     @Column(name = "joining_date")
     private LocalDate joiningDate;
@@ -81,6 +86,7 @@ public class Staff extends AbstractPersistableCustom<Long> {
     @JoinColumn(name = "organisational_role_parent_staff_id")
     private Staff organisationalRoleParentStaff;
 
+    @Setter
     @OneToOne(optional = true)
     @JoinColumn(name = "image_id")
     private Image image;
@@ -115,10 +121,6 @@ public class Staff extends AbstractPersistableCustom<Long> {
         return new Staff(staffOffice, firstname, lastname, externalId, mobileNo, isLoanOfficer, isActive, joiningDate);
     }
 
-    protected Staff() {
-        //
-    }
-
     private Staff(final Office staffOffice, final String firstname, final String lastname, final String externalId, final String mobileNo,
             final boolean isLoanOfficer, final Boolean isActive, final LocalDate joiningDate) {
         this.office = staffOffice;
@@ -145,9 +147,7 @@ public class Staff extends AbstractPersistableCustom<Long> {
     }
 
     public Map<String, Object> update(final JsonCommand command) {
-
         final Map<String, Object> actualChanges = new LinkedHashMap<>(7);
-
         final String officeIdParamName = "officeId";
         if (command.isChangeInLongParameterNamed(officeIdParamName, this.office.getId())) {
             final Long newValue = command.longValueOfParameterNamed(officeIdParamName);
@@ -215,19 +215,11 @@ public class Staff extends AbstractPersistableCustom<Long> {
     }
 
     public boolean isNotLoanOfficer() {
-        return !isLoanOfficer();
-    }
-
-    public boolean isLoanOfficer() {
-        return this.loanOfficer;
+        return !getLoanOfficer();
     }
 
     public boolean isNotActive() {
-        return !isActive();
-    }
-
-    public boolean isActive() {
-        return this.active;
+        return !getActive();
     }
 
     private void deriveDisplayName(final String firstname) {
@@ -261,9 +253,4 @@ public class Staff extends AbstractPersistableCustom<Long> {
     public Office office() {
         return this.office;
     }
-
-    public void setImage(Image image) {
-        this.image = image;
-    }
-
 }

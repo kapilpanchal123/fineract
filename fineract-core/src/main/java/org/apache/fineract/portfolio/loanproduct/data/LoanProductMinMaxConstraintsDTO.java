@@ -43,4 +43,5 @@ public class LoanProductMinMaxConstraintsDTO implements Serializable {
     private BigDecimal maxNominalInterestRatePerPeriod;
     private Integer minNumberOfRepayments;
     private Integer maxNumberOfRepayments;
+
 }

@@ -40,4 +40,5 @@ public class DelinquencyBucketDTO implements Serializable {
     private String name;
     private List<DelinquencyRangeDTO> ranges;
     private Long version;
+
 }

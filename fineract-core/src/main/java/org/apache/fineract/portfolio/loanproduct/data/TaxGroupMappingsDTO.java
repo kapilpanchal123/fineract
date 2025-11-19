@@ -41,4 +41,5 @@ public class TaxGroupMappingsDTO implements Serializable {
     private TaxComponentDTO taxComponent;
     private LocalDate startDate;
     private LocalDate endDate;
+
 }

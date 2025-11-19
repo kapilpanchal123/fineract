@@ -20,33 +20,26 @@ package org.apache.fineract.portfolio.loanproduct.domain;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Embeddable;
+import java.io.Serializable;
 import java.math.BigDecimal;
+import lombok.AllArgsConstructor;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 @Getter
 @Setter
+@NoArgsConstructor
+@AllArgsConstructor
 @Embeddable
-public class LoanProductTrancheDetails {
+public class LoanProductTrancheDetails implements Serializable {
 
     @Column(name = "allow_multiple_disbursals")
-    private boolean multiDisburseLoan;
+    private Boolean multiDisburseLoan;
 
     @Column(name = "max_disbursals")
     private Integer maxTrancheCount;
 
     @Column(name = "max_outstanding_loan_balance", scale = 6, precision = 19)
     private BigDecimal outstandingLoanBalance;
-
-    protected LoanProductTrancheDetails() {
-        // TODO Auto-generated constructor stub
-    }
-
-    public LoanProductTrancheDetails(final boolean multiDisburseLoan, final Integer maxTrancheCount,
-            final BigDecimal outstandingLoanBalance) {
-        this.multiDisburseLoan = multiDisburseLoan;
-        this.maxTrancheCount = maxTrancheCount;
-        this.outstandingLoanBalance = outstandingLoanBalance;
-    }
-
 }

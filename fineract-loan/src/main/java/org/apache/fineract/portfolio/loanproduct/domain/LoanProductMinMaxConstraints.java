@@ -20,6 +20,8 @@ package org.apache.fineract.portfolio.loanproduct.domain;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Embeddable;
+import java.io.Serial;
+import java.io.Serializable;
 import java.math.BigDecimal;
 import java.util.LinkedHashMap;
 import java.util.Map;
@@ -37,7 +39,10 @@ import org.apache.fineract.infrastructure.core.api.JsonCommand;
 @NoArgsConstructor
 @AllArgsConstructor
 @Embeddable
-public class LoanProductMinMaxConstraints {
+public class LoanProductMinMaxConstraints implements Serializable {
+
+    @Serial
+    private static final long serialVersionUID = 1L;
 
     @Column(name = "min_principal_amount", scale = 6, precision = 19)
     private BigDecimal minPrincipal;
@@ -58,11 +63,8 @@ public class LoanProductMinMaxConstraints {
     private Integer maxNumberOfRepayments;
 
     public Map<String, Object> update(final JsonCommand command) {
-
         final Map<String, Object> actualChanges = new LinkedHashMap<>(20);
-
         final String localeAsInput = command.locale();
-
         final String minPrincipalParamName = "minPrincipal";
         if (command.isChangeInBigDecimalParameterNamedWithNullCheck(minPrincipalParamName, this.minPrincipal)) {
             final BigDecimal newValue = command.bigDecimalValueOfParameterNamed(minPrincipalParamName);
@@ -112,7 +114,6 @@ public class LoanProductMinMaxConstraints {
             actualChanges.put("locale", localeAsInput);
             this.maxNominalInterestRatePerPeriod = newValue;
         }
-
         return actualChanges;
     }
 

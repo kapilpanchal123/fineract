@@ -21,13 +21,19 @@ package org.apache.fineract.portfolio.floatingrates.data;
 import java.io.Serializable;
 import java.time.OffsetDateTime;
 import java.util.List;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Getter;
+import lombok.Setter;
 import org.apache.commons.lang3.builder.CompareToBuilder;
 import org.apache.commons.lang3.builder.EqualsBuilder;
 import org.apache.commons.lang3.builder.HashCodeBuilder;
 import org.apache.fineract.infrastructure.core.data.EnumOptionData;
 
 @Getter
+@Setter
+@AllArgsConstructor
+@Builder
 public class FloatingRateData implements Comparable<FloatingRateData>, Serializable {
 
     private final Long id;
@@ -40,21 +46,6 @@ public class FloatingRateData implements Comparable<FloatingRateData>, Serializa
     private final OffsetDateTime modifiedOn;
     private final List<FloatingRatePeriodData> ratePeriods;
     private final List<EnumOptionData> interestRateFrequencyTypeOptions;
-
-    public FloatingRateData(Long id, String name, Boolean isBaseLendingRate, Boolean isActive, String createdBy, OffsetDateTime createdOn,
-            String modifiedBy, OffsetDateTime modifiedOn, List<FloatingRatePeriodData> ratePeriods,
-            List<EnumOptionData> interestRateFrequencyTypeOptions) {
-        this.id = id;
-        this.name = name;
-        this.isBaseLendingRate = isBaseLendingRate;
-        this.isActive = isActive;
-        this.createdBy = createdBy;
-        this.createdOn = createdOn;
-        this.modifiedBy = modifiedBy;
-        this.modifiedOn = modifiedOn;
-        this.ratePeriods = ratePeriods;
-        this.interestRateFrequencyTypeOptions = interestRateFrequencyTypeOptions;
-    }
 
     @Override
     public int compareTo(final FloatingRateData obj) {
@@ -97,10 +88,5 @@ public class FloatingRateData implements Comparable<FloatingRateData>, Serializa
                 .append(this.isBaseLendingRate) //
                 .append(this.isActive) //
                 .toHashCode();
-    }
-
-    public static FloatingRateData toTemplate(List<EnumOptionData> interestRateFrequencyTypeOptions) {
-        // TODO Auto-generated method stub
-        return new FloatingRateData(null, null, false, true, null, null, null, null, null, interestRateFrequencyTypeOptions);
     }
 }

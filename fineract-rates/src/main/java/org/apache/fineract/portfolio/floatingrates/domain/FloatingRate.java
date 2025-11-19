@@ -37,6 +37,10 @@ import java.util.HashSet;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import lombok.AllArgsConstructor;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
 import org.apache.fineract.infrastructure.core.api.JsonCommand;
 import org.apache.fineract.infrastructure.core.domain.AbstractAuditableWithUTCDateTimeCustom;
 import org.apache.fineract.infrastructure.core.serialization.JsonParserHelper;
@@ -44,6 +48,10 @@ import org.apache.fineract.infrastructure.core.service.DateUtils;
 import org.apache.fineract.portfolio.floatingrates.data.FloatingRateDTO;
 import org.apache.fineract.portfolio.floatingrates.data.FloatingRatePeriodData;
 
+@Getter
+@Setter
+@NoArgsConstructor
+@AllArgsConstructor
 @Entity
 @Table(name = "m_floating_rates", uniqueConstraints = { @UniqueConstraint(columnNames = { "name" }, name = "unq_name") })
 public class FloatingRate extends AbstractAuditableWithUTCDateTimeCustom<Long> {
@@ -52,10 +60,10 @@ public class FloatingRate extends AbstractAuditableWithUTCDateTimeCustom<Long> {
     private String name;
 
     @Column(name = "is_base_lending_rate", nullable = false)
-    private boolean isBaseLendingRate;
+    private Boolean isBaseLendingRate;
 
     @Column(name = "is_active", nullable = false)
-    private boolean isActive;
+    private Boolean isActive;
 
     @OrderBy(value = "fromDate,id")
     @OneToMany(cascade = CascadeType.ALL, mappedBy = "floatingRate", orphanRemoval = true, fetch = FetchType.EAGER)
@@ -69,24 +77,7 @@ public class FloatingRate extends AbstractAuditableWithUTCDateTimeCustom<Long> {
      * @Column(name = "lastmodified_date", nullable = false) private LocalDateTime modifiedOn;
      */
 
-    public FloatingRate() {
-
-    }
-
-    public FloatingRate(String name, boolean isBaseLendingRate, boolean isActive, List<FloatingRatePeriod> floatingRatePeriods) {
-        this.name = name;
-        this.isBaseLendingRate = isBaseLendingRate;
-        this.isActive = isActive;
-        this.floatingRatePeriods = floatingRatePeriods;
-        if (floatingRatePeriods != null) {
-            for (FloatingRatePeriod ratePeriod : floatingRatePeriods) {
-                ratePeriod.updateFloatingRate(this);
-            }
-        }
-    }
-
     public static FloatingRate createNew(JsonCommand command) {
-
         final String name = command.stringValueOfParameterNamed("name");
         final boolean isBaseLendingRate = command.parameterExists("isBaseLendingRate")
                 && command.booleanPrimitiveValueOfParameterNamed("isBaseLendingRate");
@@ -112,24 +103,7 @@ public class FloatingRate extends AbstractAuditableWithUTCDateTimeCustom<Long> {
             final boolean isActive = true;
             ratePeriods.add(new FloatingRatePeriod(fromDate, interestRate, isDifferentialToBaseLendingRate, isActive));
         }
-
         return ratePeriods;
-    }
-
-    public String getName() {
-        return this.name;
-    }
-
-    public boolean isBaseLendingRate() {
-        return this.isBaseLendingRate;
-    }
-
-    public boolean isActive() {
-        return this.isActive;
-    }
-
-    public List<FloatingRatePeriod> getFloatingRatePeriods() {
-        return this.floatingRatePeriods;
     }
 
     public Map<String, Object> update(final JsonCommand command) {
@@ -159,7 +133,6 @@ public class FloatingRate extends AbstractAuditableWithUTCDateTimeCustom<Long> {
             updateRatePeriods(newRatePeriods);
             actualChanges.put("ratePeriods", command.jsonFragment("ratePeriods"));
         }
-
         return actualChanges;
     }
 
@@ -169,7 +142,7 @@ public class FloatingRate extends AbstractAuditableWithUTCDateTimeCustom<Long> {
             for (FloatingRatePeriod ratePeriod : this.floatingRatePeriods) {
                 LocalDate fromDate = ratePeriod.getFromDate();
                 if (DateUtils.isAfter(fromDate, today)) {
-                    ratePeriod.setActive(false);
+                    ratePeriod.setIsActive(false);
                 }
             }
         }
@@ -184,7 +157,7 @@ public class FloatingRate extends AbstractAuditableWithUTCDateTimeCustom<Long> {
         FloatingRatePeriod previousPeriod = null;
         boolean addPeriodData = false;
         for (FloatingRatePeriod floatingRatePeriod : this.floatingRatePeriods) {
-            if (floatingRatePeriod.isActive()) {
+            if (floatingRatePeriod.getIsActive()) {
                 // will enter
                 if (applicableRates.isEmpty() && DateUtils.isBefore(floatingRateDTO.getStartDate(), floatingRatePeriod.fetchFromDate())) {
                     if (floatingRateDTO.isFloatingInterestRate()) {
@@ -207,5 +180,4 @@ public class FloatingRate extends AbstractAuditableWithUTCDateTimeCustom<Long> {
         }
         return applicableRates;
     }
-
 }

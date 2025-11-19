@@ -49,4 +49,5 @@ public class FloatingRateDataDTO implements Serializable {
     private OffsetDateTime modifiedOn;
     private List<FloatingRatePeriodDataDTO> ratePeriods;
     private List<EnumOptionData> interestRateFrequencyTypeOptions;
+
 }

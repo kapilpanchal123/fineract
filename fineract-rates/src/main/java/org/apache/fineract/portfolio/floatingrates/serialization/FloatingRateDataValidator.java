@@ -213,11 +213,11 @@ public class FloatingRateDataValidator {
         }
 
         if (isBaseLendingRate == null) {
-            isBaseLendingRate = floatingRateForUpdate.isBaseLendingRate();
+            isBaseLendingRate = floatingRateForUpdate.getIsBaseLendingRate();
         }
 
         if (isActive == null) {
-            isActive = floatingRateForUpdate.isActive();
+            isActive = floatingRateForUpdate.getIsActive();
         }
 
         if (baseLendingRate != null && baseLendingRate.getId().equals(floatingRateForUpdate.getId()) && (!isBaseLendingRate || !isActive)) { // NOSONAR

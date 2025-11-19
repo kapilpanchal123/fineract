@@ -43,4 +43,5 @@ public class FloatingRatePeriodDTO implements Serializable {
     private BigDecimal interestRate;
     private Boolean isDifferentialToBaseLendingRate;
     private Boolean isActive;
+
 }

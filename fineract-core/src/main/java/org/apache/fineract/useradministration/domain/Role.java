@@ -32,10 +32,18 @@ import java.util.HashSet;
 import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.Set;
+import lombok.AllArgsConstructor;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
 import org.apache.fineract.infrastructure.core.api.JsonCommand;
 import org.apache.fineract.infrastructure.core.domain.AbstractPersistableCustom;
 import org.apache.fineract.useradministration.data.RoleData;
 
+@Getter
+@Setter
+@NoArgsConstructor
+@AllArgsConstructor
 @Entity
 @Table(name = "m_role", uniqueConstraints = { @UniqueConstraint(columnNames = { "name" }, name = "unq_name") })
 public class Role extends AbstractPersistableCustom<Long> implements Serializable {
@@ -59,10 +67,6 @@ public class Role extends AbstractPersistableCustom<Long> implements Serializabl
         return new Role(name, description);
     }
 
-    protected Role() {
-        //
-    }
-
     public Role(final String name, final String description) {
         this.name = name.trim();
         this.description = description.trim();
@@ -70,7 +74,6 @@ public class Role extends AbstractPersistableCustom<Long> implements Serializabl
     }
 
     public Map<String, Object> update(final JsonCommand command) {
-
         final Map<String, Object> actualChanges = new LinkedHashMap<>(7);
 
         final String nameParamName = "name";
@@ -126,10 +129,6 @@ public class Role extends AbstractPersistableCustom<Long> implements Serializabl
 
     public RoleData toData() {
         return new RoleData(getId(), this.name, this.description, this.disabled);
-    }
-
-    public String getName() {
-        return this.name;
     }
 
     public void disableRole() {

@@ -20,7 +20,6 @@ package org.apache.fineract.portfolio.loanproduct.data;
 
 import java.io.Serial;
 import java.io.Serializable;
-import java.util.HashSet;
 import java.util.Set;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -41,5 +40,6 @@ public class RoleDTO implements Serializable {
     private String name;
     private String description;
     private Boolean disabled;
-    private Set<PermissionDTO> permissions = new HashSet<>();
+    private Set<PermissionDTO> permissions;
+
 }

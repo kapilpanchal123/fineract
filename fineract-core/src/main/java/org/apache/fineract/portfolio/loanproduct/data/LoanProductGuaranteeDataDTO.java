@@ -42,4 +42,5 @@ public class LoanProductGuaranteeDataDTO implements Serializable {
     private BigDecimal mandatoryGuarantee;
     private BigDecimal minimumGuaranteeFromOwnFunds;
     private BigDecimal minimumGuaranteeFromGuarantor;
+
 }

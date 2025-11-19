@@ -48,4 +48,5 @@ public class GLAccountDTO implements Serializable {
     private Integer usage;
     private String description;
     private CodeValueDTO tagId;
+
 }

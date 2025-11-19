@@ -18,6 +18,7 @@
  */
 package org.apache.fineract.portfolio.loanproduct.data;
 
+import java.io.Serial;
 import java.io.Serializable;
 import java.math.BigDecimal;
 import lombok.Getter;
@@ -26,6 +27,9 @@ import lombok.RequiredArgsConstructor;
 @Getter
 @RequiredArgsConstructor
 public final class LoanProductGuaranteeData implements Serializable {
+
+    @Serial
+    private static final long serialVersionUID = 1L;
 
     private final Long id;
     private final Long productId;
@@ -37,9 +41,4 @@ public final class LoanProductGuaranteeData implements Serializable {
             final BigDecimal minimumGuaranteeFromOwnFunds, final BigDecimal minimumGuaranteeFromGuarantor) {
         return new LoanProductGuaranteeData(id, productId, mandatoryGuarantee, minimumGuaranteeFromOwnFunds, minimumGuaranteeFromGuarantor);
     }
-
-    public static LoanProductGuaranteeData sensibleDefaultsForNewLoanProductCreation() {
-        return new LoanProductGuaranteeData(null, null, null, null, null);
-    }
-
 }

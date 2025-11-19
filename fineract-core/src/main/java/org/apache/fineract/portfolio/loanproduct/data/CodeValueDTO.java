@@ -42,4 +42,5 @@ public class CodeValueDTO implements Serializable {
     private CodeDTO code;
     private Boolean isActive;
     private Boolean mandatory;
+
 }

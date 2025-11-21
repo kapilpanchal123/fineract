@@ -24,6 +24,7 @@ import java.math.BigDecimal;
 import java.util.LinkedHashMap;
 import java.util.Map;
 import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
@@ -37,6 +38,7 @@ import org.apache.fineract.infrastructure.core.api.JsonCommand;
 @NoArgsConstructor
 @AllArgsConstructor
 @Embeddable
+@Builder
 public class LoanProductMinMaxConstraints {
 
     @Column(name = "min_principal_amount", scale = 6, precision = 19)
@@ -58,9 +60,7 @@ public class LoanProductMinMaxConstraints {
     private Integer maxNumberOfRepayments;
 
     public Map<String, Object> update(final JsonCommand command) {
-
         final Map<String, Object> actualChanges = new LinkedHashMap<>(20);
-
         final String localeAsInput = command.locale();
 
         final String minPrincipalParamName = "minPrincipal";

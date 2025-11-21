@@ -25,10 +25,8 @@ import org.apache.fineract.infrastructure.core.api.ApiFacingEnum;
 @Getter
 @RequiredArgsConstructor
 public enum LoanCapitalizedIncomeStrategy implements ApiFacingEnum<LoanCapitalizedIncomeStrategy> {
-
     EQUAL_AMORTIZATION("capitalizedIncome.strategy.equalAmortization", "Equal amortization");
 
     private final String code;
     private final String humanReadableName;
-
 }

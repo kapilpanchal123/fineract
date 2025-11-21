@@ -439,7 +439,7 @@ public class LoanScheduleAssembler {
         final BigDecimal principalThresholdForLastInstalment = loanProduct.getPrincipalThresholdForLastInstallment();
 
         List<LoanTermVariationsData> loanTermVariations = new ArrayList<>();
-        if (loanProduct.isLinkedToFloatingInterestRate()) {
+        if (loanProduct.getIsLinkedToFloatingInterestRate()) {
             final BigDecimal interestRateDiff = this.fromApiJsonHelper
                     .extractBigDecimalWithLocaleNamed(LoanApiConstants.interestRateDifferentialParameterName, element);
 
@@ -1068,7 +1068,7 @@ public class LoanScheduleAssembler {
 
     private void extractLoanTermVariations(final Loan loan, final String json, final List<LoanTermVariations> loanTermVariations) {
         final JsonElement element = this.fromApiJsonHelper.parse(json);
-        if (loan.loanProduct().isAllowVariabeInstallments()) {
+        if (loan.loanProduct().getAllowVariabeInstallments()) {
             if (element.isJsonObject() && this.fromApiJsonHelper.parameterExists(LoanApiConstants.exceptionParamName, element)) {
                 final JsonObject topLevelJsonElement = element.getAsJsonObject();
                 final String dateFormat = this.fromApiJsonHelper.extractDateFormatParameter(topLevelJsonElement);

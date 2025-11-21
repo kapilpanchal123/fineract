@@ -25,6 +25,7 @@ import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 import lombok.RequiredArgsConstructor;
 import org.apache.commons.lang3.StringUtils;
@@ -51,6 +52,8 @@ import org.apache.fineract.portfolio.loanaccount.loanschedule.domain.AprCalculat
 import org.apache.fineract.portfolio.loanaccount.loanschedule.domain.LoanScheduleProcessingType;
 import org.apache.fineract.portfolio.loanaccount.loanschedule.domain.LoanScheduleType;
 import org.apache.fineract.portfolio.loanproduct.LoanProductConstants;
+import org.apache.fineract.portfolio.loanproduct.data.LoanProductBorrowerCycleVariationsDTO;
+import org.apache.fineract.portfolio.loanproduct.data.LoanProductRequest;
 import org.apache.fineract.portfolio.loanproduct.domain.AmortizationMethod;
 import org.apache.fineract.portfolio.loanproduct.domain.InterestCalculationPeriodMethod;
 import org.apache.fineract.portfolio.loanproduct.domain.InterestMethod;
@@ -58,12 +61,18 @@ import org.apache.fineract.portfolio.loanproduct.domain.LoanProduct;
 import org.apache.fineract.portfolio.loanproduct.domain.LoanProductBorrowerCycleVariations;
 import org.apache.fineract.portfolio.loanproduct.domain.LoanProductConfigurableAttributes;
 import org.apache.fineract.portfolio.loanproduct.domain.LoanProductCreditAllocationRule;
+import org.apache.fineract.portfolio.loanproduct.domain.LoanProductFloatingRates;
 import org.apache.fineract.portfolio.loanproduct.domain.LoanProductGuaranteeDetails;
 import org.apache.fineract.portfolio.loanproduct.domain.LoanProductInterestRecalculationDetails;
+import org.apache.fineract.portfolio.loanproduct.domain.LoanProductMinMaxConstraints;
 import org.apache.fineract.portfolio.loanproduct.domain.LoanProductParamType;
 import org.apache.fineract.portfolio.loanproduct.domain.LoanProductPaymentAllocationRule;
+import org.apache.fineract.portfolio.loanproduct.domain.LoanProductRelatedDetail;
+import org.apache.fineract.portfolio.loanproduct.domain.LoanProductTrancheDetails;
+import org.apache.fineract.portfolio.loanproduct.domain.LoanProductVariableInstallmentConfig;
 import org.apache.fineract.portfolio.loanproduct.domain.LoanSupportedInterestRefundTypes;
 import org.apache.fineract.portfolio.loanproduct.domain.RepaymentStartDateType;
+import org.apache.fineract.portfolio.loanproduct.mapper.LoanProductBorrowerCycleVariationsToLoanProductBorrowCycleVariationsDTOMapper;
 import org.apache.fineract.portfolio.rate.domain.Rate;
 import org.springframework.stereotype.Service;
 
@@ -73,6 +82,8 @@ public class LoanProductAssembler {
 
     private final LoanProductInterestRecalculationDetailsAssembler interestRecalculationDetailsAssembler;
     private final LoanProductGuaranteeDetailsAssembler guaranteeDetailsAssembler;
+    private final AprCalculator aprCalculator;
+    private final LoanProductBorrowerCycleVariationsToLoanProductBorrowCycleVariationsDTOMapper loanProductBorrowerCycleVariationsToLoanProductBorrowCycleVariationsDTOMapper;
 
     public LoanProduct assembleFromJson(final Fund fund, final String loanTransactionProcessingStrategy, final List<Charge> productCharges,
             final JsonCommand command, final AprCalculator aprCalculator, FloatingRate floatingRate, final List<Rate> productRates,
@@ -357,12 +368,626 @@ public class LoanProductAssembler {
 
     }
 
+    public LoanProduct assemble(final Map<String, Object> responseMap, final LoanProductRequest loanProductRequest) {
+      final LoanProduct.LoanProductBuilder builder = LoanProduct.builder();
+      final LoanProductRelatedDetail.LoanProductRelatedDetailBuilder loanProductRelatedDetailBuilder = LoanProductRelatedDetail.builder();
+
+//      final String name = command.stringValueOfParameterNamed("name");
+      builder.name(loanProductRequest.getName());
+
+//      final String shortName = command.stringValueOfParameterNamed(LoanProductConstants.SHORT_NAME);
+      builder.shortName(loanProductRequest.getShortName());
+
+//      final String description = command.stringValueOfParameterNamed("description");
+      builder.description(loanProductRequest.getDescription());
+
+      builder.transactionProcessingStrategyCode(loanProductRequest.getTransactionProcessingStrategyCode());
+
+//      final String currencyCode = command.stringValueOfParameterNamed("currencyCode");
+//      final Integer digitsAfterDecimal = command.integerValueOfParameterNamed("digitsAfterDecimal");
+//      final Integer inMultiplesOf = command.integerValueOfParameterNamed("inMultiplesOf");
+//      final MonetaryCurrency currency = new MonetaryCurrency(currencyCode, digitsAfterDecimal, inMultiplesOf);
+      final MonetaryCurrency currency = MonetaryCurrency.builder()
+          .code(loanProductRequest.getCurrencyCode())
+          .digitsAfterDecimal(loanProductRequest.getDigitsAfterDecimal())
+          .inMultiplesOf(loanProductRequest.getInMultiplesOf())
+          .build();
+      loanProductRelatedDetailBuilder.currency(currency);
+
+//      final BigDecimal principal = command.bigDecimalValueOfParameterNamed("principal");
+//      final BigDecimal minPrincipal = command.bigDecimalValueOfParameterNamed("minPrincipal");
+//      final BigDecimal maxPrincipal = command.bigDecimalValueOfParameterNamed("maxPrincipal");
+
+      final LoanProductMinMaxConstraints.LoanProductMinMaxConstraintsBuilder loanProductMinMaxConstraintsBuilder = LoanProductMinMaxConstraints.builder();
+      loanProductMinMaxConstraintsBuilder.minPrincipal(loanProductRequest.getMinPrincipal());
+      loanProductMinMaxConstraintsBuilder.maxPrincipal(loanProductRequest.getMaxPrincipal());
+      loanProductMinMaxConstraintsBuilder.minNominalInterestRatePerPeriod(loanProductRequest.getMinNominalInterestRatePerPeriod());
+      loanProductMinMaxConstraintsBuilder.maxNominalInterestRatePerPeriod(loanProductRequest.getMaxNominalInterestRatePerPeriod());
+      loanProductMinMaxConstraintsBuilder.minNumberOfRepayments(loanProductRequest.getMinNumberOfRepayments());
+      loanProductMinMaxConstraintsBuilder.maxNumberOfRepayments(loanProductRequest.getMaxNumberOfRepayments());
+
+      builder.loanProductMinMaxConstraints(loanProductMinMaxConstraintsBuilder.build());
+
+      loanProductRelatedDetailBuilder.principal(loanProductRequest.getPrincipal());
+
+//      final InterestMethod interestMethod = InterestMethod.fromInt(command.integerValueOfParameterNamed("interestType"));
+      final InterestMethod interestMethod = InterestMethod.fromInt(loanProductRequest.getInterestType());
+      loanProductRelatedDetailBuilder.interestMethod(interestMethod);
+
+//      final InterestCalculationPeriodMethod interestCalculationPeriodMethod = InterestCalculationPeriodMethod
+//          .fromInt(command.integerValueOfParameterNamed("interestCalculationPeriodType"));
+      final InterestCalculationPeriodMethod interestCalculationPeriodMethod = InterestCalculationPeriodMethod
+          .fromInt(loanProductRequest.getInterestCalculationPeriod() == 0 ? 1 : loanProductRequest.getInterestCalculationPeriod());
+      loanProductRelatedDetailBuilder.interestCalculationPeriodMethod(interestCalculationPeriodMethod);
+
+//      final boolean allowPartialPeriodInterestCalcualtion = command
+//          .booleanPrimitiveValueOfParameterNamed(LoanProductConstants.ALLOW_PARTIAL_PERIOD_INTEREST_CALCUALTION_PARAM_NAME);
+      final Boolean allowPartialPeriodInterestCalculation = loanProductRequest.getAllowPartialPeriodInterestCalculation() != null ? loanProductRequest.getAllowPartialPeriodInterestCalculation() : Boolean.FALSE;
+      loanProductRelatedDetailBuilder.allowPartialPeriodInterestCalculation(allowPartialPeriodInterestCalculation);
+
+//      final AmortizationMethod amortizationMethod = AmortizationMethod.fromInt(command.integerValueOfParameterNamed("amortizationType"));
+      final AmortizationMethod amortizationMethod = AmortizationMethod.fromInt(loanProductRequest.getAmortizationType());
+      loanProductRelatedDetailBuilder.amortizationMethod(amortizationMethod);
+
+//      final PeriodFrequencyType repaymentFrequencyType = PeriodFrequencyType
+//          .fromInt(command.integerValueOfParameterNamed("repaymentFrequencyType"));
+      final PeriodFrequencyType repaymentFrequencyType = PeriodFrequencyType
+          .fromInt(loanProductRequest.getRepaymentFrequencyType());
+      loanProductRelatedDetailBuilder.repaymentPeriodFrequencyType(repaymentFrequencyType);
+
+      PeriodFrequencyType interestFrequencyType = PeriodFrequencyType.INVALID;
+      loanProductRelatedDetailBuilder.interestPeriodFrequencyType(interestFrequencyType);
+
+      BigDecimal interestRatePerPeriod = null;
+      BigDecimal minInterestRatePerPeriod = null;
+      BigDecimal maxInterestRatePerPeriod = null;
+      BigDecimal annualInterestRate = null;
+      BigDecimal interestRateDifferential = null;
+      BigDecimal minDifferentialLendingRate = null;
+      BigDecimal maxDifferentialLendingRate = null;
+      BigDecimal defaultDifferentialLendingRate = null;
+      Boolean isFloatingInterestRateCalculationAllowed = null;
+      Integer minimumGapBetweenInstallments = null;
+      Integer maximumGapBetweenInstallments = null;
+
+      // Declaring this variable here to be used throughout the file
+//      final DaysInYearType daysInYearType = DaysInYearType
+//          .fromInt(command.integerValueOfParameterNamed(LoanProductConstants.DAYS_IN_YEAR_TYPE_PARAMETER_NAME));
+      final DaysInYearType daysInYearType = DaysInYearType.fromInt(loanProductRequest.getDaysInYearType());
+      loanProductRelatedDetailBuilder.daysInYearType(loanProductRequest.getDaysInYearType());
+//      final Integer repaymentEvery = command.integerValueOfParameterNamed("repaymentEvery");
+      final Integer repaymentEvery = loanProductRequest.getRepaymentEvery() == null ? 1 : loanProductRequest.getRepaymentEvery();
+      loanProductRelatedDetailBuilder.repayEvery(repaymentEvery);
+
+//      final Integer numberOfRepayments = command.integerValueOfParameterNamed("numberOfRepayments");
+      final Integer numberOfRepayments = loanProductRequest.getNumberOfRepayments() == null ? 0 : loanProductRequest.getNumberOfRepayments();
+      loanProductRelatedDetailBuilder.numberOfRepayments(numberOfRepayments);
+//      final Boolean isLinkedToFloatingInterestRates = command.booleanObjectValueOfParameterNamed("isLinkedToFloatingInterestRates");
+      final Boolean isLinkedToFloatingInterestRates = loanProductRequest.getIsLinkedToFloatingInterestRates() != null ?
+          loanProductRequest.getIsLinkedToFloatingInterestRates() : Boolean.FALSE;
+      builder.isLinkedToFloatingInterestRate(isLinkedToFloatingInterestRates);
+//      if (isLinkedToFloatingInterestRates != null && isLinkedToFloatingInterestRates) {
+//        interestRateDifferential = command.bigDecimalValueOfParameterNamed("interestRateDifferential");
+//        minDifferentialLendingRate = command.bigDecimalValueOfParameterNamed("minDifferentialLendingRate");
+//        maxDifferentialLendingRate = command.bigDecimalValueOfParameterNamed("maxDifferentialLendingRate");
+//        defaultDifferentialLendingRate = command.bigDecimalValueOfParameterNamed("defaultDifferentialLendingRate");
+//        isFloatingInterestRateCalculationAllowed = command
+//            .booleanObjectValueOfParameterNamed("isFloatingInterestRateCalculationAllowed");
+//      } else {
+//        interestFrequencyType = PeriodFrequencyType.fromInt(command.integerValueOfParameterNamed("interestRateFrequencyType"));
+//        interestRatePerPeriod = command.bigDecimalValueOfParameterNamed("interestRatePerPeriod");
+//        minInterestRatePerPeriod = command.bigDecimalValueOfParameterNamed("minInterestRatePerPeriod");
+//        maxInterestRatePerPeriod = command.bigDecimalValueOfParameterNamed("maxInterestRatePerPeriod");
+//        annualInterestRate = aprCalculator.calculateFrom(interestFrequencyType, interestRatePerPeriod, numberOfRepayments,
+//            repaymentEvery, repaymentFrequencyType, daysInYearType);
+//      }
+
+      if (isLinkedToFloatingInterestRates) {
+//        interestRateDifferential = command.bigDecimalValueOfParameterNamed("interestRateDifferential");
+//        minDifferentialLendingRate = command.bigDecimalValueOfParameterNamed("minDifferentialLendingRate");
+//        maxDifferentialLendingRate = command.bigDecimalValueOfParameterNamed("maxDifferentialLendingRate");
+//        defaultDifferentialLendingRate = command.bigDecimalValueOfParameterNamed("defaultDifferentialLendingRate");
+//        isFloatingInterestRateCalculationAllowed = command
+//            .booleanObjectValueOfParameterNamed("isFloatingInterestRateCalculationAllowed");
+        LoanProductFloatingRates loanProductFloatingRates = LoanProductFloatingRates.builder()
+            .interestRateDifferential(loanProductRequest.getInterestRateDifferential())
+            .minDifferentialLendingRate(loanProductRequest.getMinDifferentialLendingRate())
+            .maxDifferentialLendingRate(loanProductRequest.getMaxDifferentialLendingRate())
+            .defaultDifferentialLendingRate(loanProductRequest.getDefaultDifferentialLendingRate())
+            .isFloatingInterestRateCalculationAllowed(loanProductRequest.getIsFloatingInterestRateCalculationAllowed())
+            .build();
+        builder.floatingRates(loanProductFloatingRates);
+      } else {
+//        interestFrequencyType = PeriodFrequencyType.fromInt(command.integerValueOfParameterNamed("interestRateFrequencyType"));
+//        interestRatePerPeriod = command.bigDecimalValueOfParameterNamed("interestRatePerPeriod");
+//        minInterestRatePerPeriod = command.bigDecimalValueOfParameterNamed("minInterestRatePerPeriod");
+//        maxInterestRatePerPeriod = command.bigDecimalValueOfParameterNamed("maxInterestRatePerPeriod");
+
+        interestFrequencyType = PeriodFrequencyType.fromInt(loanProductRequest.getInterestRateFrequencyType());
+        interestRatePerPeriod = loanProductRequest.getInterestRatePerPeriod();
+        minInterestRatePerPeriod = loanProductRequest.getMinInterestRatePerPeriod();
+        maxInterestRatePerPeriod = loanProductRequest.getMaxInterestRatePerPeriod();
+
+        annualInterestRate = aprCalculator.calculateFrom(interestFrequencyType, interestRatePerPeriod, numberOfRepayments,
+            repaymentEvery, repaymentFrequencyType, daysInYearType);
+        loanProductRelatedDetailBuilder.annualNominalInterestRate(annualInterestRate);
+      }
+
+//      final Boolean isVariableInstallmentsAllowed = command
+//          .booleanObjectValueOfParameterNamed(LoanProductConstants.allowVariableInstallmentsParamName);
+      final Boolean isVariableInstallmentsAllowed = loanProductRequest.getAllowVariableInstallments() != null ? loanProductRequest.getAllowVariableInstallments() : Boolean.FALSE;
+      builder.allowVariabeInstallments(isVariableInstallmentsAllowed);
+
+//      if (isVariableInstallmentsAllowed != null && isVariableInstallmentsAllowed) {
+//        minimumGapBetweenInstallments = command.integerValueOfParameterNamed(LoanProductConstants.minimumGapBetweenInstallments);
+//        maximumGapBetweenInstallments = command.integerValueOfParameterNamed(LoanProductConstants.maximumGapBetweenInstallments);
+//      }
+
+      if (isVariableInstallmentsAllowed) {
+//        minimumGapBetweenInstallments = command.integerValueOfParameterNamed(LoanProductConstants.minimumGapBetweenInstallments);
+//        maximumGapBetweenInstallments = command.integerValueOfParameterNamed(LoanProductConstants.maximumGapBetweenInstallments);
+        minimumGapBetweenInstallments = loanProductRequest.getMinimumGapBetweenInstallments();
+        maximumGapBetweenInstallments = loanProductRequest.getMaximumGapBetweenInstallments();
+        LoanProductVariableInstallmentConfig loanProductVariableInstallmentConfig = LoanProductVariableInstallmentConfig.builder()
+            .minimumGap(minimumGapBetweenInstallments)
+            .maximumGap(maximumGapBetweenInstallments)
+            .build();
+        builder.variableInstallmentConfig(loanProductVariableInstallmentConfig);
+      }
+
+//      final Integer minNumberOfRepayments = command.integerValueOfParameterNamed("minNumberOfRepayments");
+//      final Integer maxNumberOfRepayments = command.integerValueOfParameterNamed("maxNumberOfRepayments");
+//      final BigDecimal inArrearsTolerance = command.bigDecimalValueOfParameterNamed("inArrearsTolerance");
+
+//      final Integer minNumberOfRepayments = command.integerValueOfParameterNamed("minNumberOfRepayments");
+//      final Integer maxNumberOfRepayments = command.integerValueOfParameterNamed("maxNumberOfRepayments");
+//      final BigDecimal inArrearsTolerance = command.bigDecimalValueOfParameterNamed("inArrearsTolerance");
+      final BigDecimal inArrearsTolerance = loanProductRequest.getInArrearsTolerance();
+      loanProductRelatedDetailBuilder.inArrearsTolerance(inArrearsTolerance);
+
+//      // grace details
+//      final Integer graceOnPrincipalPayment = command.integerValueOfParameterNamed("graceOnPrincipalPayment");
+//      final Integer recurringMoratoriumOnPrincipalPeriods = command.integerValueOfParameterNamed("recurringMoratoriumOnPrincipalPeriods");
+//      final Integer graceOnInterestPayment = command.integerValueOfParameterNamed("graceOnInterestPayment");
+//      final Integer graceOnInterestCharged = command.integerValueOfParameterNamed("graceOnInterestCharged");
+//      final Integer minimumDaysBetweenDisbursalAndFirstRepayment = command
+//          .integerValueOfParameterNamed(LoanProductConstants.MINIMUM_DAYS_BETWEEN_DISBURSAL_AND_FIRST_REPAYMENT);
+
+      // grace details
+      final Integer graceOnPrincipalPayment = loanProductRequest.getGraceOnPrincipalPayment();
+      final Integer recurringMoratoriumOnPrincipalPeriods = loanProductRequest.getRecurringMoratoriumOnPrincipalPeriods();
+      final Integer graceOnInterestPayment = loanProductRequest.getGraceOnInterestPayment();
+      final Integer graceOnInterestCharged = loanProductRequest.getGraceOnInterestCharged();
+      final Integer minimumDaysBetweenDisbursalAndFirstRepayment = loanProductRequest.getMinimumDaysBetweenDisbursalAndFirstRepayment();
+      builder.minimumDaysBetweenDisbursalAndFirstRepayment(minimumDaysBetweenDisbursalAndFirstRepayment);
+
+      loanProductRelatedDetailBuilder.graceOnPrincipalPayment(graceOnPrincipalPayment);
+      loanProductRelatedDetailBuilder.recurringMoratoriumOnPrincipalPeriods(recurringMoratoriumOnPrincipalPeriods);
+      loanProductRelatedDetailBuilder.graceOnInterestPayment(graceOnInterestPayment);
+      loanProductRelatedDetailBuilder.graceOnInterestCharged(graceOnInterestCharged);
+
+//      final AccountingRuleType accountingRuleType = AccountingRuleType.fromInt(command.integerValueOfParameterNamed("accountingRule"));
+//      final boolean includeInBorrowerCycle = command.booleanPrimitiveValueOfParameterNamed("includeInBorrowerCycle");
+      final AccountingRuleType accountingRuleType = AccountingRuleType.fromInt(loanProductRequest.getAccountingRule());
+      builder.accountingRule(accountingRuleType);
+
+//      final Boolean includeInBorrowerCycle = command.booleanPrimitiveValueOfParameterNamed("includeInBorrowerCycle");
+      final Boolean includeInBorrowerCycle = loanProductRequest.getIncludeInBorrowerCycle();
+      builder.includeInBorrowerCycle(includeInBorrowerCycle);
+//      final LocalDate startDate = command.localDateValueOfParameterNamed("startDate");
+//      final LocalDate closeDate = command.localDateValueOfParameterNamed("closeDate");
+//      final ExternalId externalId = ExternalIdFactory.produce(command.stringValueOfParameterNamedAllowingNull("externalId"));
+      final LocalDate startDate = loanProductRequest.getStartDate();
+      final LocalDate closeDate = loanProductRequest.getCloseDate();
+      final ExternalId externalId = ExternalIdFactory.produce(loanProductRequest.getExternalId());
+      builder.startDate(startDate);
+      builder.closeDate(closeDate);
+      builder.externalId(externalId);
+
+//      final LoanScheduleType loanScheduleType;
+//      if (command.hasParameter("loanScheduleType")) {
+//        loanScheduleType = LoanScheduleType.valueOf(command.stringValueOfParameterNamed("loanScheduleType"));
+//      } else {
+//        // For backward compatibility
+//        loanScheduleType = LoanScheduleType.CUMULATIVE;
+//      }
+      final LoanScheduleType loanScheduleType;
+      if (loanProductRequest.getLoanScheduleType() != null) {
+        loanScheduleType = LoanScheduleType.valueOf(loanProductRequest.getLoanScheduleType());
+        loanProductRelatedDetailBuilder.loanScheduleType(loanScheduleType);
+      } else {
+        // For backward compatibility
+        loanScheduleType = LoanScheduleType.CUMULATIVE;
+        loanProductRelatedDetailBuilder.loanScheduleType(loanScheduleType);
+      }
+
+//      final LoanScheduleProcessingType loanScheduleProcessingType;
+//      if (LoanScheduleType.PROGRESSIVE.equals(loanScheduleType) && command.hasParameter("loanScheduleProcessingType")) {
+//        loanScheduleProcessingType = LoanScheduleProcessingType
+//            .valueOf(command.stringValueOfParameterNamed("loanScheduleProcessingType"));
+//      } else {
+//        // For backward compatibility
+//        loanScheduleProcessingType = LoanScheduleProcessingType.HORIZONTAL;
+//      }
+      final LoanScheduleProcessingType loanScheduleProcessingType;
+      if (LoanScheduleType.PROGRESSIVE.equals(loanScheduleType) && loanProductRequest.getLoanScheduleProcessingType() != null) {
+        loanScheduleProcessingType = LoanScheduleProcessingType.valueOf(loanProductRequest.getLoanScheduleProcessingType());
+        loanProductRelatedDetailBuilder.loanScheduleProcessingType(loanScheduleProcessingType);
+      } else {
+        // For backward compatibility
+        loanScheduleProcessingType = LoanScheduleProcessingType.HORIZONTAL;
+        loanProductRelatedDetailBuilder.loanScheduleProcessingType(loanScheduleProcessingType);
+      }
+
+//      final boolean useBorrowerCycle = command
+//          .booleanPrimitiveValueOfParameterNamed(LoanProductConstants.USE_BORROWER_CYCLE_PARAMETER_NAME);
+//      final Set<LoanProductBorrowerCycleVariations> loanProductBorrowerCycleVariations = new HashSet<>();
+      final Boolean useBorrowerCycle = loanProductRequest.getUseBorrowerCycle() != null ? loanProductRequest.getUseBorrowerCycle() : Boolean.FALSE;
+      builder.useBorrowerCycle(useBorrowerCycle);
+
+//      final Set<LoanProductBorrowerCycleVariations> loanProductBorrowerCycleVariations = new HashSet<>();
+//      if (useBorrowerCycle) {
+//        populateBorrowerCycleVariations(command, loanProductBorrowerCycleVariations);
+//      }
+      if (useBorrowerCycle) {
+        final Set<LoanProductBorrowerCycleVariations> loanProductBorrowerCycleVariations = populateBorrowerCycleVariations(loanProductRequest);
+        builder.borrowerCycleVariations(loanProductBorrowerCycleVariations);
+      }
+
+//      final boolean multiDisburseLoan = command
+//          .booleanPrimitiveValueOfParameterNamed(LoanProductConstants.MULTI_DISBURSE_LOAN_PARAMETER_NAME);
+      final Boolean multiDisburseLoan = loanProductRequest.getMultiDisburseLoan() != null ? loanProductRequest.getMultiDisburseLoan() : Boolean.FALSE;
+
+      LoanProductTrancheDetails.LoanProductTrancheDetailsBuilder trancheDetailsBuilder = LoanProductTrancheDetails.builder();
+      trancheDetailsBuilder.multiDisburseLoan(multiDisburseLoan);
+
+      Integer maxTrancheCount = null;
+      BigDecimal outstandingLoanBalance = null;
+
+//      if (multiDisburseLoan) {
+//        outstandingLoanBalance = command.bigDecimalValueOfParameterNamed(LoanProductConstants.OUTSTANDING_LOAN_BALANCE_PARAMETER_NAME);
+//        maxTrancheCount = command.integerValueOfParameterNamed(LoanProductConstants.MAX_TRANCHE_COUNT_PARAMETER_NAME);
+//      }
+      if (multiDisburseLoan) {
+//        outstandingLoanBalance = command.bigDecimalValueOfParameterNamed(LoanProductConstants.OUTSTANDING_LOAN_BALANCE_PARAMETER_NAME);
+        outstandingLoanBalance = loanProductRequest.getOutstandingLoanBalance();
+        trancheDetailsBuilder.outstandingLoanBalance(outstandingLoanBalance);
+//        maxTrancheCount = command.integerValueOfParameterNamed(LoanProductConstants.MAX_TRANCHE_COUNT_PARAMETER_NAME);
+        maxTrancheCount = loanProductRequest.getMaxTrancheCount();
+        trancheDetailsBuilder.maxTrancheCount(maxTrancheCount);
+      }
+      builder.loanProductTrancheDetails(trancheDetailsBuilder.build());
+
+//      final Integer graceOnArrearsAgeing = command
+//          .integerValueOfParameterNamed(LoanProductConstants.GRACE_ON_ARREARS_AGEING_PARAMETER_NAME);
+      final Integer graceOnArrearsAgeing = loanProductRequest.getGraceOnArrearsAgeing();
+      loanProductRelatedDetailBuilder.graceOnArrearsAgeing(graceOnArrearsAgeing);
+
+//      final Integer overdueDaysForNPA = command.integerValueOfParameterNamed(LoanProductConstants.OVERDUE_DAYS_FOR_NPA_PARAMETER_NAME);
+      final Integer overdueDaysForNPA = loanProductRequest.getOverdueDaysForNPA();
+      builder.overdueDaysForNPA(overdueDaysForNPA);
+
+      // Interest recalculation settings
+//      final boolean isInterestRecalculationEnabled = command
+//          .booleanPrimitiveValueOfParameterNamed(LoanProductConstants.IS_INTEREST_RECALCULATION_ENABLED_PARAMETER_NAME);
+      final Boolean isInterestRecalculationEnabled = loanProductRequest.getIsInterestRecalculationEnabled() != null ? loanProductRequest.getIsInterestRecalculationEnabled() : Boolean.FALSE;
+
+//      final DaysInMonthType daysInMonthType = DaysInMonthType
+//          .fromInt(command.integerValueOfParameterNamed(LoanProductConstants.DAYS_IN_MONTH_TYPE_PARAMETER_NAME));
+//      final DaysInMonthType daysInMonthType = DaysInMonthType.fromInt(loanProductRequest.getDaysInMonthType());
+      loanProductRelatedDetailBuilder.daysInMonthType(loanProductRequest.getDaysInMonthType());
+//      loanProductRelatedDetailBuilder.daysInMonthType(daysInMonthType);
+//      final DaysInYearCustomStrategyType daysInYearCustomStrategy = command.enumValueOfParameterNamed(
+//          LoanProductConstants.DAYS_IN_YEAR_CUSTOM_STRATEGY_TYPE_PARAMETER_NAME, DaysInYearCustomStrategyType.class);
+      final DaysInYearCustomStrategyType daysInYearCustomStrategy = DaysInYearCustomStrategyType.fromString(loanProductRequest.getDaysInYearCustomStrategy());
+      loanProductRelatedDetailBuilder.daysInYearCustomStrategy(daysInYearCustomStrategy);
+
+      LoanProductInterestRecalculationDetails interestRecalculationSettings = null;
+
+      if (isInterestRecalculationEnabled) {
+        interestRecalculationSettings = interestRecalculationDetailsAssembler.createFrom(loanProductRequest);
+        builder.productInterestRecalculationDetails(interestRecalculationSettings);
+      }
+
+//      final boolean holdGuarantorFunds = command.booleanPrimitiveValueOfParameterNamed(LoanProductConstants.holdGuaranteeFundsParamName);
+//      LoanProductGuaranteeDetails loanProductGuaranteeDetails = null;
+//      if (holdGuarantorFunds) {
+//        loanProductGuaranteeDetails = guaranteeDetailsAssembler.createFrom(command);
+//      }
+      final Boolean holdGuarantorFunds = loanProductRequest.getHoldGuaranteeFunds() != null ? loanProductRequest.getHoldGuaranteeFunds() : Boolean.FALSE;
+//       loanProductGuaranteeDetails = null;
+      builder.holdGuaranteeFunds(holdGuarantorFunds);
+      if (holdGuarantorFunds) {
+//        loanProductGuaranteeDetails = guaranteeDetailsAssembler.createFrom(command);
+        LoanProductGuaranteeDetails loanProductGuaranteeDetails = guaranteeDetailsAssembler.createFrom(loanProductRequest);
+        builder.loanProductGuaranteeDetails(loanProductGuaranteeDetails);
+      } else {
+        builder.loanProductGuaranteeDetails(LoanProductGuaranteeDetails.builder()
+                .mandatoryGuarantee(BigDecimal.ZERO)
+                .minimumGuaranteeFromOwnFunds(BigDecimal.ZERO)
+                .minimumGuaranteeFromGuarantor(BigDecimal.ZERO)
+            .build());
+      }
+
+
+//      LoanProductConfigurableAttributes loanConfigurableAttributes = null;
+//      if (command.parameterExists(LoanProductConstants.allowAttributeOverridesParamName)) {
+//        loanConfigurableAttributes = LoanProductConfigurableAttributes.createFrom(command);
+//      } else {
+//        loanConfigurableAttributes = LoanProductConfigurableAttributes.populateDefaultsForConfigurableAttributes();
+//      }
+      LoanProductConfigurableAttributes loanConfigurableAttributes = null;
+      if (loanProductRequest.getAllowAttributeOverrides() != null) {
+        loanConfigurableAttributes = LoanProductConfigurableAttributes.createFrom(loanProductRequest);
+        builder.loanConfigurableAttributes(loanConfigurableAttributes);
+      } else {
+        loanConfigurableAttributes = LoanProductConfigurableAttributes.populateDefaultsForConfigurableAttributes();
+        builder.loanConfigurableAttributes(loanConfigurableAttributes);
+      }
+
+//      BigDecimal principalThresholdForLastInstallment = command
+//          .bigDecimalValueOfParameterNamed(LoanProductConstants.principalThresholdForLastInstallmentParamName);
+      BigDecimal principalThresholdForLastInstallment = loanProductRequest.getPrincipalThresholdForLastInstallment();
+
+//      if (principalThresholdForLastInstallment == null) {
+//        principalThresholdForLastInstallment = multiDisburseLoan
+//            ? LoanProductConstants.DEFAULT_PRINCIPAL_THRESHOLD_FOR_MULTI_DISBURSE_LOAN
+//            : LoanProductConstants.DEFAULT_PRINCIPAL_THRESHOLD_FOR_SINGLE_DISBURSE_LOAN;
+//      }
+      if (principalThresholdForLastInstallment == null) {
+        principalThresholdForLastInstallment = multiDisburseLoan
+            ? LoanProductConstants.DEFAULT_PRINCIPAL_THRESHOLD_FOR_MULTI_DISBURSE_LOAN
+            : LoanProductConstants.DEFAULT_PRINCIPAL_THRESHOLD_FOR_SINGLE_DISBURSE_LOAN;
+      }
+      builder.principalThresholdForLastInstallment(principalThresholdForLastInstallment);
+
+//      final boolean accountMovesOutOfNPAOnlyOnArrearsCompletion = command
+//          .booleanPrimitiveValueOfParameterNamed(LoanProductConstants.ACCOUNT_MOVES_OUT_OF_NPA_ONLY_ON_ARREARS_COMPLETION_PARAM_NAME);
+      final Boolean accountMovesOutOfNPAOnlyOnArrearsCompletion = loanProductRequest.getAccountMovesOutOfNPAOnlyOnArrearsCompletion() != null ?
+          loanProductRequest.getAccountMovesOutOfNPAOnlyOnArrearsCompletion() : Boolean.FALSE;
+      builder.accountMovesOutOfNPAOnlyOnArrearsCompletion(accountMovesOutOfNPAOnlyOnArrearsCompletion);
+
+//      final Boolean canDefineEmiAmount = command.booleanPrimitiveValueOfParameterNamed(LoanProductConstants.canDefineEmiAmountParamName);
+      final Boolean canDefineEmiAmount = loanProductRequest.getCanDefineInstallmentAmount() != null ? loanProductRequest.getCanDefineInstallmentAmount() : Boolean.FALSE;
+      builder.canDefineInstallmentAmount(canDefineEmiAmount);
+
+//      final Integer installmentAmountInMultiplesOf = command
+//          .integerValueOfParameterNamed(LoanProductConstants.installmentAmountInMultiplesOfParamName);
+      final Integer installmentAmountInMultiplesOf = loanProductRequest.getInstallmentAmountInMultiplesOf();
+      loanProductRelatedDetailBuilder.installmentAmountInMultiplesOf(installmentAmountInMultiplesOf);
+
+//      final Boolean syncExpectedWithDisbursementDate = command.booleanPrimitiveValueOfParameterNamed("syncExpectedWithDisbursementDate");
+      final Boolean syncExpectedWithDisbursementDate = loanProductRequest.getSyncExpectedWithDisbursementDate() != null ? loanProductRequest.getSyncExpectedWithDisbursementDate() : Boolean.FALSE;
+      builder.syncExpectedWithDisbursementDate(syncExpectedWithDisbursementDate);
+
+//      final boolean canUseForTopup = command.parameterExists(LoanProductConstants.CAN_USE_FOR_TOPUP)
+//          && command.booleanPrimitiveValueOfParameterNamed(LoanProductConstants.CAN_USE_FOR_TOPUP);
+      final Boolean canUseForTopup = loanProductRequest.getCanUseForTopup() != null ? loanProductRequest.getCanUseForTopup() : Boolean.FALSE;
+      builder.canUseForTopup(canUseForTopup);
+
+//      final boolean isEqualAmortization = command.parameterExists(LoanProductConstants.IS_EQUAL_AMORTIZATION_PARAM)
+//          && command.booleanPrimitiveValueOfParameterNamed(LoanProductConstants.IS_EQUAL_AMORTIZATION_PARAM);
+      final Boolean isEqualAmortization = loanProductRequest.getIsEqualAmortization() != null ? loanProductRequest.getIsEqualAmortization() : Boolean.FALSE;
+      loanProductRelatedDetailBuilder.isEqualAmortization(isEqualAmortization);
+
+//      final BigDecimal fixedPrincipalPercentagePerInstallment = command
+//          .bigDecimalValueOfParameterNamed(LoanProductConstants.fixedPrincipalPercentagePerInstallmentParamName);
+      final BigDecimal fixedPrincipalPercentagePerInstallment = loanProductRequest.getFixedPrincipalPercentagePerInstallment();
+      builder.fixedPrincipalPercentagePerInstallment(fixedPrincipalPercentagePerInstallment);
+
+
+//      final boolean disallowExpectedDisbursements = command.parameterExists(LoanProductConstants.DISALLOW_EXPECTED_DISBURSEMENTS)
+//          && command.booleanPrimitiveValueOfParameterNamed(LoanProductConstants.DISALLOW_EXPECTED_DISBURSEMENTS);
+      final Boolean disallowExpectedDisbursements = loanProductRequest.getDisallowExpectedDisbursements() != null ? loanProductRequest.getDisallowExpectedDisbursements() : Boolean.FALSE;
+      builder.disallowExpectedDisbursements(disallowExpectedDisbursements);
+
+//      final boolean allowApprovedDisbursedAmountsOverApplied = command
+//          .parameterExists(LoanProductConstants.ALLOW_APPROVED_DISBURSED_AMOUNTS_OVER_APPLIED)
+//          && command.booleanPrimitiveValueOfParameterNamed(LoanProductConstants.ALLOW_APPROVED_DISBURSED_AMOUNTS_OVER_APPLIED);
+      final Boolean allowApprovedDisbursedAmountsOverApplied = loanProductRequest.getAllowApprovedDisbursedAmountsOverApplied() != null ?
+          loanProductRequest.getAllowApprovedDisbursedAmountsOverApplied() : Boolean.FALSE;
+      builder.allowApprovedDisbursedAmountsOverApplied(allowApprovedDisbursedAmountsOverApplied);
+
+
+//      final String overAppliedCalculationType = command
+//          .stringValueOfParameterNamedAllowingNull(LoanProductConstants.OVER_APPLIED_CALCULATION_TYPE);
+      final String overAppliedCalculationType = loanProductRequest.getOverAppliedCalculationType();
+      builder.overAppliedCalculationType(overAppliedCalculationType);
+
+//      final Integer overAppliedNumber = command.integerValueOfParameterNamed(LoanProductConstants.OVER_APPLIED_NUMBER);
+      final Integer overAppliedNumber = loanProductRequest.getOverAppliedNumber();
+      builder.overAppliedNumber(overAppliedNumber);
+
+//      final Integer dueDaysForRepaymentEvent = command.integerValueOfParameterNamed(LoanProductConstants.DUE_DAYS_FOR_REPAYMENT_EVENT);
+      final Integer dueDaysForRepaymentEvent = loanProductRequest.getDueDaysForRepaymentEvent();
+      builder.dueDaysForRepaymentEvent(dueDaysForRepaymentEvent);
+
+//      final Integer overDueDaysForRepaymentEvent = command
+//          .integerValueOfParameterNamed(LoanProductConstants.OVER_DUE_DAYS_FOR_REPAYMENT_EVENT);
+      final Integer overDueDaysForRepaymentEvent = loanProductRequest.getOverDueDaysForRepaymentEvent();
+      builder.overDueDaysForRepaymentEvent(overDueDaysForRepaymentEvent);
+
+//      final Boolean enableDownPayment = command.booleanPrimitiveValueOfParameterNamed(LoanProductConstants.ENABLE_DOWN_PAYMENT);
+      final Boolean enableDownPayment = loanProductRequest.getEnableDownPayment() != null ? loanProductRequest.getEnableDownPayment() : Boolean.FALSE;
+      loanProductRelatedDetailBuilder.enableDownPayment(enableDownPayment);
+
+//      final BigDecimal disbursedAmountPercentageDownPayment = command
+//          .bigDecimalValueOfParameterNamed(LoanProductConstants.DISBURSED_AMOUNT_PERCENTAGE_DOWN_PAYMENT);
+      final BigDecimal disbursedAmountPercentageDownPayment = loanProductRequest.getDisbursedAmountPercentageForDownPayment();
+      loanProductRelatedDetailBuilder.disbursedAmountPercentageForDownPayment(disbursedAmountPercentageDownPayment);
+
+//      final boolean enableAutoRepaymentForDownPayment = command
+//          .booleanPrimitiveValueOfParameterNamed(LoanProductConstants.ENABLE_AUTO_REPAYMENT_DOWN_PAYMENT);
+      final Boolean enableAutoRepaymentForDownPayment = loanProductRequest.getEnableAutoRepaymentForDownPayment() != null ? loanProductRequest.getEnableAutoRepaymentForDownPayment() : Boolean.FALSE;
+      loanProductRelatedDetailBuilder.enableAutoRepaymentForDownPayment(enableAutoRepaymentForDownPayment);
+
+//      final RepaymentStartDateType repaymentStartDateType = RepaymentStartDateType
+//          .fromInt(command.integerValueOfParameterNamed(LoanProductConstants.REPAYMENT_START_DATE_TYPE));
+      final RepaymentStartDateType repaymentStartDateType = RepaymentStartDateType
+          .fromInt(loanProductRequest.getRepaymentStartDateType());
+      builder.repaymentStartDateType(repaymentStartDateType);
+
+//      final Boolean enableInstallmentLevelDelinquency = command
+//          .booleanPrimitiveValueOfParameterNamed(LoanProductConstants.ENABLE_INSTALLMENT_LEVEL_DELINQUENCY);
+      final Boolean enableInstallmentLevelDelinquency = loanProductRequest.getEnableInstallmentLevelDelinquency() != null ? loanProductRequest.getEnableInstallmentLevelDelinquency() : Boolean.FALSE;
+      builder.enableInstallmentLevelDelinquency(enableInstallmentLevelDelinquency);
+
+//      final Integer fixedLength = command.integerValueOfParameterNamed(LoanProductConstants.FIXED_LENGTH);
+      final Integer fixedLength = loanProductRequest.getFixedLength();
+      loanProductRelatedDetailBuilder.fixedLength(fixedLength);
+
+//      final Boolean enableAccrualActivityPosting = command
+//          .booleanPrimitiveValueOfParameterNamed(LoanProductConstants.ENABLE_ACCRUAL_ACTIVITY_POSTING);
+      final Boolean enableAccrualActivityPosting = loanProductRequest.getEnableAccrualActivityPosting() != null ? loanProductRequest.getEnableAccrualActivityPosting() : Boolean.FALSE;
+      loanProductRelatedDetailBuilder.enableAccrualActivityPosting(enableAccrualActivityPosting);
+
+//      Boolean interestRecognitionOnDisbursementDate = false;
+//      if (command.parameterExists(LoanProductConstants.INTEREST_RECOGNITION_ON_DISBURSEMENT_DATE)) {
+//        interestRecognitionOnDisbursementDate = command
+//            .booleanPrimitiveValueOfParameterNamed(LoanProductConstants.INTEREST_RECOGNITION_ON_DISBURSEMENT_DATE);
+//      }
+      Boolean interestRecognitionOnDisbursementDate = loanProductRequest.getInterestRecognitionOnDisbursementDate() != null ? loanProductRequest.getInterestRecognitionOnDisbursementDate() : Boolean.FALSE;
+
+//      if (loanProductRequest.getInterestRecognitionOnDisbursementDate() != null) {
+//        interestRecognitionOnDisbursementDate = loanProductRequest.getInterestRecognitionOnDisbursementDate();
+      loanProductRelatedDetailBuilder.interestRecognitionOnDisbursementDate(interestRecognitionOnDisbursementDate);
+//      }
+
+//      List<LoanSupportedInterestRefundTypes> supportedInterestRefundTypes = new ArrayList<>();
+//      if (command.parameterExists(LoanProductConstants.SUPPORTED_INTEREST_REFUND_TYPES)) {
+//        JsonArray supportedTransactionsForInterestRefund = command
+//            .arrayOfParameterNamed(LoanProductConstants.SUPPORTED_INTEREST_REFUND_TYPES);
+//        supportedTransactionsForInterestRefund.iterator().forEachRemaining(value -> {
+//          supportedInterestRefundTypes.add(LoanSupportedInterestRefundTypes.valueOf(value.getAsString()));
+//        });
+//      }
+      List<LoanSupportedInterestRefundTypes> supportedInterestRefundTypes = new ArrayList<>();
+      if (loanProductRequest.getSupportedInterestRefundTypes() != null && !loanProductRequest.getSupportedInterestRefundTypes().isEmpty()) {
+//        JsonArray supportedTransactionsForInterestRefund = command
+//            .arrayOfParameterNamed(LoanProductConstants.SUPPORTED_INTEREST_REFUND_TYPES);
+//        supportedTransactionsForInterestRefund.iterator().forEachRemaining(value -> {
+//          supportedInterestRefundTypes.add(LoanSupportedInterestRefundTypes.valueOf(value.getAsString()));
+//        });
+        for(String element : loanProductRequest.getSupportedInterestRefundTypes()) {
+          supportedInterestRefundTypes.add(LoanSupportedInterestRefundTypes.valueOf(element));
+        }
+        loanProductRelatedDetailBuilder.supportedInterestRefundTypes(supportedInterestRefundTypes);
+      } else {
+        loanProductRelatedDetailBuilder.supportedInterestRefundTypes(List.of(LoanSupportedInterestRefundTypes.PAYOUT_REFUND));
+      }
+
+//      final LoanChargeOffBehaviour chargeOffBehaviour;
+//      if (command.parameterExists(LoanProductConstants.CHARGE_OFF_BEHAVIOUR)) {
+//        chargeOffBehaviour = LoanChargeOffBehaviour
+//            .valueOf(command.stringValueOfParameterNamed(LoanProductConstants.CHARGE_OFF_BEHAVIOUR));
+//      } else {
+//        // For backward compatibility
+//        chargeOffBehaviour = LoanChargeOffBehaviour.REGULAR;
+//      }
+      final LoanChargeOffBehaviour chargeOffBehaviour;
+      if (loanProductRequest.getChargeOffBehaviour() != null) {
+        chargeOffBehaviour = LoanChargeOffBehaviour.valueOf(loanProductRequest.getChargeOffBehaviour());
+        loanProductRelatedDetailBuilder.chargeOffBehaviour(chargeOffBehaviour);
+      } else {
+        // For backward compatibility
+        chargeOffBehaviour = LoanChargeOffBehaviour.REGULAR;
+        loanProductRelatedDetailBuilder.chargeOffBehaviour(chargeOffBehaviour);
+      }
+
+//      final boolean enableIncomeCapitalization = command
+//          .booleanPrimitiveValueOfParameterNamed(LoanProductConstants.ENABLE_INCOME_CAPITALIZATION_PARAM_NAME);
+      final Boolean enableIncomeCapitalization = loanProductRequest.getEnableIncomeCapitalization() != null ? loanProductRequest.getEnableIncomeCapitalization() : Boolean.FALSE;
+      loanProductRelatedDetailBuilder.enableIncomeCapitalization(enableIncomeCapitalization);
+
+//      final LoanCapitalizedIncomeCalculationType capitalizedIncomeCalculationType = command.enumValueOfParameterNamed(
+//          LoanProductConstants.CAPITALIZED_INCOME_CALCULATION_TYPE_PARAM_NAME, LoanCapitalizedIncomeCalculationType.class);
+      final LoanCapitalizedIncomeCalculationType capitalizedIncomeCalculationType = loanProductRequest.getCapitalizedIncomeCalculationType() != null ?
+          LoanCapitalizedIncomeCalculationType.valueOf(loanProductRequest.getCapitalizedIncomeCalculationType()) : LoanCapitalizedIncomeCalculationType.FLAT;
+      loanProductRelatedDetailBuilder.capitalizedIncomeCalculationType(capitalizedIncomeCalculationType);
+
+//      final LoanCapitalizedIncomeStrategy capitalizedIncomeStrategy = command.enumValueOfParameterNamed(
+//          LoanProductConstants.CAPITALIZED_INCOME_STRATEGY_PARAM_NAME, LoanCapitalizedIncomeStrategy.class);
+      final LoanCapitalizedIncomeStrategy capitalizedIncomeStrategy = loanProductRequest.getCapitalizedIncomeStrategy() != null ?
+          LoanCapitalizedIncomeStrategy.valueOf(loanProductRequest.getCapitalizedIncomeStrategy()) : LoanCapitalizedIncomeStrategy.EQUAL_AMORTIZATION;
+      loanProductRelatedDetailBuilder.capitalizedIncomeStrategy(capitalizedIncomeStrategy);
+
+//      final LoanCapitalizedIncomeType capitalizedIncomeType = command
+//          .enumValueOfParameterNamed(LoanProductConstants.CAPITALIZED_INCOME_TYPE_PARAM_NAME, LoanCapitalizedIncomeType.class);
+      final LoanCapitalizedIncomeType capitalizedIncomeType = loanProductRequest.getCapitalizedIncomeType() != null ? LoanCapitalizedIncomeType.valueOf(loanProductRequest.getCapitalizedIncomeType()) : LoanCapitalizedIncomeType.INTEREST;
+      loanProductRelatedDetailBuilder.capitalizedIncomeType(capitalizedIncomeType);
+
+//      final Boolean enableBuyDownFee = command.booleanPrimitiveValueOfParameterNamed(LoanProductConstants.ENABLE_BUY_DOWN_FEE_PARAM_NAME);
+      final Boolean enableBuyDownFee = loanProductRequest.getEnableBuyDownFee() != null ? loanProductRequest.getMerchantBuyDownFee() : Boolean.FALSE;
+      loanProductRelatedDetailBuilder.enableBuyDownFee(enableBuyDownFee);
+
+//      final LoanBuyDownFeeCalculationType buyDownFeeCalculationType = command.enumValueOfParameterNamed(
+//          LoanProductConstants.BUY_DOWN_FEE_CALCULATION_TYPE_PARAM_NAME, LoanBuyDownFeeCalculationType.class);
+      final LoanBuyDownFeeCalculationType buyDownFeeCalculationType = loanProductRequest.getBuyDownFeeCalculationType() != null ? LoanBuyDownFeeCalculationType.valueOf(loanProductRequest.getBuyDownFeeCalculationType()) : LoanBuyDownFeeCalculationType.FLAT;
+      loanProductRelatedDetailBuilder.buyDownFeeCalculationType(buyDownFeeCalculationType);
+
+//      final LoanBuyDownFeeStrategy buyDownFeeStrategy = command
+//          .enumValueOfParameterNamed(LoanProductConstants.BUY_DOWN_FEE_STRATEGY_PARAM_NAME, LoanBuyDownFeeStrategy.class);
+      final LoanBuyDownFeeStrategy buyDownFeeStrategy = loanProductRequest.getBuyDownFeeStrategy() != null ?
+          LoanBuyDownFeeStrategy.valueOf(loanProductRequest.getBuyDownFeeStrategy()) : LoanBuyDownFeeStrategy.EQUAL_AMORTIZATION;
+      loanProductRelatedDetailBuilder.buyDownFeeStrategy(buyDownFeeStrategy);
+
+//      final LoanBuyDownFeeIncomeType buyDownFeeIncomeType = command
+//          .enumValueOfParameterNamed(LoanProductConstants.BUY_DOWN_FEE_INCOME_TYPE_PARAM_NAME, LoanBuyDownFeeIncomeType.class);
+      final LoanBuyDownFeeIncomeType buyDownFeeIncomeType = loanProductRequest.getBuyDownFeeIncomeType() != null ? LoanBuyDownFeeIncomeType.valueOf(loanProductRequest.getBuyDownFeeIncomeType()) : LoanBuyDownFeeIncomeType.INTEREST;
+      loanProductRelatedDetailBuilder.buyDownFeeIncomeType(buyDownFeeIncomeType);
+
+//      final boolean merchantBuyDownFee = command
+//          .booleanPrimitiveValueOfParameterNamed(LoanProductConstants.MERCHANT_BUY_DOWN_FEE_PARAM_NAME);
+      final Boolean merchantBuyDownFee = loanProductRequest.getMerchantBuyDownFee() != null ? loanProductRequest.getMerchantBuyDownFee() : Boolean.FALSE;
+      loanProductRelatedDetailBuilder.merchantBuyDownFee(merchantBuyDownFee);
+      builder.loanProductRelatedDetail(loanProductRelatedDetailBuilder.build());
+      LoanProduct loanProduct = builder.build();
+      loanProduct.getLoanConfigurableAttributes().setLoanProduct(loanProduct);
+      loanProduct.getLoanProductGuaranteeDetails().setLoanProduct(loanProduct);
+      return loanProduct;
+
+//      return new LoanProduct(fund, loanTransactionProcessingStrategy, loanProductPaymentAllocationRules, loanProductCreditAllocationRules,
+//          name, shortName, description, currency, principal, minPrincipal, maxPrincipal, interestRatePerPeriod,
+//          minInterestRatePerPeriod, maxInterestRatePerPeriod, interestFrequencyType, annualInterestRate, interestMethod,
+//          interestCalculationPeriodMethod, allowPartialPeriodInterestCalcualtion, repaymentEvery, repaymentFrequencyType,
+//          numberOfRepayments, minNumberOfRepayments, maxNumberOfRepayments, graceOnPrincipalPayment,
+//          recurringMoratoriumOnPrincipalPeriods, graceOnInterestPayment, graceOnInterestCharged, amortizationMethod,
+//          inArrearsTolerance, productCharges, accountingRuleType, includeInBorrowerCycle, startDate, closeDate, externalId,
+//          useBorrowerCycle, loanProductBorrowerCycleVariations, multiDisburseLoan, maxTrancheCount, outstandingLoanBalance,
+//          graceOnArrearsAgeing, overdueDaysForNPA, daysInMonthType, daysInYearType, isInterestRecalculationEnabled,
+//          interestRecalculationSettings, minimumDaysBetweenDisbursalAndFirstRepayment, holdGuarantorFunds,
+//          loanProductGuaranteeDetails, principalThresholdForLastInstallment, accountMovesOutOfNPAOnlyOnArrearsCompletion,
+//          canDefineEmiAmount, installmentAmountInMultiplesOf, loanConfigurableAttributes, isLinkedToFloatingInterestRates,
+//          floatingRate, interestRateDifferential, minDifferentialLendingRate, maxDifferentialLendingRate,
+//          defaultDifferentialLendingRate, isFloatingInterestRateCalculationAllowed, isVariableInstallmentsAllowed,
+//          minimumGapBetweenInstallments, maximumGapBetweenInstallments, syncExpectedWithDisbursementDate, canUseForTopup,
+//          isEqualAmortization, productRates, fixedPrincipalPercentagePerInstallment, disallowExpectedDisbursements,
+//          allowApprovedDisbursedAmountsOverApplied, overAppliedCalculationType, overAppliedNumber, dueDaysForRepaymentEvent,
+//          overDueDaysForRepaymentEvent, enableDownPayment, disbursedAmountPercentageDownPayment, enableAutoRepaymentForDownPayment,
+//          repaymentStartDateType, enableInstallmentLevelDelinquency, loanScheduleType, loanScheduleProcessingType, fixedLength,
+//          enableAccrualActivityPosting, supportedInterestRefundTypes, chargeOffBehaviour, interestRecognitionOnDisbursementDate,
+//          daysInYearCustomStrategy, enableIncomeCapitalization, capitalizedIncomeCalculationType, capitalizedIncomeStrategy,
+//          capitalizedIncomeType, enableBuyDownFee, buyDownFeeCalculationType, buyDownFeeStrategy, buyDownFeeIncomeType,
+//          merchantBuyDownFee);
+    }
+
+    private Set<LoanProductBorrowerCycleVariations> populateBorrowerCycleVariations(LoanProductRequest loanProductRequest) {
+      Set<LoanProductBorrowerCycleVariationsDTO> principalVariations = loanProductRequest.getPrincipalVariationsForBorrowerCycle();
+      Set<LoanProductBorrowerCycleVariationsDTO> repaymentVariations = loanProductRequest.getNumberOfRepaymentVariationsForBorrowerCycle();
+      Set<LoanProductBorrowerCycleVariationsDTO> interestRateVariations = loanProductRequest.getInterestRateVariationsForBorrowerCycle();
+
+      Set<LoanProductBorrowerCycleVariations> response = new HashSet<>();
+      response.addAll(loanProductBorrowerCycleVariationsToLoanProductBorrowCycleVariationsDTOMapper.toLoanProductBorrowCycleVariationSet(principalVariations));
+      response.addAll(loanProductBorrowerCycleVariationsToLoanProductBorrowCycleVariationsDTOMapper.toLoanProductBorrowCycleVariationSet(repaymentVariations));
+      response.addAll(loanProductBorrowerCycleVariationsToLoanProductBorrowCycleVariationsDTOMapper.toLoanProductBorrowCycleVariationSet(interestRateVariations));
+
+      return response;
+    }
+
     private void populateBorrowerCycleVariations(final JsonCommand command,
             final Set<LoanProductBorrowerCycleVariations> loanProductBorrowerCycleVariations) {
         assemblePrincipalVariations(command, loanProductBorrowerCycleVariations);
-
         assembleRepaymentVariations(command, loanProductBorrowerCycleVariations);
-
         assembleInterestRateVariations(command, loanProductBorrowerCycleVariations);
     }
 
@@ -370,14 +995,12 @@ public class LoanProductAssembler {
             final Set<LoanProductBorrowerCycleVariations> loanProductBorrowerCycleVariations) {
         assembleVariations(command, loanProductBorrowerCycleVariations, LoanProductParamType.INTERESTRATE.getValue(),
                 LoanProductConstants.INTEREST_RATE_VARIATIONS_FOR_BORROWER_CYCLE_PARAMETER_NAME);
-
     }
 
     private void assembleRepaymentVariations(final JsonCommand command,
             final Set<LoanProductBorrowerCycleVariations> loanProductBorrowerCycleVariations) {
         assembleVariations(command, loanProductBorrowerCycleVariations, LoanProductParamType.REPAYMENT.getValue(),
                 LoanProductConstants.NUMBER_OF_REPAYMENT_VARIATIONS_FOR_BORROWER_CYCLE_PARAMETER_NAME);
-
     }
 
     private void assemblePrincipalVariations(final JsonCommand command,

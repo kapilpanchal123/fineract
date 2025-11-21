@@ -70,10 +70,10 @@ public class LoanProductUpdateUtil {
         actualChanges.putAll(minMaxConstraintsUpdateUtil.update(loanProduct.loanProductMinMaxConstraints(), command));
 
         final String isLinkedToFloatingInterestRates = "isLinkedToFloatingInterestRates";
-        if (command.isChangeInBooleanParameterNamed(isLinkedToFloatingInterestRates, loanProduct.isLinkedToFloatingInterestRate())) {
+        if (command.isChangeInBooleanParameterNamed(isLinkedToFloatingInterestRates, loanProduct.getIsLinkedToFloatingInterestRate())) {
             final boolean newValue = command.booleanPrimitiveValueOfParameterNamed(isLinkedToFloatingInterestRates);
             actualChanges.put(isLinkedToFloatingInterestRates, newValue);
-            loanProduct.setLinkedToFloatingInterestRate(newValue);
+            loanProduct.setIsLinkedToFloatingInterestRate(newValue);
         }
 
         if (command.isChangeInBooleanParameterNamed(LoanProductConstants.ENABLE_ACCRUAL_ACTIVITY_POSTING,
@@ -83,7 +83,7 @@ public class LoanProductUpdateUtil {
             loanProduct.getLoanProductRelatedDetail().setEnableAccrualActivityPosting(newValue);
         }
 
-        if (loanProduct.isLinkedToFloatingInterestRate()) {
+        if (loanProduct.getIsLinkedToFloatingInterestRate()) {
             actualChanges.putAll(floatingRatesUpdateUtil.update(loanProduct.loanProductFloatingRates(), command, floatingRate));
             loanProduct.getLoanProductRelatedDetail().updateForFloatingInterestRates();
             loanProduct.getLoanProductMinMaxConstraints().updateForFloatingInterestRates();
@@ -92,13 +92,13 @@ public class LoanProductUpdateUtil {
         }
 
         if (command.isChangeInBooleanParameterNamed(LoanProductConstants.allowVariableInstallmentsParamName,
-                loanProduct.isAllowVariabeInstallments())) {
+                loanProduct.getAllowVariabeInstallments())) {
             final boolean newValue = command.booleanPrimitiveValueOfParameterNamed(LoanProductConstants.allowVariableInstallmentsParamName);
             actualChanges.put(LoanProductConstants.allowVariableInstallmentsParamName, newValue);
             loanProduct.setAllowVariabeInstallments(newValue);
         }
 
-        if (loanProduct.isAllowVariabeInstallments()) {
+        if (loanProduct.getAllowVariabeInstallments()) {
             actualChanges.putAll(variableInstallmentConfigUpdateUtil.update(loanProduct.loanProductVariableInstallmentConfig(), command));
         } else {
             loanProduct.setVariableInstallmentConfig(null);
@@ -175,20 +175,20 @@ public class LoanProductUpdateUtil {
         }
 
         final String includeInBorrowerCycleParamName = "includeInBorrowerCycle";
-        if (command.isChangeInBooleanParameterNamed(includeInBorrowerCycleParamName, loanProduct.isIncludeInBorrowerCycle())) {
+        if (command.isChangeInBooleanParameterNamed(includeInBorrowerCycleParamName, loanProduct.getIncludeInBorrowerCycle())) {
             final boolean newValue = command.booleanPrimitiveValueOfParameterNamed(includeInBorrowerCycleParamName);
             actualChanges.put(includeInBorrowerCycleParamName, newValue);
             loanProduct.setIncludeInBorrowerCycle(newValue);
         }
 
         if (command.isChangeInBooleanParameterNamed(LoanProductConstants.USE_BORROWER_CYCLE_PARAMETER_NAME,
-                loanProduct.isUseBorrowerCycle())) {
+                loanProduct.getUseBorrowerCycle())) {
             final boolean newValue = command.booleanPrimitiveValueOfParameterNamed(LoanProductConstants.USE_BORROWER_CYCLE_PARAMETER_NAME);
             actualChanges.put(LoanProductConstants.USE_BORROWER_CYCLE_PARAMETER_NAME, newValue);
             loanProduct.setUseBorrowerCycle(newValue);
         }
 
-        if (loanProduct.isUseBorrowerCycle()) {
+        if (loanProduct.getUseBorrowerCycle()) {
             actualChanges.putAll(updateBorrowerCycleVariations(loanProduct, command));
         } else {
             clearVariations(loanProduct);
@@ -244,7 +244,7 @@ public class LoanProductUpdateUtil {
             loanProduct.setMinimumDaysBetweenDisbursalAndFirstRepayment(newValue);
         }
 
-        if (command.isChangeInBooleanParameterNamed("syncExpectedWithDisbursementDate", loanProduct.isSyncExpectedWithDisbursementDate())) {
+        if (command.isChangeInBooleanParameterNamed("syncExpectedWithDisbursementDate", loanProduct.getSyncExpectedWithDisbursementDate())) {
             final boolean newValue = command.booleanPrimitiveValueOfParameterNamed("syncExpectedWithDisbursementDate");
             actualChanges.put("syncExpectedWithDisbursementDate", newValue);
             loanProduct.setSyncExpectedWithDisbursementDate(newValue);
@@ -281,7 +281,7 @@ public class LoanProductUpdateUtil {
                     localeAsInput);
         }
 
-        if (command.isChangeInBooleanParameterNamed(LoanProductConstants.holdGuaranteeFundsParamName, loanProduct.isHoldGuaranteeFunds())) {
+        if (command.isChangeInBooleanParameterNamed(LoanProductConstants.holdGuaranteeFundsParamName, loanProduct.getHoldGuaranteeFunds())) {
             final boolean newValue = command.booleanPrimitiveValueOfParameterNamed(LoanProductConstants.holdGuaranteeFundsParamName);
             actualChanges.put(LoanProductConstants.holdGuaranteeFundsParamName, newValue);
             loanProduct.setHoldGuaranteeFunds(newValue);
@@ -371,7 +371,7 @@ public class LoanProductUpdateUtil {
         }
 
         if (actualChanges.containsKey(LoanProductConstants.holdGuaranteeFundsParamName)) {
-            if (loanProduct.isHoldGuaranteeFunds()) {
+            if (loanProduct.getHoldGuaranteeFunds()) {
                 loanProduct.setLoanProductGuaranteeDetails(guaranteeDetailsAssembler.createFrom(command));
                 loanProduct.getLoanProductGuaranteeDetails().updateProduct(loanProduct);
                 actualChanges.put(LoanProductConstants.mandatoryGuaranteeParamName,
@@ -384,7 +384,7 @@ public class LoanProductUpdateUtil {
                 loanProduct.setLoanProductRelatedDetail(null);
             }
 
-        } else if (loanProduct.isHoldGuaranteeFunds()) {
+        } else if (loanProduct.getHoldGuaranteeFunds()) {
             guaranteeDetailsUpdateUtil.update(loanProduct.getLoanProductGuaranteeDetails(), command, actualChanges);
         }
 
@@ -396,14 +396,14 @@ public class LoanProductUpdateUtil {
             loanProduct.setPrincipalThresholdForLastInstallment(newValue);
         }
         if (command.isChangeInBooleanParameterNamed(LoanProductConstants.ACCOUNT_MOVES_OUT_OF_NPA_ONLY_ON_ARREARS_COMPLETION_PARAM_NAME,
-                loanProduct.isAccountMovesOutOfNPAOnlyOnArrearsCompletion())) {
+                loanProduct.getAccountMovesOutOfNPAOnlyOnArrearsCompletion())) {
             final boolean newValue = command.booleanPrimitiveValueOfParameterNamed(
                     LoanProductConstants.ACCOUNT_MOVES_OUT_OF_NPA_ONLY_ON_ARREARS_COMPLETION_PARAM_NAME);
             actualChanges.put(LoanProductConstants.ACCOUNT_MOVES_OUT_OF_NPA_ONLY_ON_ARREARS_COMPLETION_PARAM_NAME, newValue);
             loanProduct.setAccountMovesOutOfNPAOnlyOnArrearsCompletion(newValue);
         }
         if (command.isChangeInBooleanParameterNamed(LoanProductConstants.canDefineEmiAmountParamName,
-                loanProduct.isCanDefineInstallmentAmount())) {
+                loanProduct.getCanDefineInstallmentAmount())) {
             final boolean newValue = command.booleanPrimitiveValueOfParameterNamed(LoanProductConstants.canDefineEmiAmountParamName);
             actualChanges.put(LoanProductConstants.canDefineEmiAmountParamName, newValue);
             loanProduct.setCanDefineInstallmentAmount(newValue);
@@ -417,7 +417,7 @@ public class LoanProductUpdateUtil {
             loanProduct.getLoanProductRelatedDetail().setInstallmentAmountInMultiplesOf(newValue);
         }
 
-        if (command.isChangeInBooleanParameterNamed(LoanProductConstants.CAN_USE_FOR_TOPUP, loanProduct.isCanUseForTopup())) {
+        if (command.isChangeInBooleanParameterNamed(LoanProductConstants.CAN_USE_FOR_TOPUP, loanProduct.getCanUseForTopup())) {
             final boolean newValue = command.booleanPrimitiveValueOfParameterNamed(LoanProductConstants.CAN_USE_FOR_TOPUP);
             actualChanges.put(LoanProductConstants.CAN_USE_FOR_TOPUP, newValue);
             loanProduct.setCanUseForTopup(newValue);
@@ -439,14 +439,14 @@ public class LoanProductUpdateUtil {
         }
 
         if (command.isChangeInBooleanParameterNamed(LoanProductConstants.DISALLOW_EXPECTED_DISBURSEMENTS,
-                loanProduct.isDisallowExpectedDisbursements())) {
+                loanProduct.getDisallowExpectedDisbursements())) {
             final boolean newValue = command.booleanPrimitiveValueOfParameterNamed(LoanProductConstants.DISALLOW_EXPECTED_DISBURSEMENTS);
             actualChanges.put(LoanProductConstants.DISALLOW_EXPECTED_DISBURSEMENTS, newValue);
             loanProduct.setDisallowExpectedDisbursements(newValue);
         }
 
         if (command.isChangeInBooleanParameterNamed(LoanProductConstants.ALLOW_APPROVED_DISBURSED_AMOUNTS_OVER_APPLIED,
-                loanProduct.isAllowApprovedDisbursedAmountsOverApplied())) {
+                loanProduct.getAllowApprovedDisbursedAmountsOverApplied())) {
             final boolean newValue = command
                     .booleanPrimitiveValueOfParameterNamed(LoanProductConstants.ALLOW_APPROVED_DISBURSED_AMOUNTS_OVER_APPLIED);
             actualChanges.put(LoanProductConstants.ALLOW_APPROVED_DISBURSED_AMOUNTS_OVER_APPLIED, newValue);
@@ -512,7 +512,7 @@ public class LoanProductUpdateUtil {
         }
 
         if (command.isChangeInBooleanParameterNamed(LoanProductConstants.ENABLE_INSTALLMENT_LEVEL_DELINQUENCY,
-                loanProduct.isEnableInstallmentLevelDelinquency())) {
+                loanProduct.getEnableInstallmentLevelDelinquency())) {
             final boolean newValue = command
                     .booleanPrimitiveValueOfParameterNamed(LoanProductConstants.ENABLE_INSTALLMENT_LEVEL_DELINQUENCY);
             actualChanges.put(LoanProductConstants.ENABLE_INSTALLMENT_LEVEL_DELINQUENCY, newValue);

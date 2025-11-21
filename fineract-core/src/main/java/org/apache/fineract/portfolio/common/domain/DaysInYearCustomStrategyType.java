@@ -18,6 +18,7 @@
  */
 package org.apache.fineract.portfolio.common.domain;
 
+import java.util.Locale;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import org.apache.fineract.infrastructure.core.api.ApiFacingEnum;
@@ -59,7 +60,22 @@ public enum DaysInYearCustomStrategyType implements ApiFacingEnum<DaysInYearCust
     /** Considers 366 days only if the period includes February 29th; otherwise, uses 365 days. */
     FEB_29_PERIOD_ONLY("DaysInYearCustomStrategyType.feb29PeriodOnly", "Feb 29 Period Only"); //
 
+    @Getter
     private final String code;
+
+    @Getter
     private final String humanReadableName;
 
+    public static DaysInYearCustomStrategyType fromString(String input) {
+      if (input == null) {
+        return null;
+      }
+      String value = input.trim();
+
+      try {
+        return DaysInYearCustomStrategyType.valueOf(value.toUpperCase(Locale.ROOT));
+      } catch (Exception e) {
+        throw new IllegalArgumentException("Error:" + e.getMessage());
+      }
+  }
 }

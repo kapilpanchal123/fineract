@@ -21,6 +21,7 @@ package org.apache.fineract.accounting.producttoaccountmapping.service;
 import java.util.Map;
 import org.apache.fineract.accounting.common.AccountingRuleType;
 import org.apache.fineract.infrastructure.core.api.JsonCommand;
+import org.apache.fineract.portfolio.loanproduct.data.LoanProductRequest;
 import org.apache.fineract.portfolio.savings.DepositAccountType;
 
 public interface ProductToGLAccountMappingWritePlatformService {
@@ -41,4 +42,5 @@ public interface ProductToGLAccountMappingWritePlatformService {
     Map<String, Object> updateShareProductToGLAccountMapping(Long shareProductId, JsonCommand command, boolean accountingRuleChanged,
             int accountingRuleTypeId);
 
+    void createLoanProductToGLAccountMappingRequest(Long id, LoanProductRequest loanProductRequest);
 }

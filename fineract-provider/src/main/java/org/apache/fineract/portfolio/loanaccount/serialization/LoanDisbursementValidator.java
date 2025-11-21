@@ -40,10 +40,10 @@ public final class LoanDisbursementValidator {
         final BigDecimal totalCapitalizedIncomeAdjustment = MathUtil.nullToZero(loan.getSummary().getTotalCapitalizedIncomeAdjustment());
         final BigDecimal netCapitalizedIncome = totalCapitalizedIncome.subtract(totalCapitalizedIncomeAdjustment);
 
-        if (loan.loanProduct().isDisallowExpectedDisbursements() && loan.loanProduct().isAllowApprovedDisbursedAmountsOverApplied()) {
+        if (loan.loanProduct().getDisallowExpectedDisbursements() && loan.loanProduct().getAllowApprovedDisbursedAmountsOverApplied()) {
             validateOverMaximumAmount(loan, totalDisbursed, netCapitalizedIncome);
         } else {
-            if (loan.loanProduct().isAllowApprovedDisbursedAmountsOverApplied()) {
+            if (loan.loanProduct().getAllowApprovedDisbursedAmountsOverApplied()) {
                 validateOverMaximumAmount(loan, disbursedAmount, netCapitalizedIncome);
             } else {
                 if ((totalDisbursed.compareTo(loan.getApprovedPrincipal()) > 0)

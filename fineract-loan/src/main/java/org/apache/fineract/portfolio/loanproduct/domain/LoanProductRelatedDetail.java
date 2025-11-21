@@ -26,7 +26,10 @@ import jakarta.persistence.EnumType;
 import jakarta.persistence.Enumerated;
 import java.math.BigDecimal;
 import java.util.List;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 import lombok.Setter;
 import org.apache.fineract.organisation.monetary.data.CurrencyData;
 import org.apache.fineract.organisation.monetary.domain.MonetaryCurrency;
@@ -53,6 +56,9 @@ import org.apache.fineract.portfolio.loanaccount.loanschedule.domain.LoanSchedul
 @Embeddable
 @Getter
 @Setter
+@NoArgsConstructor
+@AllArgsConstructor
+@Builder
 public class LoanProductRelatedDetail {
 
     @Embedded
@@ -244,11 +250,7 @@ public class LoanProductRelatedDetail {
                 enableBuyDownFee, buyDownFeeCalculationType, buyDownFeeStrategy, buyDownFeeIncomeType, merchantBuyDownFee);
     }
 
-    protected LoanProductRelatedDetail() {
-        //
-    }
-
-    public LoanProductRelatedDetail(final MonetaryCurrency currency, final BigDecimal defaultPrincipal,
+  public LoanProductRelatedDetail(final MonetaryCurrency currency, final BigDecimal defaultPrincipal,
             final BigDecimal defaultNominalInterestRatePerPeriod, final PeriodFrequencyType interestPeriodFrequencyType,
             final BigDecimal defaultAnnualNominalInterestRate, final InterestMethod interestMethod,
             final InterestCalculationPeriodMethod interestCalculationPeriodMethod, final boolean allowPartialPeriodInterestCalculation,
@@ -353,10 +355,6 @@ public class LoanProductRelatedDetail {
     public BigDecimal getAnnualNominalInterestRate() {
         return this.annualNominalInterestRate == null ? null
                 : BigDecimal.valueOf(Double.parseDouble(this.annualNominalInterestRate.stripTrailingZeros().toString()));
-    }
-
-    public DaysInYearCustomStrategyType getDaysInYearCustomStrategy() {
-        return daysInYearCustomStrategy;
     }
 
     public boolean hasCurrencyCodeOf(final String currencyCode) {

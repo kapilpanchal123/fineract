@@ -42,6 +42,7 @@ import org.apache.fineract.accounting.producttoaccountmapping.service.ShareProdu
 import org.apache.fineract.infrastructure.core.api.JsonCommand;
 import org.apache.fineract.infrastructure.core.serialization.FromJsonHelper;
 import org.apache.fineract.portfolio.loanproduct.LoanProductConstants;
+import org.apache.fineract.portfolio.loanproduct.data.LoanProductRequest;
 import org.apache.fineract.portfolio.savings.DepositAccountType;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -491,5 +492,200 @@ public class ProductToGLAccountMappingWritePlatformServiceImpl implements Produc
             this.shareProductToGLAccountMappingHelper.updateChargesToIncomeAccountMappings(command, element, shareProductId, changes);
         }
         return changes;
+    }
+
+    @Transactional
+    @Override
+    public void createLoanProductToGLAccountMappingRequest(Long loanProductId, LoanProductRequest loanProductRequest) {
+//      final JsonElement element = this.fromApiJsonHelper.parse(command.json());
+      final Integer accountingRuleTypeId = loanProductRequest.getAccountingRule();
+      final AccountingRuleType accountingRuleType = AccountingRuleType.fromInt(accountingRuleTypeId);
+//      Boolean merchantBuyDownFee = Boolean.TRUE;
+//      if (fromApiJsonHelper.parameterExists(LoanProductConstants.MERCHANT_BUY_DOWN_FEE_PARAM_NAME, element)) {
+//        final Boolean merchantBuyDownFeeParamValue = fromApiJsonHelper
+//            .extractBooleanNamed(LoanProductConstants.MERCHANT_BUY_DOWN_FEE_PARAM_NAME, element);
+//        if (merchantBuyDownFeeParamValue != null) {
+//          merchantBuyDownFee = merchantBuyDownFeeParamValue;
+//        }
+//      }
+
+      Boolean merchantBuyDownFee = loanProductRequest.getMerchantBuyDownFee() != null ?
+          loanProductRequest.getEnableBuyDownFee() : Boolean.TRUE;
+
+//      switch (accountingRuleType) {
+//        case NONE:
+//          break;
+//        case CASH_BASED:
+//          // asset or liability
+//          loanProductToGLAccountMappingHelper.saveLoanToAssetOrLiabilityAccountMapping(element,
+//              LoanProductAccountingParams.FUND_SOURCE.getValue(), loanProductId, CashAccountsForLoan.FUND_SOURCE.getValue());
+//
+//          // asset
+//          this.loanProductToGLAccountMappingHelper.saveLoanToAssetAccountMapping(element,
+//              LoanProductAccountingParams.LOAN_PORTFOLIO.getValue(), loanProductId,
+//              CashAccountsForLoan.LOAN_PORTFOLIO.getValue());
+//          this.loanProductToGLAccountMappingHelper.saveLoanToAssetAccountMapping(element,
+//              LoanProductAccountingParams.TRANSFERS_SUSPENSE.getValue(), loanProductId,
+//              CashAccountsForLoan.TRANSFERS_SUSPENSE.getValue());
+//
+//          // income
+//          this.loanProductToGLAccountMappingHelper.saveLoanToIncomeAccountMapping(element,
+//              LoanProductAccountingParams.INTEREST_ON_LOANS.getValue(), loanProductId,
+//              CashAccountsForLoan.INTEREST_ON_LOANS.getValue());
+//          this.loanProductToGLAccountMappingHelper.saveLoanToIncomeAccountMapping(element,
+//              LoanProductAccountingParams.INCOME_FROM_FEES.getValue(), loanProductId,
+//              CashAccountsForLoan.INCOME_FROM_FEES.getValue());
+//          this.loanProductToGLAccountMappingHelper.saveLoanToIncomeAccountMapping(element,
+//              LoanProductAccountingParams.INCOME_FROM_PENALTIES.getValue(), loanProductId,
+//              CashAccountsForLoan.INCOME_FROM_PENALTIES.getValue());
+//          this.loanProductToGLAccountMappingHelper.saveLoanToIncomeAccountMapping(element,
+//              LoanProductAccountingParams.INCOME_FROM_RECOVERY.getValue(), loanProductId,
+//              CashAccountsForLoan.INCOME_FROM_RECOVERY.getValue());
+//          this.loanProductToGLAccountMappingHelper.saveLoanToIncomeAccountMapping(element,
+//              LoanProductAccountingParams.INCOME_FROM_CHARGE_OFF_FEES.getValue(), loanProductId,
+//              CashAccountsForLoan.INCOME_FROM_CHARGE_OFF_FEES.getValue());
+//          this.loanProductToGLAccountMappingHelper.saveLoanToIncomeAccountMapping(element,
+//              LoanProductAccountingParams.INCOME_FROM_CHARGE_OFF_INTEREST.getValue(), loanProductId,
+//              CashAccountsForLoan.INCOME_FROM_CHARGE_OFF_INTEREST.getValue());
+//          this.loanProductToGLAccountMappingHelper.saveLoanToIncomeAccountMapping(element,
+//              LoanProductAccountingParams.INCOME_FROM_CHARGE_OFF_PENALTY.getValue(), loanProductId,
+//              CashAccountsForLoan.INCOME_FROM_CHARGE_OFF_PENALTY.getValue());
+//          this.loanProductToGLAccountMappingHelper.saveLoanToIncomeAccountMapping(element,
+//              LoanProductAccountingParams.INCOME_FROM_GOODWILL_CREDIT_INTEREST.getValue(), loanProductId,
+//              CashAccountsForLoan.INCOME_FROM_GOODWILL_CREDIT_INTEREST.getValue());
+//          this.loanProductToGLAccountMappingHelper.saveLoanToIncomeAccountMapping(element,
+//              LoanProductAccountingParams.INCOME_FROM_GOODWILL_CREDIT_FEES.getValue(), loanProductId,
+//              CashAccountsForLoan.INCOME_FROM_GOODWILL_CREDIT_FEES.getValue());
+//          this.loanProductToGLAccountMappingHelper.saveLoanToIncomeAccountMapping(element,
+//              LoanProductAccountingParams.INCOME_FROM_GOODWILL_CREDIT_PENALTY.getValue(), loanProductId,
+//              CashAccountsForLoan.INCOME_FROM_GOODWILL_CREDIT_PENALTY.getValue());
+//
+//          // expenses
+//          this.loanProductToGLAccountMappingHelper.saveLoanToExpenseAccountMapping(element,
+//              LoanProductAccountingParams.LOSSES_WRITTEN_OFF.getValue(), loanProductId,
+//              CashAccountsForLoan.LOSSES_WRITTEN_OFF.getValue());
+//          this.loanProductToGLAccountMappingHelper.saveLoanToExpenseAccountMapping(element,
+//              LoanProductAccountingParams.GOODWILL_CREDIT.getValue(), loanProductId,
+//              CashAccountsForLoan.GOODWILL_CREDIT.getValue());
+//          this.loanProductToGLAccountMappingHelper.saveLoanToExpenseAccountMapping(element,
+//              LoanProductAccountingParams.CHARGE_OFF_EXPENSE.getValue(), loanProductId,
+//              CashAccountsForLoan.CHARGE_OFF_EXPENSE.getValue());
+//          this.loanProductToGLAccountMappingHelper.saveLoanToExpenseAccountMapping(element,
+//              LoanProductAccountingParams.CHARGE_OFF_FRAUD_EXPENSE.getValue(), loanProductId,
+//              CashAccountsForLoan.CHARGE_OFF_FRAUD_EXPENSE.getValue());
+//
+//          // liabilities
+//          this.loanProductToGLAccountMappingHelper.saveLoanToLiabilityAccountMapping(element,
+//              LoanProductAccountingParams.OVERPAYMENT.getValue(), loanProductId, CashAccountsForLoan.OVERPAYMENT.getValue());
+//
+//          // advanced accounting mappings
+//          this.loanProductToGLAccountMappingHelper.savePaymentChannelToFundSourceMappings(command, element, loanProductId, null);
+//          this.loanProductToGLAccountMappingHelper.saveChargesToIncomeAccountMappings(command, element, loanProductId, null);
+//          this.loanProductToGLAccountMappingHelper.saveChargeOffReasonToExpenseAccountMappings(command, element, loanProductId, null);
+//          this.loanProductToGLAccountMappingHelper.saveWriteOffReasonToExpenseAccountMappings(command, element, loanProductId, null);
+//          this.loanProductToGLAccountMappingHelper.saveBuyDownFeeClassificationToIncomeAccountMappings(command, element,
+//              loanProductId, null);
+//          this.loanProductToGLAccountMappingHelper.saveCapitalizedIncomeClassificationToIncomeAccountMappings(command, element,
+//              loanProductId, null);
+//          break;
+//        case ACCRUAL_UPFRONT:
+//          // Fall Through
+//        case ACCRUAL_PERIODIC:
+//          // asset or liability
+//          this.loanProductToGLAccountMappingHelper.saveLoanToAssetOrLiabilityAccountMapping(element,
+//              LoanProductAccountingParams.FUND_SOURCE.getValue(), loanProductId, CashAccountsForLoan.FUND_SOURCE.getValue());
+//
+//          // assets (including receivables)
+//          this.loanProductToGLAccountMappingHelper.saveLoanToAssetAccountMapping(element,
+//              LoanProductAccountingParams.LOAN_PORTFOLIO.getValue(), loanProductId,
+//              AccrualAccountsForLoan.LOAN_PORTFOLIO.getValue());
+//          this.loanProductToGLAccountMappingHelper.saveLoanToAssetAccountMapping(element,
+//              LoanProductAccountingParams.TRANSFERS_SUSPENSE.getValue(), loanProductId,
+//              AccrualAccountsForLoan.TRANSFERS_SUSPENSE.getValue());
+//          this.loanProductToGLAccountMappingHelper.saveLoanToAssetAccountMapping(element,
+//              LoanProductAccountingParams.INTEREST_RECEIVABLE.getValue(), loanProductId,
+//              AccrualAccountsForLoan.INTEREST_RECEIVABLE.getValue());
+//          this.loanProductToGLAccountMappingHelper.saveLoanToAssetAccountMapping(element,
+//              LoanProductAccountingParams.FEES_RECEIVABLE.getValue(), loanProductId,
+//              AccrualAccountsForLoan.FEES_RECEIVABLE.getValue());
+//          this.loanProductToGLAccountMappingHelper.saveLoanToAssetAccountMapping(element,
+//              LoanProductAccountingParams.PENALTIES_RECEIVABLE.getValue(), loanProductId,
+//              AccrualAccountsForLoan.PENALTIES_RECEIVABLE.getValue());
+//
+//          // income
+//          this.loanProductToGLAccountMappingHelper.saveLoanToIncomeAccountMapping(element,
+//              LoanProductAccountingParams.INTEREST_ON_LOANS.getValue(), loanProductId,
+//              AccrualAccountsForLoan.INTEREST_ON_LOANS.getValue());
+//          this.loanProductToGLAccountMappingHelper.saveLoanToIncomeAccountMapping(element,
+//              LoanProductAccountingParams.INCOME_FROM_FEES.getValue(), loanProductId,
+//              AccrualAccountsForLoan.INCOME_FROM_FEES.getValue());
+//          this.loanProductToGLAccountMappingHelper.saveLoanToIncomeAccountMapping(element,
+//              LoanProductAccountingParams.INCOME_FROM_PENALTIES.getValue(), loanProductId,
+//              AccrualAccountsForLoan.INCOME_FROM_PENALTIES.getValue());
+//          this.loanProductToGLAccountMappingHelper.saveLoanToIncomeAccountMapping(element,
+//              LoanProductAccountingParams.INCOME_FROM_RECOVERY.getValue(), loanProductId,
+//              AccrualAccountsForLoan.INCOME_FROM_RECOVERY.getValue());
+//          this.loanProductToGLAccountMappingHelper.saveLoanToIncomeAccountMapping(element,
+//              LoanProductAccountingParams.INCOME_FROM_CHARGE_OFF_FEES.getValue(), loanProductId,
+//              AccrualAccountsForLoan.INCOME_FROM_CHARGE_OFF_FEES.getValue());
+//          this.loanProductToGLAccountMappingHelper.saveLoanToIncomeAccountMapping(element,
+//              LoanProductAccountingParams.INCOME_FROM_CHARGE_OFF_INTEREST.getValue(), loanProductId,
+//              AccrualAccountsForLoan.INCOME_FROM_CHARGE_OFF_INTEREST.getValue());
+//          this.loanProductToGLAccountMappingHelper.saveLoanToIncomeAccountMapping(element,
+//              LoanProductAccountingParams.INCOME_FROM_CHARGE_OFF_PENALTY.getValue(), loanProductId,
+//              AccrualAccountsForLoan.INCOME_FROM_CHARGE_OFF_PENALTY.getValue());
+//          this.loanProductToGLAccountMappingHelper.saveLoanToIncomeAccountMapping(element,
+//              LoanProductAccountingParams.INCOME_FROM_GOODWILL_CREDIT_INTEREST.getValue(), loanProductId,
+//              AccrualAccountsForLoan.INCOME_FROM_GOODWILL_CREDIT_INTEREST.getValue());
+//          this.loanProductToGLAccountMappingHelper.saveLoanToIncomeAccountMapping(element,
+//              LoanProductAccountingParams.INCOME_FROM_GOODWILL_CREDIT_FEES.getValue(), loanProductId,
+//              AccrualAccountsForLoan.INCOME_FROM_GOODWILL_CREDIT_FEES.getValue());
+//          this.loanProductToGLAccountMappingHelper.saveLoanToIncomeAccountMapping(element,
+//              LoanProductAccountingParams.INCOME_FROM_GOODWILL_CREDIT_PENALTY.getValue(), loanProductId,
+//              AccrualAccountsForLoan.INCOME_FROM_GOODWILL_CREDIT_PENALTY.getValue());
+//          this.loanProductToGLAccountMappingHelper.saveLoanToIncomeAccountMapping(element,
+//              LoanProductAccountingParams.INCOME_FROM_CAPITALIZATION.getValue(), loanProductId,
+//              AccrualAccountsForLoan.INCOME_FROM_CAPITALIZATION.getValue());
+//          this.loanProductToGLAccountMappingHelper.saveLoanToIncomeAccountMapping(element,
+//              LoanProductAccountingParams.INCOME_FROM_BUY_DOWN.getValue(), loanProductId,
+//              AccrualAccountsForLoan.INCOME_FROM_BUY_DOWN.getValue());
+//
+//          // expenses
+//          this.loanProductToGLAccountMappingHelper.saveLoanToExpenseAccountMapping(element,
+//              LoanProductAccountingParams.LOSSES_WRITTEN_OFF.getValue(), loanProductId,
+//              AccrualAccountsForLoan.LOSSES_WRITTEN_OFF.getValue());
+//          this.loanProductToGLAccountMappingHelper.saveLoanToExpenseAccountMapping(element,
+//              LoanProductAccountingParams.GOODWILL_CREDIT.getValue(), loanProductId,
+//              AccrualAccountsForLoan.GOODWILL_CREDIT.getValue());
+//          this.loanProductToGLAccountMappingHelper.saveLoanToExpenseAccountMapping(element,
+//              LoanProductAccountingParams.CHARGE_OFF_EXPENSE.getValue(), loanProductId,
+//              AccrualAccountsForLoan.CHARGE_OFF_EXPENSE.getValue());
+//          this.loanProductToGLAccountMappingHelper.saveLoanToExpenseAccountMapping(element,
+//              LoanProductAccountingParams.CHARGE_OFF_FRAUD_EXPENSE.getValue(), loanProductId,
+//              AccrualAccountsForLoan.CHARGE_OFF_FRAUD_EXPENSE.getValue());
+//          if (merchantBuyDownFee) {
+//            this.loanProductToGLAccountMappingHelper.saveLoanToExpenseAccountMapping(element,
+//                LoanProductAccountingParams.BUY_DOWN_EXPENSE.getValue(), loanProductId,
+//                AccrualAccountsForLoan.BUY_DOWN_EXPENSE.getValue());
+//          }
+//
+//          // liabilities
+//          this.loanProductToGLAccountMappingHelper.saveLoanToLiabilityAccountMapping(element,
+//              LoanProductAccountingParams.OVERPAYMENT.getValue(), loanProductId, AccrualAccountsForLoan.OVERPAYMENT.getValue());
+//          this.loanProductToGLAccountMappingHelper.saveLoanToLiabilityAccountMapping(element,
+//              LoanProductAccountingParams.DEFERRED_INCOME_LIABILITY.getValue(), loanProductId,
+//              AccrualAccountsForLoan.DEFERRED_INCOME_LIABILITY.getValue());
+//
+//          // advanced accounting mappings
+//          this.loanProductToGLAccountMappingHelper.savePaymentChannelToFundSourceMappings(command, element, loanProductId, null);
+//          this.loanProductToGLAccountMappingHelper.saveChargesToIncomeAccountMappings(command, element, loanProductId, null);
+//          this.loanProductToGLAccountMappingHelper.saveChargeOffReasonToExpenseAccountMappings(command, element, loanProductId, null);
+//          this.loanProductToGLAccountMappingHelper.saveWriteOffReasonToExpenseAccountMappings(command, element, loanProductId, null);
+//          this.loanProductToGLAccountMappingHelper.saveBuyDownFeeClassificationToIncomeAccountMappings(command, element,
+//              loanProductId, null);
+//          this.loanProductToGLAccountMappingHelper.saveCapitalizedIncomeClassificationToIncomeAccountMappings(command, element,
+//              loanProductId, null);
+//          break;
+//      }
     }
 }

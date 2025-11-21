@@ -136,7 +136,7 @@ public class ProgressiveLoanTransactionValidatorImpl implements ProgressiveLoanT
                 final BigDecimal capitalizedIncome = loan.getSummary().getTotalCapitalizedIncome();
                 final BigDecimal newTotal = totalDisbursed.add(capitalizedIncome).add(transactionAmount);
 
-                if (loan.loanProduct().isAllowApprovedDisbursedAmountsOverApplied()) {
+                if (loan.loanProduct().getAllowApprovedDisbursedAmountsOverApplied()) {
                     final BigDecimal maxAppliedAmount = loanMaximumAmountCalculator.getOverAppliedMax(loan);
                     if (newTotal.compareTo(maxAppliedAmount) > 0) {
                         baseDataValidator.reset().parameter("transactionAmount").failWithCode("exceeds.approved.amount",

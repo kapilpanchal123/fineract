@@ -18,34 +18,26 @@
  */
 package org.apache.fineract.portfolio.loanproduct.domain;
 
+import lombok.AllArgsConstructor;
+import lombok.Getter;
+
+@AllArgsConstructor
 public enum AmortizationMethod {
 
     EQUAL_PRINCIPAL(0, "amortizationType.equal.principal"), //
     EQUAL_INSTALLMENTS(1, "amortizationType.equal.installments"), //
     INVALID(2, "amortizationType.invalid"); //
 
+    @Getter
     private final Integer value;
+
+    @Getter
     private final String code;
 
-    AmortizationMethod(final Integer value, final String code) {
-        this.value = value;
-        this.code = code;
-    }
-
-    public Integer getValue() {
-        return this.value;
-    }
-
-    public String getCode() {
-        return this.code;
-    }
-
     public static AmortizationMethod fromInt(final Integer selectedMethod) {
-
         if (selectedMethod == null) {
             return null;
         }
-
         return switch (selectedMethod) {
             case 0 -> AmortizationMethod.EQUAL_PRINCIPAL;
             case 1 -> AmortizationMethod.EQUAL_INSTALLMENTS;

@@ -18,6 +18,11 @@
  */
 package org.apache.fineract.portfolio.loanproduct.domain;
 
+import lombok.AllArgsConstructor;
+import lombok.Getter;
+
+@Getter
+@AllArgsConstructor
 public enum InterestMethod {
 
     DECLINING_BALANCE(0, "interestType.declining.balance"), //
@@ -27,21 +32,7 @@ public enum InterestMethod {
     private final Integer value;
     private final String code;
 
-    InterestMethod(final Integer value, final String code) {
-        this.value = value;
-        this.code = code;
-    }
-
-    public Integer getValue() {
-        return this.value;
-    }
-
-    public String getCode() {
-        return this.code;
-    }
-
     public static InterestMethod fromInt(final Integer selectedMethod) {
-
         return switch (selectedMethod) {
             case 0 -> InterestMethod.DECLINING_BALANCE;
             case 1 -> InterestMethod.FLAT;

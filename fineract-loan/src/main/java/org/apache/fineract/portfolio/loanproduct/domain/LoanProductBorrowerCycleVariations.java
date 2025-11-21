@@ -25,10 +25,21 @@ import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
 import java.math.BigDecimal;
 import java.util.Objects;
+
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
 import org.apache.fineract.infrastructure.core.domain.AbstractPersistableCustom;
 
+@Getter
+@Setter
+@NoArgsConstructor
+@AllArgsConstructor
 @Entity
 @Table(name = "m_product_loan_variations_borrower_cycle")
+@Builder
 public class LoanProductBorrowerCycleVariations extends AbstractPersistableCustom<Long> {
 
     @ManyToOne
@@ -52,8 +63,6 @@ public class LoanProductBorrowerCycleVariations extends AbstractPersistableCusto
 
     @Column(name = "default_value", scale = 6, precision = 19, nullable = false)
     private BigDecimal defaultValue;
-
-    protected LoanProductBorrowerCycleVariations() {}
 
     public LoanProductBorrowerCycleVariations(final Integer borrowerCycleNumber, final Integer paramType, final Integer valueConditionType,
             final BigDecimal minValue, final BigDecimal maxValue, final BigDecimal defaultValue) {
@@ -100,21 +109,5 @@ public class LoanProductBorrowerCycleVariations extends AbstractPersistableCusto
         this.maxValue = borrowerCycleVariations.maxValue;
         this.valueConditionType = borrowerCycleVariations.valueConditionType;
         this.borrowerCycleNumber = borrowerCycleVariations.borrowerCycleNumber;
-    }
-
-    public Integer getBorrowerCycleNumber() {
-        return this.borrowerCycleNumber;
-    }
-
-    public BigDecimal getMinValue() {
-        return this.minValue;
-    }
-
-    public BigDecimal getMaxValue() {
-        return this.maxValue;
-    }
-
-    public BigDecimal getDefaultValue() {
-        return this.defaultValue;
     }
 }

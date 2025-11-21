@@ -211,11 +211,11 @@ public class LoanProductInterestRecalculationDetailsUpdateUtil {
         }
 
         if (command.isChangeInBooleanParameterNamed(LoanProductConstants.isArrearsBasedOnOriginalScheduleParamName,
-                loanProductInterestRecalculationDetails.isArrearsBasedOnOriginalSchedule())) {
+                loanProductInterestRecalculationDetails.getIsArrearsBasedOnOriginalSchedule())) {
             final boolean newValue = command
                     .booleanPrimitiveValueOfParameterNamed(LoanProductConstants.isArrearsBasedOnOriginalScheduleParamName);
             actualChanges.put(LoanProductConstants.isArrearsBasedOnOriginalScheduleParamName, newValue);
-            loanProductInterestRecalculationDetails.setArrearsBasedOnOriginalSchedule(newValue);
+            loanProductInterestRecalculationDetails.setIsArrearsBasedOnOriginalSchedule(newValue);
         }
 
         if (command.isChangeInIntegerParameterNamed(LoanProductConstants.preClosureInterestCalculationStrategyParamName,

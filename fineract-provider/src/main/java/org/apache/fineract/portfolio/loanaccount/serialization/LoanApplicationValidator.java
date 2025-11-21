@@ -401,7 +401,7 @@ public final class LoanApplicationValidator {
             baseDataValidator.reset().parameter(LoanApiConstants.interestCalculationPeriodTypeParameterName)
                     .value(interestCalculationPeriodType).notNull().inMinMaxRange(0, 1);
 
-            if (loanProduct.isLinkedToFloatingInterestRate()) {
+            if (loanProduct.getIsLinkedToFloatingInterestRate()) {
                 if (isEqualAmortization) {
                     throw new EqualAmortizationUnsupportedFeatureException("floating.interest.rate", "floating interest rate");
                 }
@@ -601,7 +601,7 @@ public final class LoanApplicationValidator {
             }
 
             if (this.fromApiJsonHelper.parameterExists(LoanApiConstants.fixedEmiAmountParameterName, element)) {
-                if (!(loanProduct.isCanDefineInstallmentAmount() || loanProduct.isMultiDisburseLoan())) {
+                if (!(loanProduct.getCanDefineInstallmentAmount() || loanProduct.isMultiDisburseLoan())) {
                     List<String> unsupportedParameterList = new ArrayList<>();
                     unsupportedParameterList.add(LoanApiConstants.fixedEmiAmountParameterName);
                     throw new UnsupportedParameterException(unsupportedParameterList);
@@ -624,7 +624,7 @@ public final class LoanApplicationValidator {
             final BigDecimal principal = this.fromApiJsonHelper.extractBigDecimalWithLocaleNamed(LoanApiConstants.principalParamName,
                     element);
 
-            if (loanProduct.isCanUseForTopup() && this.fromApiJsonHelper.parameterExists(LoanApiConstants.isTopup, element)) {
+            if (loanProduct.getCanUseForTopup() && this.fromApiJsonHelper.parameterExists(LoanApiConstants.isTopup, element)) {
                 final Boolean isTopup = this.fromApiJsonHelper.extractBooleanNamed(LoanApiConstants.isTopup, element);
                 baseDataValidator.reset().parameter(LoanApiConstants.isTopup).value(isTopup).validateForBooleanValue();
 
@@ -816,7 +816,7 @@ public final class LoanApplicationValidator {
 
     private void validateBorrowerCycle(JsonElement element, LoanProduct loanProduct, Long clientId, Long groupId,
             DataValidatorBuilder baseDataValidator) {
-        if (loanProduct.isUseBorrowerCycle()) {
+        if (loanProduct.getUseBorrowerCycle()) {
             Integer cycleNumber = 0;
             if (clientId != null) {
                 cycleNumber = this.loanReadPlatformService.retriveLoanCounter(clientId, loanProduct.getId());
@@ -1060,7 +1060,7 @@ public final class LoanApplicationValidator {
                         .inMinMaxRange(0, 1);
             }
 
-            if (loanProduct.isLinkedToFloatingInterestRate()) {
+            if (loanProduct.getIsLinkedToFloatingInterestRate()) {
                 if (isEqualAmortization) {
                     throw new EqualAmortizationUnsupportedFeatureException("floating.interest.rate", "floating interest rate");
                 }
@@ -1338,7 +1338,7 @@ public final class LoanApplicationValidator {
             }
 
             if (this.fromApiJsonHelper.parameterExists(LoanApiConstants.fixedEmiAmountParameterName, element)) {
-                if (!(loanProduct.isCanDefineInstallmentAmount() || loanProduct.isMultiDisburseLoan())) {
+                if (!(loanProduct.getCanDefineInstallmentAmount() || loanProduct.isMultiDisburseLoan())) {
                     List<String> unsupportedParameterList = new ArrayList<>();
                     unsupportedParameterList.add(LoanApiConstants.fixedEmiAmountParameterName);
                     throw new UnsupportedParameterException(unsupportedParameterList);
@@ -1359,7 +1359,7 @@ public final class LoanApplicationValidator {
                         .ignoreIfNull().positiveAmount();
             }
 
-            if (loanProduct.isCanUseForTopup() && this.fromApiJsonHelper.parameterExists(LoanApiConstants.isTopup, element)) {
+            if (loanProduct.getCanUseForTopup() && this.fromApiJsonHelper.parameterExists(LoanApiConstants.isTopup, element)) {
                 final Boolean isTopup = this.fromApiJsonHelper.extractBooleanNamed(LoanApiConstants.isTopup, element);
                 baseDataValidator.reset().parameter(LoanApiConstants.isTopup).value(isTopup).ignoreIfNull().validateForBooleanValue();
 
@@ -1518,7 +1518,7 @@ public final class LoanApplicationValidator {
             final JsonArray disbursementDataArray = this.fromApiJsonHelper
                     .extractJsonArrayNamed(LoanApiConstants.disbursementDataParameterName, element);
             int disbursementDataSize = disbursementDataArray != null ? disbursementDataArray.size() : 0;
-            if (loanProduct.isDisallowExpectedDisbursements()) {
+            if (loanProduct.getDisallowExpectedDisbursements()) {
                 if (disbursementDataSize > 0) {
                     final String errorMessage = "For this loan product, disbursement details are not allowed";
                     throw new MultiDisbursementDataNotAllowedException(LoanApiConstants.disbursementDataParameterName, errorMessage);
@@ -1797,12 +1797,12 @@ public final class LoanApplicationValidator {
                             .failWithCode("not.supported.for.selected.interest.calcualtion.type");
                 }
 
-                if (loanProduct.isAllowVariabeInstallments()) {
+                if (loanProduct.getAllowVariabeInstallments()) {
                     baseDataValidator.reset().parameter(LoanProductConstants.allowVariableInstallmentsParamName)
                             .failWithCode("not.supported.for.selected.interest.calcualtion.type");
                 }
 
-                if (loanProduct.isLinkedToFloatingInterestRate()) {
+                if (loanProduct.getIsLinkedToFloatingInterestRate()) {
                     baseDataValidator.reset().parameter("isLinkedToFloatingInterestRates")
                             .failWithCode("not.supported.for.selected.interest.calcualtion.type");
                 }
@@ -2136,7 +2136,7 @@ public final class LoanApplicationValidator {
     }
 
     private void compareApprovedToProposedPrincipal(Loan loan, BigDecimal approvedLoanAmount) {
-        if (loan.loanProduct().isAllowApprovedDisbursedAmountsOverApplied()) {
+        if (loan.loanProduct().getAllowApprovedDisbursedAmountsOverApplied()) {
             BigDecimal maxApprovedLoanAmount = getOverAppliedMax(loan);
             if (approvedLoanAmount.compareTo(maxApprovedLoanAmount) > 0) {
                 final String errorMessage = "Loan approved amount can't be greater than maximum applied loan amount calculation.";

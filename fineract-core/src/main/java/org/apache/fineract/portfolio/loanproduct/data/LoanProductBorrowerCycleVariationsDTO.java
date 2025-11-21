@@ -16,10 +16,10 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package org.apache.fineract.portfolio.loanproduct.domain;
+package org.apache.fineract.portfolio.loanproduct.data;
 
-import jakarta.persistence.Column;
-import jakarta.persistence.Embeddable;
+import java.io.Serial;
+import java.io.Serializable;
 import java.math.BigDecimal;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -31,16 +31,16 @@ import lombok.Setter;
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
-@Embeddable
 @Builder
-public class LoanProductTrancheDetails {
+public class LoanProductBorrowerCycleVariationsDTO implements Serializable {
 
-    @Column(name = "allow_multiple_disbursals")
-    private Boolean multiDisburseLoan;
+  @Serial
+  private static final long serialVersionUID = 1L;
 
-    @Column(name = "max_disbursals")
-    private Integer maxTrancheCount;
-
-    @Column(name = "max_outstanding_loan_balance", scale = 6, precision = 19)
-    private BigDecimal outstandingLoanBalance;
+  private Integer borrowerCycleNumber;
+  private Integer paramType;
+  private Integer valueConditionType;
+  private BigDecimal minValue;
+  private BigDecimal maxValue;
+  private BigDecimal defaultValue;
 }

@@ -24,7 +24,10 @@ import jakarta.persistence.JoinColumn;
 import jakarta.persistence.OneToOne;
 import jakarta.persistence.Table;
 import java.math.BigDecimal;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 import lombok.Setter;
 import org.apache.fineract.infrastructure.core.domain.AbstractPersistableCustom;
 
@@ -36,8 +39,11 @@ import org.apache.fineract.infrastructure.core.domain.AbstractPersistableCustom;
 
 @Getter
 @Setter
+@NoArgsConstructor
+@AllArgsConstructor
 @Entity
 @Table(name = "m_product_loan_guarantee_details")
+@Builder
 public class LoanProductGuaranteeDetails extends AbstractPersistableCustom<Long> {
 
     @OneToOne
@@ -53,10 +59,6 @@ public class LoanProductGuaranteeDetails extends AbstractPersistableCustom<Long>
     @Column(name = "minimum_guarantee_from_guarantor_funds", scale = 6, precision = 19)
     private BigDecimal minimumGuaranteeFromGuarantor;
 
-    protected LoanProductGuaranteeDetails() {
-        //
-    }
-
     public LoanProductGuaranteeDetails(final BigDecimal mandatoryGuarantee, final BigDecimal minimumGuaranteeFromOwnFunds,
             final BigDecimal minimumGuaranteeFromGuarantor) {
         this.mandatoryGuarantee = mandatoryGuarantee;
@@ -67,5 +69,4 @@ public class LoanProductGuaranteeDetails extends AbstractPersistableCustom<Long>
     public void updateProduct(final LoanProduct loanProduct) {
         this.loanProduct = loanProduct;
     }
-
 }

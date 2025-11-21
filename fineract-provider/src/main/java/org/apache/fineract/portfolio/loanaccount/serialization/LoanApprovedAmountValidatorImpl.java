@@ -84,7 +84,7 @@ public final class LoanApprovedAmountValidatorImpl implements LoanApprovedAmount
             }
 
             BigDecimal maximumThresholdForApprovedAmount;
-            if (loan.loanProduct().isAllowApprovedDisbursedAmountsOverApplied()) {
+            if (loan.loanProduct().getAllowApprovedDisbursedAmountsOverApplied()) {
                 maximumThresholdForApprovedAmount = loanApplicationValidator.getOverAppliedMax(loan);
             } else {
                 maximumThresholdForApprovedAmount = loan.getProposedPrincipal();
@@ -138,7 +138,7 @@ public final class LoanApprovedAmountValidatorImpl implements LoanApprovedAmount
             }
 
             BigDecimal maximumThresholdForApprovedAmount;
-            if (loan.loanProduct().isAllowApprovedDisbursedAmountsOverApplied()) {
+            if (loan.loanProduct().getAllowApprovedDisbursedAmountsOverApplied()) {
                 maximumThresholdForApprovedAmount = loanApplicationValidator.getOverAppliedMax(loan);
             } else {
                 maximumThresholdForApprovedAmount = loan.getProposedPrincipal();

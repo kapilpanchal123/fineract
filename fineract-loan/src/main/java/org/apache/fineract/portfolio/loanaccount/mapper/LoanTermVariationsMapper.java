@@ -128,7 +128,7 @@ public class LoanTermVariationsMapper {
         final LocalDate dateValue = null;
         final boolean isSpecificToInstallment = false;
         BigDecimal interestRate = annualNominalInterestRate;
-        if (loan.getLoanProduct().isLinkedToFloatingInterestRate()) {
+        if (loan.getLoanProduct().getIsLinkedToFloatingInterestRate()) {
             floatingRateDTO.resetInterestRateDiff();
             Collection<FloatingRatePeriodData> applicableRates = loan.getLoanProduct().fetchInterestRates(floatingRateDTO);
             LocalDate interestRateStartDate = DateUtils.getBusinessLocalDate();

@@ -1519,7 +1519,7 @@ public final class LoanProductDataValidator {
         }
 
         // interest rates
-        boolean isLinkedToFloatingInterestRates = loanProduct.isLinkedToFloatingInterestRate();
+        boolean isLinkedToFloatingInterestRates = loanProduct.getIsLinkedToFloatingInterestRate();
         if (this.fromApiJsonHelper.parameterExists(IS_LINKED_TO_FLOATING_INTEREST_RATES, element)) {
             isLinkedToFloatingInterestRates = this.fromApiJsonHelper.extractBooleanNamed(IS_LINKED_TO_FLOATING_INTEREST_RATES, element);
         }
@@ -1709,7 +1709,7 @@ public final class LoanProductDataValidator {
                 baseDataValidator);
 
         // Guarantee Funds
-        Boolean holdGuaranteeFunds = loanProduct.isHoldGuaranteeFunds();
+        Boolean holdGuaranteeFunds = loanProduct.getHoldGuaranteeFunds();
         if (this.fromApiJsonHelper.parameterExists(LoanProductConstants.holdGuaranteeFundsParamName, element)) {
             holdGuaranteeFunds = this.fromApiJsonHelper.extractBooleanNamed(LoanProductConstants.holdGuaranteeFundsParamName, element);
             baseDataValidator.reset().parameter(LoanProductConstants.holdGuaranteeFundsParamName).value(holdGuaranteeFunds).notNull()
@@ -2407,7 +2407,7 @@ public final class LoanProductDataValidator {
 
         if ((this.fromApiJsonHelper.parameterExists(IS_LINKED_TO_FLOATING_INTEREST_RATES, element)
                 && this.fromApiJsonHelper.extractBooleanNamed(IS_LINKED_TO_FLOATING_INTEREST_RATES, element))
-                || loanProduct.isLinkedToFloatingInterestRate()) {
+                || loanProduct.getIsLinkedToFloatingInterestRate()) {
             return;
         }
         boolean iRPUpdated = false;
@@ -2699,7 +2699,7 @@ public final class LoanProductDataValidator {
                     variableInstallments = this.fromApiJsonHelper
                             .extractBooleanNamed(LoanProductConstants.allowVariableInstallmentsParamName, element);
                 } else if (loanProduct != null) {
-                    variableInstallments = loanProduct.isAllowVariabeInstallments();
+                    variableInstallments = loanProduct.getAllowVariabeInstallments();
                 }
                 if (variableInstallments != null && variableInstallments) {
                     baseDataValidator.reset().parameter(LoanProductConstants.allowVariableInstallmentsParamName)
@@ -2710,7 +2710,7 @@ public final class LoanProductDataValidator {
                 if (this.fromApiJsonHelper.parameterExists(IS_LINKED_TO_FLOATING_INTEREST_RATES, element)) {
                     floatingInterestRates = this.fromApiJsonHelper.extractBooleanNamed(IS_LINKED_TO_FLOATING_INTEREST_RATES, element);
                 } else if (loanProduct != null) {
-                    floatingInterestRates = loanProduct.isLinkedToFloatingInterestRate();
+                    floatingInterestRates = loanProduct.getIsLinkedToFloatingInterestRate();
                 }
                 if (floatingInterestRates != null && floatingInterestRates) {
                     baseDataValidator.reset().parameter(IS_LINKED_TO_FLOATING_INTEREST_RATES)

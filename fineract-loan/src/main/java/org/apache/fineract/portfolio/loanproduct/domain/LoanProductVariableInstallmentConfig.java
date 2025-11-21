@@ -24,6 +24,7 @@ import jakarta.persistence.JoinColumn;
 import jakarta.persistence.OneToOne;
 import jakarta.persistence.Table;
 import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
@@ -35,6 +36,7 @@ import org.apache.fineract.infrastructure.core.domain.AbstractPersistableCustom;
 @NoArgsConstructor
 @AllArgsConstructor
 @Table(name = "m_product_loan_variable_installment_config")
+@Builder
 public class LoanProductVariableInstallmentConfig extends AbstractPersistableCustom<Long> {
 
     @Setter

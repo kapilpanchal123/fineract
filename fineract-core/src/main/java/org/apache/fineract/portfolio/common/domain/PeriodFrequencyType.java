@@ -19,7 +19,10 @@
 package org.apache.fineract.portfolio.common.domain;
 
 import java.util.Arrays;
+import lombok.AllArgsConstructor;
+import lombok.Getter;
 
+@AllArgsConstructor
 public enum PeriodFrequencyType {
 
     DAYS(0, "periodFrequencyType.days"), //
@@ -29,41 +32,24 @@ public enum PeriodFrequencyType {
     WHOLE_TERM(4, "periodFrequencyType.whole_term"), //
     INVALID(5, "periodFrequencyType.invalid");
 
+    @Getter
     private final Integer value;
+
+    @Getter
     private final String code;
-
-    PeriodFrequencyType(final Integer value, final String code) {
-        this.value = value;
-        this.code = code;
-    }
-
-    public Integer getValue() {
-        return this.value;
-    }
-
-    public String getCode() {
-        return this.code;
-    }
 
     public static PeriodFrequencyType fromInt(final Integer v) {
         if (v == null) {
             return INVALID;
         }
-
-        switch (v) {
-            case 0:
-                return DAYS;
-            case 1:
-                return WEEKS;
-            case 2:
-                return MONTHS;
-            case 3:
-                return YEARS;
-            case 4:
-                return WHOLE_TERM;
-            default:
-                return INVALID;
-        }
+      return switch (v) {
+        case 0 -> DAYS;
+        case 1 -> WEEKS;
+        case 2 -> MONTHS;
+        case 3 -> YEARS;
+        case 4 -> WHOLE_TERM;
+        default -> INVALID;
+      };
     }
 
     // TODO: why not just use the enum values... just more boilerplate code here!!

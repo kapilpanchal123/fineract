@@ -26,7 +26,11 @@ import jakarta.persistence.OneToOne;
 import jakarta.persistence.Table;
 import java.math.BigDecimal;
 import java.util.Collection;
+
+import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 import lombok.Setter;
 import org.apache.fineract.infrastructure.core.domain.AbstractPersistableCustom;
 import org.apache.fineract.portfolio.floatingrates.data.FloatingRateDTO;
@@ -35,8 +39,11 @@ import org.apache.fineract.portfolio.floatingrates.domain.FloatingRate;
 
 @Setter
 @Getter
+@NoArgsConstructor
+@AllArgsConstructor
 @Entity
 @Table(name = "m_product_loan_floating_rates")
+@Builder
 public class LoanProductFloatingRates extends AbstractPersistableCustom<Long> {
 
     @OneToOne
@@ -62,11 +69,7 @@ public class LoanProductFloatingRates extends AbstractPersistableCustom<Long> {
     @Column(name = "is_floating_interest_rate_calculation_allowed", nullable = false)
     private boolean isFloatingInterestRateCalculationAllowed;
 
-    public LoanProductFloatingRates() {
-
-    }
-
-    public LoanProductFloatingRates(FloatingRate floatingRate, LoanProduct loanProduct, BigDecimal interestRateDifferential,
+  public LoanProductFloatingRates(FloatingRate floatingRate, LoanProduct loanProduct, BigDecimal interestRateDifferential,
             BigDecimal minDifferentialLendingRate, BigDecimal maxDifferentialLendingRate, BigDecimal defaultDifferentialLendingRate,
             boolean isFloatingInterestRateCalculationAllowed) {
         this.floatingRate = floatingRate;
@@ -81,7 +84,5 @@ public class LoanProductFloatingRates extends AbstractPersistableCustom<Long> {
     public Collection<FloatingRatePeriodData> fetchInterestRates(final FloatingRateDTO floatingRateDTO) {
         floatingRateDTO.addInterestRateDiff(this.interestRateDifferential);
         return floatingRate.fetchInterestRates(floatingRateDTO);
-
     }
-
 }

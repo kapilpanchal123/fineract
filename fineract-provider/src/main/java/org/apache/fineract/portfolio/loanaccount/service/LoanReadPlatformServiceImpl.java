@@ -488,7 +488,7 @@ public class LoanReadPlatformServiceImpl implements LoanReadPlatformService, Loa
                     capitalizedIncomeBalance = loanCapitalizedIncomeBalanceRepository.findAllByLoanIdAndDeletedFalseAndClosedFalse(loanId)
                             .stream().map(LoanCapitalizedIncomeBalance::getAmount).reduce(BigDecimal.ZERO, BigDecimal::add);
                 }
-                transactionAmount = loan.getLoanProduct().isAllowApprovedDisbursedAmountsOverApplied()
+                transactionAmount = loan.getLoanProduct().getAllowApprovedDisbursedAmountsOverApplied()
                         ? loanMaximumAmountCalculator.getOverAppliedMax(loan)
                         : loan.getApprovedPrincipal();
                 transactionAmount = transactionAmount.subtract(loan.getDisbursedAmount()).subtract(capitalizedIncomeBalance);

@@ -32,6 +32,7 @@ public enum LoanScheduleProcessingType {
     VERTICAL("Vertical"), //
     ;
 
+    @Getter
     private final String humanReadableName;
 
     public static List<EnumOptionData> getValuesAsEnumOptionDataList() {

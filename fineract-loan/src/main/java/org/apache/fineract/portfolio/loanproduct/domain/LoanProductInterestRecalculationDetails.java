@@ -23,7 +23,10 @@ import jakarta.persistence.Entity;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.OneToOne;
 import jakarta.persistence.Table;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 import lombok.Setter;
 import org.apache.fineract.infrastructure.core.domain.AbstractPersistableCustom;
 
@@ -32,11 +35,13 @@ import org.apache.fineract.infrastructure.core.domain.AbstractPersistableCustom;
  *
  * @author conflux
  */
-
 @Getter
 @Setter
+@NoArgsConstructor
+@AllArgsConstructor
 @Entity
 @Table(name = "m_product_loan_recalculation_details")
+@Builder
 public class LoanProductInterestRecalculationDetails extends AbstractPersistableCustom<Long> {
 
     @OneToOne
@@ -86,7 +91,7 @@ public class LoanProductInterestRecalculationDetails extends AbstractPersistable
     private Integer compoundingFrequencyOnDay;
 
     @Column(name = "arrears_based_on_original_schedule")
-    private boolean isArrearsBasedOnOriginalSchedule;
+    private Boolean isArrearsBasedOnOriginalSchedule;
 
     @Column(name = "pre_close_interest_calculation_strategy")
     private Integer preCloseInterestCalculationStrategy;
@@ -100,18 +105,14 @@ public class LoanProductInterestRecalculationDetails extends AbstractPersistable
     @Column(name = "disallow_interest_calc_on_past_due")
     private Boolean disallowInterestCalculationOnPastDue;
 
-    protected LoanProductInterestRecalculationDetails() {
-        //
-    }
-
     public LoanProductInterestRecalculationDetails(final Integer interestRecalculationCompoundingMethod,
             final Integer rescheduleStrategyMethod, final Integer restFrequencyType, final Integer restInterval,
             final Integer restFrequencyNthDay, final Integer restFrequencyOnDay, final Integer restFrequencyWeekday,
-            Integer compoundingFrequencyType, Integer compoundingInterval, final Integer compoundingFrequencyNthDay,
+            final Integer compoundingFrequencyType, Integer compoundingInterval, final Integer compoundingFrequencyNthDay,
             final Integer compoundingFrequencyOnDay, final Integer compoundingFrequencyWeekday,
-            final boolean isArrearsBasedOnOriginalSchedule, final Integer preCloseInterestCalculationStrategy,
-            final boolean isCompoundingToBePostedAsTransaction, final boolean allowCompoundingOnEod,
-            final boolean disallowInterestCalculationOnPastDue) {
+            final Boolean isArrearsBasedOnOriginalSchedule, final Integer preCloseInterestCalculationStrategy,
+            final Boolean isCompoundingToBePostedAsTransaction, final Boolean allowCompoundingOnEod,
+            final Boolean disallowInterestCalculationOnPastDue) {
         this.interestRecalculationCompoundingMethod = interestRecalculationCompoundingMethod;
         this.rescheduleStrategyMethod = rescheduleStrategyMethod;
         this.restFrequencyType = restFrequencyType;

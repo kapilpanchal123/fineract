@@ -323,7 +323,7 @@ public class LoanWritePlatformServiceJpaRepositoryImpl implements LoanWritePlatf
 
         Loan loan = loanAssembler.assembleFrom(loanId);
 
-        if (loan.loanProduct().isDisallowExpectedDisbursements()) {
+        if (loan.loanProduct().getDisallowExpectedDisbursements()) {
             List<LoanDisbursementDetails> filteredList = loan.getDisbursementDetails().stream()
                     .filter(disbursementDetails -> disbursementDetails.actualDisbursementDate() == null).toList();
             // Check whether a new LoanDisbursementDetails is required
@@ -735,7 +735,7 @@ public class LoanWritePlatformServiceJpaRepositoryImpl implements LoanWritePlatf
             // validate ActualDisbursement Date Against Expected Disbursement
             // Date
             LoanProduct loanProduct = loan.loanProduct();
-            if (loanProduct.isSyncExpectedWithDisbursementDate()) {
+            if (loanProduct.getSyncExpectedWithDisbursementDate()) {
                 syncExpectedDateWithActualDisbursementDate(loan, actualDisbursementDate);
             }
             checkClientOrGroupActive(loan);
@@ -1975,7 +1975,7 @@ public class LoanWritePlatformServiceJpaRepositoryImpl implements LoanWritePlatf
     private void removeLoanCycle(final Loan loan) {
         final List<Loan> loansToUpdate;
         if (loan.isGroupLoan()) {
-            if (loan.loanProduct().isIncludeInBorrowerCycle()) {
+            if (loan.loanProduct().getIncludeInBorrowerCycle()) {
                 loansToUpdate = this.loanRepositoryWrapper.getGroupLoansToUpdateLoanCounter(loan.getCurrentLoanCounter(), loan.getGroupId(),
                         AccountType.GROUP);
             } else {
@@ -1984,7 +1984,7 @@ public class LoanWritePlatformServiceJpaRepositoryImpl implements LoanWritePlatf
             }
 
         } else {
-            if (loan.loanProduct().isIncludeInBorrowerCycle()) {
+            if (loan.loanProduct().getIncludeInBorrowerCycle()) {
                 loansToUpdate = this.loanRepositoryWrapper.getClientOrJLGLoansToUpdateLoanCounter(loan.getCurrentLoanCounter(),
                         loan.getClientId());
             } else {
@@ -2044,11 +2044,11 @@ public class LoanWritePlatformServiceJpaRepositoryImpl implements LoanWritePlatf
     private void updateLoanCounter(final Loan loan, final List<Loan> loansToUpdateForLoanCounter, Integer newLoanCounter,
             Integer newLoanProductCounter) {
 
-        final boolean includeInBorrowerCycle = loan.loanProduct().isIncludeInBorrowerCycle();
+        final boolean includeInBorrowerCycle = loan.loanProduct().getIncludeInBorrowerCycle();
         for (final Loan loanToUpdate : loansToUpdateForLoanCounter) {
             // Update client loan counter if loan product includeInBorrowerCycle
             // is true
-            if (loanToUpdate.loanProduct().isIncludeInBorrowerCycle()) {
+            if (loanToUpdate.loanProduct().getIncludeInBorrowerCycle()) {
                 Integer currentLoanCounter = loanToUpdate.getCurrentLoanCounter() == null ? 1 : loanToUpdate.getCurrentLoanCounter();
                 if (newLoanCounter > currentLoanCounter) {
                     newLoanCounter = currentLoanCounter;
@@ -2103,7 +2103,7 @@ public class LoanWritePlatformServiceJpaRepositoryImpl implements LoanWritePlatf
         final Integer currentLoanProductCounter = loan.getLoanProductLoanCounter();
 
         for (final Loan loanToUpdate : loansToUpdate) {
-            if (loan.loanProduct().isIncludeInBorrowerCycle()) {
+            if (loan.loanProduct().getIncludeInBorrowerCycle()) {
                 Integer runningLoanCounter = loanToUpdate.getCurrentLoanCounter();
                 if (runningLoanCounter > currentLoanCounter) {
                     loanToUpdate.updateClientLoanCounter(--runningLoanCounter);
@@ -2238,13 +2238,13 @@ public class LoanWritePlatformServiceJpaRepositoryImpl implements LoanWritePlatf
             final String errorMessage = "cannot.modify.tranches.if.loan.is.pendingapproval.closed.overpaid.writtenoff";
             throw new LoanMultiDisbursementException(errorMessage);
         }
-        validateMultiDisbursementData(command, expectedDisbursementDate, loan.loanProduct().isDisallowExpectedDisbursements(), loan);
+        validateMultiDisbursementData(command, expectedDisbursementDate, loan.loanProduct().getDisallowExpectedDisbursements(), loan);
 
         this.validateForAddAndDeleteTranche(loan);
 
         loanDisbursementService.updateDisbursementDetails(loan, command, actualChanges);
 
-        if (loan.loanProduct().isDisallowExpectedDisbursements()) {
+        if (loan.loanProduct().getDisallowExpectedDisbursements()) {
             if (!loan.getDisbursementDetails().isEmpty()) {
                 final String errorMessage = "For this loan product, disbursement details are not allowed";
                 throw new MultiDisbursementDataNotAllowedException(LoanApiConstants.disbursementDataParameterName, errorMessage);
@@ -2404,7 +2404,7 @@ public class LoanWritePlatformServiceJpaRepositoryImpl implements LoanWritePlatf
 
         boolean isEmiAmountChanged = false;
         LoanProduct loanProduct = loan.getLoanProduct();
-        if ((loanProduct.isMultiDisburseLoan() || loanProduct.isCanDefineInstallmentAmount()) && emiAmount != null
+        if ((loanProduct.isMultiDisburseLoan() || loanProduct.getCanDefineInstallmentAmount()) && emiAmount != null
                 && emiAmount.compareTo(loan.retriveLastEmiAmount()) != 0) {
             if (loanProduct.isMultiDisburseLoan()) {
                 final LocalDate dateValue = null;
@@ -3111,7 +3111,7 @@ public class LoanWritePlatformServiceJpaRepositoryImpl implements LoanWritePlatf
                     loan.getLoanRepaymentScheduleDetail().getPrincipal().getAmount());
             loan.getLoanRepaymentScheduleDetail().setPrincipal(loan.getApprovedPrincipal());
             // Remove All the Disbursement Details If the Loan Product is disabled and exists one
-            if (loan.loanProduct().isDisallowExpectedDisbursements() && !loan.getDisbursementDetails().isEmpty()) {
+            if (loan.loanProduct().getDisallowExpectedDisbursements() && !loan.getDisbursementDetails().isEmpty()) {
                 for (LoanDisbursementDetails disbursementDetail : loan.getAllDisbursementDetails()) {
                     disbursementDetail.reverse();
                 }

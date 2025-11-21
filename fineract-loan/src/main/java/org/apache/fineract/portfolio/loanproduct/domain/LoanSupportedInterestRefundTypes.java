@@ -34,5 +34,4 @@ public enum LoanSupportedInterestRefundTypes implements ApiFacingEnum<LoanSuppor
     private final LoanTransactionType transactionType;
     private final String code;
     private final String humanReadableName;
-
 }

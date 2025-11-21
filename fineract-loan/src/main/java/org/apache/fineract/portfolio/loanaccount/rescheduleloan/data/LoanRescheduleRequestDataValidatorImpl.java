@@ -90,7 +90,7 @@ public class LoanRescheduleRequestDataValidatorImpl implements LoanRescheduleReq
 
     private static void validateMultiDisburseLoan(Loan loan, DataValidatorBuilder dataValidatorBuilder) {
         if (loan.isMultiDisburmentLoan()) {
-            if (!loan.loanProduct().isDisallowExpectedDisbursements()) {
+            if (!loan.loanProduct().getDisallowExpectedDisbursements()) {
                 dataValidatorBuilder.reset().failWithCodeNoParameterAddedToErrorCode(
                         RescheduleLoansApiConstants.rescheduleForMultiDisbursementNotSupportedErrorCode,
                         "Loan rescheduling is not supported for multidisbursement tranche loans");

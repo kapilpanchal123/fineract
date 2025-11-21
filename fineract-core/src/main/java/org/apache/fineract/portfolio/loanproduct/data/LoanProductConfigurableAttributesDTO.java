@@ -16,11 +16,14 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package org.apache.fineract.portfolio.loanproduct.domain;
+package org.apache.fineract.portfolio.loanproduct.data;
+
+import java.io.Serial;
+import java.io.Serializable;
 
 import jakarta.persistence.Column;
-import jakarta.persistence.Embeddable;
-import java.math.BigDecimal;
+import jakarta.persistence.JoinColumn;
+import jakarta.persistence.OneToOne;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
@@ -31,16 +34,18 @@ import lombok.Setter;
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
-@Embeddable
 @Builder
-public class LoanProductTrancheDetails {
+public class LoanProductConfigurableAttributesDTO implements Serializable {
 
-    @Column(name = "allow_multiple_disbursals")
-    private Boolean multiDisburseLoan;
+  @Serial
+  private static final long serialVersionUID = 1L;
 
-    @Column(name = "max_disbursals")
-    private Integer maxTrancheCount;
-
-    @Column(name = "max_outstanding_loan_balance", scale = 6, precision = 19)
-    private BigDecimal outstandingLoanBalance;
+  private Boolean amortizationType;
+  private Boolean interestType;
+  private Boolean transactionProcessingStrategyCode;
+  private Boolean interestCalculationPeriodType;
+  private Boolean inArrearsTolerance;
+  private Boolean repaymentEvery;
+  private Boolean graceOnPrincipalAndInterestPayment;
+  private Boolean graceOnArrearsAgeing;
 }

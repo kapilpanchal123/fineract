@@ -190,7 +190,7 @@ public class LoanAssemblerImpl implements LoanAssembler {
         }
         List<LoanDisbursementDetails> disbursementDetails = new ArrayList<>();
         BigDecimal fixedEmiAmount = null;
-        if (loanProduct.isMultiDisburseLoan() || loanProduct.isCanDefineInstallmentAmount()) {
+        if (loanProduct.isMultiDisburseLoan() || loanProduct.getCanDefineInstallmentAmount()) {
             fixedEmiAmount = this.fromApiJsonHelper.extractBigDecimalWithLocaleNamed(LoanApiConstants.fixedEmiAmountParameterName, element);
         }
         BigDecimal maxOutstandingLoanBalance = null;
@@ -245,7 +245,7 @@ public class LoanAssemblerImpl implements LoanAssembler {
         Boolean isEnableInstallmentLevelDelinquency = this.fromApiJsonHelper
                 .extractBooleanNamed(LoanProductConstants.ENABLE_INSTALLMENT_LEVEL_DELINQUENCY, element);
         if (isEnableInstallmentLevelDelinquency == null) {
-            isEnableInstallmentLevelDelinquency = loanProduct.isEnableInstallmentLevelDelinquency();
+            isEnableInstallmentLevelDelinquency = loanProduct.getEnableInstallmentLevelDelinquency();
         }
 
         final boolean isHolidayEnabled = this.configurationDomainService.isRescheduleRepaymentsOnHolidaysEnabled();
@@ -372,7 +372,7 @@ public class LoanAssemblerImpl implements LoanAssembler {
     }
 
     private void topUpLoanConfiguration(JsonElement element, Loan loan) {
-        if (loan.getLoanProduct().isCanUseForTopup() && loan.getClientId() != null) {
+        if (loan.getLoanProduct().getCanUseForTopup() && loan.getClientId() != null) {
             final Boolean isTopUp = this.fromApiJsonHelper.extractBooleanNamed(LoanApiConstants.isTopup, element);
             if (null == isTopUp) {
                 loan.setIsTopup(false);
@@ -575,7 +575,7 @@ public class LoanAssemblerImpl implements LoanAssembler {
                 loan.updateInterestRateFrequencyType();
             }
 
-            if (loanProduct.isLinkedToFloatingInterestRate()) {
+            if (loanProduct.getIsLinkedToFloatingInterestRate()) {
                 loan.getLoanProductRelatedDetail().updateForFloatingInterestRates();
             } else {
                 loan.setInterestRateDifferential(null);
@@ -737,7 +737,7 @@ public class LoanAssemblerImpl implements LoanAssembler {
             }
             final JsonArray disbursementDataArray = command.arrayOfParameterNamed(LoanApiConstants.disbursementDataParameterName);
 
-            if (loanProduct.isDisallowExpectedDisbursements()) {
+            if (loanProduct.getDisallowExpectedDisbursements()) {
                 if (disbursementDataArray != null && !disbursementDataArray.isEmpty()) {
                     final String errorMessage = "For this loan product, disbursement details are not allowed";
                     throw new MultiDisbursementDataNotAllowedException(LoanApiConstants.disbursementDataParameterName, errorMessage);
@@ -758,7 +758,7 @@ public class LoanAssemblerImpl implements LoanAssembler {
             loan.clearDisbursementDetails();
         }
 
-        if (loanProduct.isMultiDisburseLoan() || loanProduct.isCanDefineInstallmentAmount()) {
+        if (loanProduct.isMultiDisburseLoan() || loanProduct.getCanDefineInstallmentAmount()) {
             if (command.isChangeInBigDecimalParameterNamed(LoanApiConstants.fixedEmiAmountParameterName, loan.getFixedEmiAmount())) {
                 loan.setFixedEmiAmount(command.bigDecimalValueOfParameterNamed(LoanApiConstants.fixedEmiAmountParameterName));
                 changes.put(LoanApiConstants.fixedEmiAmountParameterName, loan.getFixedEmiAmount());
@@ -780,7 +780,7 @@ public class LoanAssemblerImpl implements LoanAssembler {
             loanScheduleAssembler.updateProductRelatedDetails(productRelatedDetail, loan);
         }
 
-        if (loan.getLoanProduct().isCanUseForTopup() && loan.getClientId() != null) {
+        if (loan.getLoanProduct().getCanUseForTopup() && loan.getClientId() != null) {
             final Boolean isTopup = command.booleanObjectValueOfParameterNamed(LoanApiConstants.isTopup);
             if (command.isChangeInBooleanParameterNamed(LoanApiConstants.isTopup, loan.isTopup())) {
                 loan.setIsTopup(isTopup);

@@ -194,7 +194,7 @@ public class LoanTransactionValidatorImpl implements LoanTransactionValidator {
 
             // validate ActualDisbursement Date Against Expected Disbursement Date
             LoanProduct loanProduct = loan.loanProduct();
-            if (loanProduct.isSyncExpectedWithDisbursementDate()) {
+            if (loanProduct.getSyncExpectedWithDisbursementDate()) {
                 if (!loan.getExpectedDisbursedOnLocalDate().equals(actualDisbursementDate)) {
                     throw new DateMismatchException(actualDisbursementDate, loan.getExpectedDisbursedOnLocalDate());
                 }
@@ -716,7 +716,7 @@ public class LoanTransactionValidatorImpl implements LoanTransactionValidator {
 
     @Override
     public void validateActivityNotBeforeLastTransactionDate(final Loan loan, final LocalDate activityDate, final LoanEvent event) {
-        if (!(loan.isInterestBearingAndInterestRecalculationEnabled() || loan.loanProduct().isHoldGuaranteeFunds())
+        if (!(loan.isInterestBearingAndInterestRecalculationEnabled() || loan.loanProduct().getHoldGuaranteeFunds())
                 || !loan.getLoanRepaymentScheduleDetail().getLoanScheduleType().equals(LoanScheduleType.CUMULATIVE)) {
             return;
         }
@@ -1029,7 +1029,7 @@ public class LoanTransactionValidatorImpl implements LoanTransactionValidator {
     private void validateTransactionNotBeforeLastTransactionDate(final Loan loan, LoanTransactionType loanTransactionType,
             final LocalDate transactionDate) {
         if (!((LoanScheduleType.CUMULATIVE.equals(loan.getLoanProductRelatedDetail().getLoanScheduleType())
-                && loan.isInterestBearingAndInterestRecalculationEnabled()) || loan.getLoanProduct().isHoldGuaranteeFunds())) {
+                && loan.isInterestBearingAndInterestRecalculationEnabled()) || loan.getLoanProduct().getHoldGuaranteeFunds())) {
             return;
         }
         LocalDate lastTransactionDate = loan.getLastUserTransactionDate();

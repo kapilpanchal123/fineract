@@ -20,11 +20,16 @@ package org.apache.fineract.organisation.monetary.domain;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Embeddable;
-import lombok.AccessLevel;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 import org.apache.fineract.organisation.monetary.data.CurrencyData;
 
 @Getter
+@NoArgsConstructor
+@AllArgsConstructor
+@Builder
 @Embeddable
 public class MonetaryCurrency {
 
@@ -32,21 +37,15 @@ public class MonetaryCurrency {
     private String code;
 
     @Column(name = "currency_digits", nullable = false)
-    private int digitsAfterDecimal;
+    private Integer digitsAfterDecimal;
 
     @Column(name = "currency_multiplesof")
     private Integer inMultiplesOf;
 
-    @Getter(AccessLevel.PRIVATE)
+    @Getter
     private transient CurrencyData currencyData;
 
-    protected MonetaryCurrency() {
-        this.code = null;
-        this.digitsAfterDecimal = 0;
-        this.inMultiplesOf = 0;
-    }
-
-    public MonetaryCurrency(final String code, final int digitsAfterDecimal, final Integer inMultiplesOf) {
+  public MonetaryCurrency(final String code, final int digitsAfterDecimal, final Integer inMultiplesOf) {
         this.code = code;
         this.digitsAfterDecimal = digitsAfterDecimal;
         this.inMultiplesOf = inMultiplesOf;

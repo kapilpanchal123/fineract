@@ -23,8 +23,14 @@ import com.google.gson.JsonObject;
 import jakarta.persistence.PersistenceException;
 import java.time.LocalDate;
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
+import java.util.UUID;
+
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.exception.ExceptionUtils;
@@ -58,13 +64,20 @@ import org.apache.fineract.portfolio.loanaccount.loanschedule.domain.AprCalculat
 import org.apache.fineract.portfolio.loanaccount.service.LoanProductAssembler;
 import org.apache.fineract.portfolio.loanaccount.service.LoanProductUpdateUtil;
 import org.apache.fineract.portfolio.loanproduct.LoanProductConstants;
+import org.apache.fineract.portfolio.loanproduct.data.LoanProductRequest;
+import org.apache.fineract.portfolio.loanproduct.data.LoanProductResponse;
 import org.apache.fineract.portfolio.loanproduct.domain.AdvancedPaymentAllocationsJsonParser;
+import org.apache.fineract.portfolio.loanproduct.domain.AllocationType;
+import org.apache.fineract.portfolio.loanproduct.domain.CreditAllocationTransactionType;
 import org.apache.fineract.portfolio.loanproduct.domain.CreditAllocationsJsonParser;
+import org.apache.fineract.portfolio.loanproduct.domain.FutureInstallmentAllocationRule;
 import org.apache.fineract.portfolio.loanproduct.domain.LoanProduct;
 import org.apache.fineract.portfolio.loanproduct.domain.LoanProductCreditAllocationRule;
 import org.apache.fineract.portfolio.loanproduct.domain.LoanProductPaymentAllocationRule;
 import org.apache.fineract.portfolio.loanproduct.domain.LoanProductRepository;
 import org.apache.fineract.portfolio.loanproduct.domain.LoanSupportedInterestRefundTypes;
+import org.apache.fineract.portfolio.loanproduct.domain.PaymentAllocationTransactionType;
+import org.apache.fineract.portfolio.loanproduct.domain.PaymentAllocationType;
 import org.apache.fineract.portfolio.loanproduct.exception.LoanProductCannotBeModifiedDueToNonClosedLoansException;
 import org.apache.fineract.portfolio.loanproduct.exception.LoanProductDateException;
 import org.apache.fineract.portfolio.loanproduct.exception.LoanProductNotFoundException;
@@ -320,9 +333,218 @@ public class LoanProductWritePlatformServiceJpaRepositoryImpl implements LoanPro
 
     }
 
+    @Transactional
+    @Override
+    public LoanProductResponse createLoanProduct(LoanProductRequest loanProductRequest) {
+      LoanProductResponse.LoanProductResponseBuilder builder = LoanProductResponse.builder();
+      Map<String, Object> responseMap = new LinkedHashMap<>();
+      try {
+        this.context.authenticatedUser();
+//        this.fromApiJsonDeserializer.validateForCreate(command);
+//        validateInputDates(command);
+//        final Fund fund = findFundByIdIfProvided(command.longValueOfParameterNamed("fundId"));
+        final Fund fund = findFundByIdIfProvided(loanProductRequest.getFundId());
+        responseMap.putIfAbsent("fund", fund);
+
+//        final String loanTransactionProcessingStrategyCode = command.stringValueOfParameterNamed("transactionProcessingStrategyCode");
+        final String loanTransactionProcessingStrategyCode = loanProductRequest.getTransactionProcessingStrategyCode();
+        responseMap.putIfAbsent("loanTransactionProcessingStrategyCode", loanTransactionProcessingStrategyCode);
+
+//        final String currencyCode = command.stringValueOfParameterNamed("currencyCode");
+        final String currencyCode = loanProductRequest.getCurrencyCode();
+        responseMap.putIfAbsent("currencyCode", currencyCode);
+
+//        final List<Charge> charges = assembleListOfProductCharges(command, currencyCode);
+        final List<Charge> charges = assembleListOfProductCharges(loanProductRequest.getCurrencyCode(), loanProductRequest.getCharges());
+        responseMap.putIfAbsent("charges", charges);
+
+//        final List<Rate> rates = assembleListOfProductRates(command);
+        final List<Rate> rates = assembleListOfProductRates(loanProductRequest.getRates());
+        responseMap.putIfAbsent("rates", rates);
+
+//        final List<LoanProductPaymentAllocationRule> loanProductPaymentAllocationRules = advancedPaymentJsonParser
+//            .assembleLoanProductPaymentAllocationRules(command, loanTransactionProcessingStrategyCode);
+        final List<LoanProductPaymentAllocationRule> loanProductPaymentAllocationRules = assembleLoanProductPaymentAllocationRules(loanProductRequest);
+        responseMap.putIfAbsent("loanProductPaymentAllocationRules", loanProductPaymentAllocationRules);
+
+//        final List<LoanProductCreditAllocationRule> loanProductCreditAllocationRules = creditAllocationsJsonParser
+//            .assembleLoanProductCreditAllocationRules(command, loanTransactionProcessingStrategyCode);
+        final List<LoanProductCreditAllocationRule> loanProductCreditAllocationRules = assembleLoanProductCreditAllocationRules(loanProductRequest);
+        responseMap.putIfAbsent("loanProductCreditAllocationRules", loanProductCreditAllocationRules);
+
+//        FloatingRate floatingRate = null;
+//        if (command.parameterExists("floatingRatesId")) {
+//          floatingRate = this.floatingRateRepository
+//              .findOneWithNotFoundDetection(command.longValueOfParameterNamed("floatingRatesId"));
+//        }
+
+        if (loanProductRequest.getFloatingRatesId() != null) {
+          FloatingRate floatingRate = floatingRateRepository.findOneWithNotFoundDetection(loanProductRequest.getFloatingRatesId());
+          responseMap.putIfAbsent("floatingRate", floatingRate);
+        }
+
+//        final LoanProduct loanProduct = loanProductAssembler.assembleFromJson(fund, loanTransactionProcessingStrategyCode, charges,
+//            command, this.aprCalculator, floatingRate, rates, loanProductPaymentAllocationRules, loanProductCreditAllocationRules);
+        final LoanProduct loanProduct = loanProductAssembler.assemble(responseMap, loanProductRequest);
+        responseMap.putIfAbsent("loanProduct", loanProduct);
+
+        loanProduct.updateLoanProductInRelatedClasses();
+        loanProduct.setTransactionProcessingStrategyName(
+            loanRepaymentScheduleTransactionProcessorFactory.determineProcessor(loanTransactionProcessingStrategyCode).getName());
+
+//        if (command.parameterExists("delinquencyBucketId")) {
+//          loanProduct
+//              .setDelinquencyBucket(findDelinquencyBucketIdIfProvided(command.longValueOfParameterNamed("delinquencyBucketId")));
+//        }
+        if (loanProductRequest.getDelinquencyBucketId() != null) {
+          loanProduct
+              .setDelinquencyBucket(findDelinquencyBucketIdIfProvided(loanProductRequest.getDelinquencyBucketId()));
+        }
+        builder.build();
+        loanProductRepository.saveAndFlush(loanProduct);
+
+        // save accounting mappings
+//        accountMappingWritePlatformService.createLoanProductToGLAccountMapping(loanProduct.getId(), command);
+        accountMappingWritePlatformService.createLoanProductToGLAccountMappingRequest(loanProduct.getId(), loanProductRequest);
+        // check if the office specific products are enabled. If yes, then
+        // save this savings product against a specific office
+        // i.e. this savings product is specific for this office.
+        fineractEntityAccessUtil.checkConfigurationAndAddProductResrictionsForUserOffice(
+            FineractEntityAccessType.OFFICE_ACCESS_TO_LOAN_PRODUCTS, loanProduct.getId());
+
+        businessEventNotifierService.notifyPostBusinessEvent(new LoanProductCreateBusinessEvent(loanProduct));
+//        return new CommandProcessingResultBuilder() //
+//            .withCommandId(command.commandId()) //
+//            .withEntityId(loanProduct.getId()) //
+//            .build();
+
+        return LoanProductResponse.builder()
+            .changes(Map.of(
+                "commandId", UUID.randomUUID().toString(),
+                "loanId", loanProduct.getId()))
+            .build();
+      } catch (final JpaSystemException | DataIntegrityViolationException dve) {
+//        handleDataIntegrityIssues(command, dve.getMostSpecificCause(), dve);
+//        return CommandProcessingResult.empty();
+        return LoanProductResponse.builder().build();
+      } catch (final PersistenceException dve) {
+        Throwable throwable = ExceptionUtils.getRootCause(dve.getCause());
+//        handleDataIntegrityIssues(command, throwable, dve);
+//        return CommandProcessingResult.empty();
+        return LoanProductResponse.builder().build();
+      }
+    }
+
+    private List<LoanProductCreditAllocationRule> assembleLoanProductCreditAllocationRules(LoanProductRequest loanProductRequest) {
+      LoanProductCreditAllocationRule loanProductCreditAllocationRule = new LoanProductCreditAllocationRule();
+      try {
+        if(loanProductRequest.getLoanProductCreditAllocationRule() != null) {
+          loanProductCreditAllocationRule.setAllocationTypes(getCreditAllocationTypes(loanProductRequest.getLoanProductCreditAllocationRule()));
+        }
+        if(loanProductRequest.getLoanProductCreditAllocationTransactionType() != null) {
+          loanProductCreditAllocationRule.setTransactionType(getCreditAllocationTransactionType(loanProductRequest.getLoanProductCreditAllocationTransactionType()));
+        }
+      } catch(Exception e) {
+        throw new PlatformDataIntegrityException("org.apache.fineract.portfolio.loanproduct.service", e.getMessage());
+      }
+      return List.of(loanProductCreditAllocationRule);
+    }
+
+    private CreditAllocationTransactionType getCreditAllocationTransactionType(String loanProductCreditAllocationTransactionType) {
+      try {
+        return CreditAllocationTransactionType.valueOf(loanProductCreditAllocationTransactionType.toUpperCase(Locale.ROOT));
+      } catch(IllegalArgumentException ex) {
+        throw new IllegalArgumentException(
+            "Invalid payment allocation transaction type: '" + loanProductCreditAllocationTransactionType.toUpperCase(Locale.ROOT) +
+                "'. Allowed values are: " + Arrays.toString(CreditAllocationTransactionType.values()));
+      }
+    }
+
+    private List<AllocationType> getCreditAllocationTypes(List<String> loanProductCreditAllocationRule) {
+      final List<AllocationType> result = new ArrayList<>();
+      for (String value : loanProductCreditAllocationRule) {
+        try {
+          result.add(AllocationType.valueOf(value.toUpperCase(Locale.ROOT)));
+        } catch (IllegalArgumentException ex) {
+          throw new IllegalArgumentException(
+              "Invalid credit allocation type: '" + value +
+                  "'. Allowed values are: " + Arrays.toString(AllocationType.values()));
+        }
+      }
+      return Collections.unmodifiableList(result);
+    }
+
+    private List<LoanProductPaymentAllocationRule> assembleLoanProductPaymentAllocationRules(LoanProductRequest loanProductRequest) {
+      LoanProductPaymentAllocationRule loanProductPaymentAllocationRule = new LoanProductPaymentAllocationRule();
+      try {
+        if(loanProductRequest.getPaymentAllocationRule() != null) {
+          loanProductPaymentAllocationRule.setAllocationTypes(getPaymentAllocationType(loanProductRequest.getPaymentAllocationRule()));
+        }
+        if(loanProductRequest.getFutureInstallmentAllocationRule() != null) {
+          loanProductPaymentAllocationRule.setFutureInstallmentAllocationRule(getFutureInstallmentAllocationRule(loanProductRequest.getFutureInstallmentAllocationRule()));
+        }
+        if(loanProductRequest.getPaymentAllocationTransactionType() != null) {
+          loanProductPaymentAllocationRule.setTransactionType(getPaymentAllocationTransactionType(loanProductRequest.getPaymentAllocationTransactionType()));
+        }
+      } catch(Exception e) {
+          throw new PlatformDataIntegrityException("org.apache.fineract.portfolio.loanproduct.service", e.getMessage());
+      }
+      return List.of(loanProductPaymentAllocationRule);
+    }
+
+    private PaymentAllocationTransactionType getPaymentAllocationTransactionType(final String paymentAllocationTransactionType) {
+      try {
+        return PaymentAllocationTransactionType.valueOf(paymentAllocationTransactionType.toUpperCase(Locale.ROOT));
+      } catch(IllegalArgumentException ex) {
+        throw new IllegalArgumentException(
+            "Invalid payment allocation transaction type: '" + paymentAllocationTransactionType.toUpperCase(Locale.ROOT) +
+                "'. Allowed values are: " + Arrays.toString(PaymentAllocationTransactionType.values()));
+      }
+    }
+
+    private FutureInstallmentAllocationRule getFutureInstallmentAllocationRule(final String futureInstallmentAllocationRule) {
+      try{
+        return FutureInstallmentAllocationRule.valueOf(futureInstallmentAllocationRule.toUpperCase(Locale.ROOT));
+      } catch(IllegalArgumentException ex) {
+        throw new IllegalArgumentException(
+            "Invalid future installment allocation rule: '" + futureInstallmentAllocationRule.toUpperCase(Locale.ROOT) +
+                "'. Allowed values are: " + Arrays.toString(FutureInstallmentAllocationRule.values()));
+      }
+    }
+
+    private List<PaymentAllocationType> getPaymentAllocationType(final List<String> paymentAllocationRule) {
+      final List<PaymentAllocationType> result = new ArrayList<>();
+      for (String value : paymentAllocationRule) {
+        try {
+          result.add(PaymentAllocationType.valueOf(value.toUpperCase(Locale.ROOT)));
+        } catch (IllegalArgumentException ex) {
+          throw new IllegalArgumentException(
+              "Invalid payment allocation type: '" + value +
+                  "'. Allowed values are: " + Arrays.toString(PaymentAllocationType.values()));
+        }
+      }
+      return Collections.unmodifiableList(result);
+    }
+
+    private List<Charge> assembleListOfProductCharges(String currencyCode, List<Long> charges) {
+      final List<Charge> chargesResponse = new ArrayList<>();
+
+      if (!charges.isEmpty()) {
+        for (Long id : charges) {
+          final Charge charge = chargeRepository.findOneWithNotFoundDetection(id);
+          if (!currencyCode.equalsIgnoreCase(charge.getCurrencyCode())) {
+            final String errorMessage = "Charge and Loan Product must have the same currency.";
+            throw new InvalidCurrencyException("charge", "attach.to.loan.product", errorMessage);
+          }
+          chargesResponse.add(charge);
+        }
+      }
+      return chargesResponse;
+    }
+
     private boolean anyChangeInCriticalFloatingRateLinkedParams(JsonCommand command, LoanProduct product) {
         final boolean isChangeFromFloatingToFlatOrViceVersa = command.isChangeInBooleanParameterNamed("isLinkedToFloatingInterestRates",
-                product.isLinkedToFloatingInterestRate());
+                product.getIsLinkedToFloatingInterestRate());
         final boolean isChangeInCriticalFloatingRateParams = product.getFloatingRates() != null
                 && (command.isChangeInLongParameterNamed("floatingRatesId", product.getFloatingRates().getFloatingRate().getId())
                         || command.isChangeInBigDecimalParameterNamed("interestRateDifferential",
@@ -331,7 +553,6 @@ public class LoanProductWritePlatformServiceJpaRepositoryImpl implements LoanPro
     }
 
     private List<Charge> assembleListOfProductCharges(final JsonCommand command, final String currencyCode) {
-
         final List<Charge> charges = new ArrayList<>();
 
         String loanProductCurrencyCode = command.stringValueOfParameterNamed("currencyCode");
@@ -343,11 +564,9 @@ public class LoanProductWritePlatformServiceJpaRepositoryImpl implements LoanPro
             final JsonArray chargesArray = command.arrayOfParameterNamed("charges");
             if (chargesArray != null) {
                 for (int i = 0; i < chargesArray.size(); i++) {
-
                     final JsonObject jsonObject = chargesArray.get(i).getAsJsonObject();
                     if (jsonObject.has("id")) {
                         final Long id = jsonObject.get("id").getAsLong();
-
                         final Charge charge = this.chargeRepository.findOneWithNotFoundDetection(id);
 
                         if (!loanProductCurrencyCode.equals(charge.getCurrencyCode())) {
@@ -359,14 +578,11 @@ public class LoanProductWritePlatformServiceJpaRepositoryImpl implements LoanPro
                 }
             }
         }
-
         return charges;
     }
 
     private List<Rate> assembleListOfProductRates(final JsonCommand command) {
-
         final List<Rate> rates = new ArrayList<>();
-
         if (command.parameterExists("rates")) {
             final JsonArray ratesArray = command.arrayOfParameterNamed("rates");
             if (ratesArray != null) {
@@ -381,8 +597,11 @@ public class LoanProductWritePlatformServiceJpaRepositoryImpl implements LoanPro
                 rates.addAll(this.rateRepository.findMultipleWithNotFoundDetection(idList));
             }
         }
-
         return rates;
+    }
+
+    private List<Rate> assembleListOfProductRates(List<Long> ratesIdList) {
+      return rateRepository.findMultipleWithNotFoundDetection(ratesIdList);
     }
 
     /*

@@ -18,6 +18,9 @@
  */
 package org.apache.fineract.portfolio.common.domain;
 
+import lombok.AllArgsConstructor;
+import lombok.Getter;
+
 import java.time.LocalDate;
 import java.util.Arrays;
 
@@ -31,6 +34,7 @@ import java.util.Arrays;
  * <li>365</li>
  * </ul>
  */
+@AllArgsConstructor
 public enum DaysInYearType {
 
     INVALID(0, "DaysInYearType.invalid"), //
@@ -39,21 +43,11 @@ public enum DaysInYearType {
     DAYS_364(364, "DaysInYearType.days364"), //
     DAYS_365(365, "DaysInYearType.days365");
 
+    @Getter
     private final Integer value;
+
+    @Getter
     private final String code;
-
-    DaysInYearType(final Integer value, final String code) {
-        this.value = value;
-        this.code = code;
-    }
-
-    public Integer getValue() {
-        return this.value;
-    }
-
-    public String getCode() {
-        return this.code;
-    }
 
     // TODO: do we really need this?!?
     public static Object[] integerValues() {
@@ -63,20 +57,13 @@ public enum DaysInYearType {
     public static DaysInYearType fromInt(final Integer type) {
         DaysInYearType repaymentFrequencyType = DaysInYearType.INVALID;
         if (type != null) {
-            switch (type) {
-                case 1:
-                    repaymentFrequencyType = DaysInYearType.ACTUAL;
-                break;
-                case 360:
-                    repaymentFrequencyType = DaysInYearType.DAYS_360;
-                break;
-                case 364:
-                    repaymentFrequencyType = DaysInYearType.DAYS_364;
-                break;
-                case 365:
-                    repaymentFrequencyType = DaysInYearType.DAYS_365;
-                break;
-            }
+          repaymentFrequencyType = switch (type) {
+            case 1 -> DaysInYearType.ACTUAL;
+            case 360 -> DaysInYearType.DAYS_360;
+            case 364 -> DaysInYearType.DAYS_364;
+            case 365 -> DaysInYearType.DAYS_365;
+            default -> repaymentFrequencyType;
+          };
         }
         return repaymentFrequencyType;
     }

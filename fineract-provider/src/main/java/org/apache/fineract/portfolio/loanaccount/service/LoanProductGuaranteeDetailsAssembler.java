@@ -22,6 +22,7 @@ import java.math.BigDecimal;
 import lombok.RequiredArgsConstructor;
 import org.apache.fineract.infrastructure.core.api.JsonCommand;
 import org.apache.fineract.portfolio.loanproduct.LoanProductConstants;
+import org.apache.fineract.portfolio.loanproduct.data.LoanProductRequest;
 import org.apache.fineract.portfolio.loanproduct.domain.LoanProductGuaranteeDetails;
 import org.springframework.stereotype.Service;
 
@@ -30,7 +31,6 @@ import org.springframework.stereotype.Service;
 public class LoanProductGuaranteeDetailsAssembler {
 
     public LoanProductGuaranteeDetails createFrom(final JsonCommand command) {
-
         final BigDecimal mandatoryGuarantee = command.bigDecimalValueOfParameterNamed(LoanProductConstants.mandatoryGuaranteeParamName);
         final BigDecimal minimumGuaranteeFromGuarantor = command
                 .bigDecimalValueOfParameterNamed(LoanProductConstants.minimumGuaranteeFromGuarantorParamName);
@@ -38,5 +38,32 @@ public class LoanProductGuaranteeDetailsAssembler {
                 .bigDecimalValueOfParameterNamed(LoanProductConstants.minimumGuaranteeFromOwnFundsParamName);
 
         return new LoanProductGuaranteeDetails(mandatoryGuarantee, minimumGuaranteeFromOwnFunds, minimumGuaranteeFromGuarantor);
+    }
+
+    public LoanProductGuaranteeDetails createFrom(LoanProductRequest loanProductRequest) {
+//      final BigDecimal mandatoryGuarantee = command.bigDecimalValueOfParameterNamed(LoanProductConstants.mandatoryGuaranteeParamName);
+//      final BigDecimal minimumGuaranteeFromGuarantor = command
+//          .bigDecimalValueOfParameterNamed(LoanProductConstants.minimumGuaranteeFromGuarantorParamName);
+//      final BigDecimal minimumGuaranteeFromOwnFunds = command
+//          .bigDecimalValueOfParameterNamed(LoanProductConstants.minimumGuaranteeFromOwnFundsParamName);
+//      return new LoanProductGuaranteeDetails(mandatoryGuarantee, minimumGuaranteeFromOwnFunds, minimumGuaranteeFromGuarantor);
+
+//      final BigDecimal mandatoryGuarantee = command.bigDecimalValueOfParameterNamed(LoanProductConstants.mandatoryGuaranteeParamName);
+      final BigDecimal mandatoryGuarantee = loanProductRequest.getMandatoryGuarantee();
+
+//      final BigDecimal minimumGuaranteeFromGuarantor = command
+//          .bigDecimalValueOfParameterNamed(LoanProductConstants.minimumGuaranteeFromGuarantorParamName);
+      final BigDecimal minimumGuaranteeFromGuarantor = loanProductRequest.getMinimumGuaranteeFromGuarantor();
+
+//      final BigDecimal minimumGuaranteeFromOwnFunds = command
+//          .bigDecimalValueOfParameterNamed(LoanProductConstants.minimumGuaranteeFromOwnFundsParamName);
+      final BigDecimal minimumGuaranteeFromOwnFunds = loanProductRequest.getMinimumGuaranteeFromOwnFunds();
+
+//      return new LoanProductGuaranteeDetails(mandatoryGuarantee, minimumGuaranteeFromOwnFunds, minimumGuaranteeFromGuarantor);
+      return LoanProductGuaranteeDetails.builder()
+          .mandatoryGuarantee(mandatoryGuarantee)
+          .minimumGuaranteeFromGuarantor(minimumGuaranteeFromGuarantor)
+          .minimumGuaranteeFromOwnFunds(minimumGuaranteeFromOwnFunds)
+          .build();
     }
 }

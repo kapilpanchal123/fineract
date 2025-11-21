@@ -25,12 +25,24 @@ import jakarta.persistence.OneToOne;
 import jakarta.persistence.Table;
 import java.io.Serializable;
 import java.util.Objects;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
 import org.apache.fineract.infrastructure.core.api.JsonCommand;
 import org.apache.fineract.infrastructure.core.domain.AbstractPersistableCustom;
+import org.apache.fineract.infrastructure.core.domain.ExternalId;
 import org.apache.fineract.portfolio.loanproduct.LoanProductConstants;
+import org.apache.fineract.portfolio.loanproduct.data.LoanProductRequest;
 
+@Getter
+@Setter
+@NoArgsConstructor
+@AllArgsConstructor
 @Entity
 @Table(name = "m_product_loan_configurable_attributes")
+@Builder
 public class LoanProductConfigurableAttributes extends AbstractPersistableCustom<Long> implements Serializable {
 
     @OneToOne
@@ -61,14 +73,13 @@ public class LoanProductConfigurableAttributes extends AbstractPersistableCustom
     @Column(name = "grace_on_arrears_ageing")
     private Boolean graceOnArrearsAgeing;
 
-    private static final String[] supportedLoanConfigurableAttributes = { LoanProductConstants.amortizationTypeParamName,
-            LoanProductConstants.interestTypeParamName, LoanProductConstants.transactionProcessingStrategyCodeParamName,
-            LoanProductConstants.interestCalculationPeriodTypeParamName, LoanProductConstants.inArrearsToleranceParamName,
-            LoanProductConstants.repaymentEveryParamName, LoanProductConstants.graceOnPrincipalAndInterestPaymentParamName,
-            LoanProductConstants.GRACE_ON_ARREARS_AGEING_PARAMETER_NAME };
+//    private static final String[] supportedLoanConfigurableAttributes = { LoanProductConstants.amortizationTypeParamName,
+//            LoanProductConstants.interestTypeParamName, LoanProductConstants.transactionProcessingStrategyCodeParamName,
+//            LoanProductConstants.interestCalculationPeriodTypeParamName, LoanProductConstants.inArrearsToleranceParamName,
+//            LoanProductConstants.repaymentEveryParamName, LoanProductConstants.graceOnPrincipalAndInterestPaymentParamName,
+//            LoanProductConstants.GRACE_ON_ARREARS_AGEING_PARAMETER_NAME };
 
     public static LoanProductConfigurableAttributes createFrom(JsonCommand command) {
-
         final Boolean amortization = command.parsedJson().getAsJsonObject()
                 .getAsJsonObject(LoanProductConstants.allowAttributeOverridesParamName)
                 .getAsJsonPrimitive(LoanProductConstants.amortizationTypeParamName).getAsBoolean();
@@ -98,19 +109,75 @@ public class LoanProductConfigurableAttributes extends AbstractPersistableCustom
                 arrearsTolerance, repaymentEvery, graceOnPrincipalAndInterestPayment, graceOnArrearsAging);
     }
 
+    public static LoanProductConfigurableAttributes createFrom(final LoanProductRequest loanProductRequest) {
+//      final Boolean amortization = command.parsedJson().getAsJsonObject()
+//          .getAsJsonObject(LoanProductConstants.allowAttributeOverridesParamName)
+//          .getAsJsonPrimitive(LoanProductConstants.amortizationTypeParamName).getAsBoolean();
+      final Boolean amortization = loanProductRequest.getAllowAttributeOverrides().getAmortizationType();
+
+//      final Boolean interestMethod = command.parsedJson().getAsJsonObject()
+//          .getAsJsonObject(LoanProductConstants.allowAttributeOverridesParamName)
+//          .getAsJsonPrimitive(LoanProductConstants.interestTypeParamName).getAsBoolean();
+      final Boolean interestMethod = loanProductRequest.getAllowAttributeOverrides().getInterestType();
+
+//      final Boolean transactionProcessingStrategy = command.parsedJson().getAsJsonObject()
+//          .getAsJsonObject(LoanProductConstants.allowAttributeOverridesParamName)
+//          .getAsJsonPrimitive(LoanProductConstants.transactionProcessingStrategyCodeParamName).getAsBoolean();
+      final Boolean transactionProcessingStrategy = loanProductRequest.getAllowAttributeOverrides().getTransactionProcessingStrategyCode();
+
+//      final Boolean interestCalcPeriod = command.parsedJson().getAsJsonObject()
+//          .getAsJsonObject(LoanProductConstants.allowAttributeOverridesParamName)
+//          .getAsJsonPrimitive(LoanProductConstants.interestCalculationPeriodTypeParamName).getAsBoolean();
+      final Boolean interestCalcPeriod = loanProductRequest.getAllowAttributeOverrides().getInterestCalculationPeriodType();
+
+//      final Boolean arrearsTolerance = command.parsedJson().getAsJsonObject()
+//          .getAsJsonObject(LoanProductConstants.allowAttributeOverridesParamName)
+//          .getAsJsonPrimitive(LoanProductConstants.inArrearsToleranceParamName).getAsBoolean();
+      final Boolean arrearsTolerance = loanProductRequest.getAllowAttributeOverrides().getInArrearsTolerance();
+
+//      final Boolean repaymentEvery = command.parsedJson().getAsJsonObject()
+//          .getAsJsonObject(LoanProductConstants.allowAttributeOverridesParamName)
+//          .getAsJsonPrimitive(LoanProductConstants.repaymentEveryParamName).getAsBoolean();
+      final Boolean repaymentEvery = loanProductRequest.getAllowAttributeOverrides().getRepaymentEvery();
+
+//      final Boolean graceOnPrincipalAndInterestPayment = command.parsedJson().getAsJsonObject()
+//          .getAsJsonObject(LoanProductConstants.allowAttributeOverridesParamName)
+//          .getAsJsonPrimitive(LoanProductConstants.graceOnPrincipalAndInterestPaymentParamName).getAsBoolean();
+      final Boolean graceOnPrincipalAndInterestPayment = loanProductRequest.getAllowAttributeOverrides().getGraceOnPrincipalAndInterestPayment();
+
+//      final Boolean graceOnArrearsAging = command.parsedJson().getAsJsonObject()
+//          .getAsJsonObject(LoanProductConstants.allowAttributeOverridesParamName)
+//          .getAsJsonPrimitive(LoanProductConstants.GRACE_ON_ARREARS_AGEING_PARAMETER_NAME).getAsBoolean();
+      final Boolean graceOnArrearsAgeing = loanProductRequest.getAllowAttributeOverrides().getGraceOnArrearsAgeing();
+
+//      return new LoanProductConfigurableAttributes(amortization, interestMethod, transactionProcessingStrategy, interestCalcPeriod,
+//          arrearsTolerance, repaymentEvery, graceOnPrincipalAndInterestPayment, graceOnArrearsAgeing);
+
+      return LoanProductConfigurableAttributes.builder()
+          .amortizationType(amortization)
+          .interestType(interestMethod)
+          .interestCalculationPeriodType(interestCalcPeriod)
+          .transactionProcessingStrategyCode(transactionProcessingStrategy)
+          .inArrearsTolerance(arrearsTolerance)
+          .repaymentEvery(repaymentEvery)
+          .graceOnPrincipalAndInterestPayment(graceOnPrincipalAndInterestPayment)
+          .graceOnArrearsAgeing(graceOnArrearsAgeing)
+          .build();
+    }
+
     public void updateLoanProduct(final LoanProduct loanProduct) {
         this.loanProduct = loanProduct;
     }
 
     public static LoanProductConfigurableAttributes populateDefaultsForConfigurableAttributes() {
-        final Boolean amortization = true;
-        final Boolean interestMethod = true;
-        final Boolean transactionProcessingStrategy = true;
-        final Boolean interestCalcPeriod = true;
-        final Boolean arrearsTolerance = true;
-        final Boolean repaymentEvery = true;
-        final Boolean graceOnPrincipalAndInterestPayment = true;
-        final Boolean graceOnArrearsAging = true;
+        final Boolean amortization = Boolean.TRUE;
+        final Boolean interestMethod = Boolean.TRUE;
+        final Boolean transactionProcessingStrategy = Boolean.TRUE;
+        final Boolean interestCalcPeriod = Boolean.TRUE;
+        final Boolean arrearsTolerance = Boolean.TRUE;
+        final Boolean repaymentEvery = Boolean.TRUE;
+        final Boolean graceOnPrincipalAndInterestPayment = Boolean.TRUE;
+        final Boolean graceOnArrearsAging = Boolean.TRUE;
 
         return new LoanProductConfigurableAttributes(amortization, interestMethod, transactionProcessingStrategy, interestCalcPeriod,
                 arrearsTolerance, repaymentEvery, graceOnPrincipalAndInterestPayment, graceOnArrearsAging);
@@ -127,18 +194,6 @@ public class LoanProductConfigurableAttributes extends AbstractPersistableCustom
         this.graceOnPrincipalAndInterestPayment = graceOnPrincipalAndInterestPayment;
         this.repaymentEvery = repaymentEvery;
         this.transactionProcessingStrategyCode = transactionProcessingStrategyCode;
-    }
-
-    protected LoanProductConfigurableAttributes() {
-
-    }
-
-    public static String[] getAllowedLoanConfigurableAttributes() {
-        return supportedLoanConfigurableAttributes;
-    }
-
-    public LoanProduct getLoanProduct() {
-        return loanProduct;
     }
 
     public Boolean getAmortizationBoolean() {
@@ -171,42 +226,6 @@ public class LoanProductConfigurableAttributes extends AbstractPersistableCustom
 
     public Boolean getGraceOnArrearsAgingBoolean() {
         return graceOnArrearsAgeing;
-    }
-
-    public void setLoanProduct(LoanProduct loanProduct) {
-        this.loanProduct = loanProduct;
-    }
-
-    public void setAmortizationType(Boolean amortizationType) {
-        this.amortizationType = amortizationType;
-    }
-
-    public void setInterestType(Boolean interestType) {
-        this.interestType = interestType;
-    }
-
-    public void setTransactionProcessingStrategyCode(Boolean transactionProcessingStrategyCode) {
-        this.transactionProcessingStrategyCode = transactionProcessingStrategyCode;
-    }
-
-    public void setInterestCalculationPeriodType(Boolean interestCalculationPeriodType) {
-        this.interestCalculationPeriodType = interestCalculationPeriodType;
-    }
-
-    public void setInArrearsTolerance(Boolean inArrearsTolerance) {
-        this.inArrearsTolerance = inArrearsTolerance;
-    }
-
-    public void setRepaymentEvery(Boolean repaymentEvery) {
-        this.repaymentEvery = repaymentEvery;
-    }
-
-    public void setGraceOnPrincipalAndInterestPayment(Boolean graceOnPrincipalAndInterestPayment) {
-        this.graceOnPrincipalAndInterestPayment = graceOnPrincipalAndInterestPayment;
-    }
-
-    public void setGraceOnArrearsAgeing(Boolean graceOnArrearsAgeing) {
-        this.graceOnArrearsAgeing = graceOnArrearsAgeing;
     }
 
     @Override

@@ -51,27 +51,25 @@ public class AprCalculator {
                 switch (repaymentPeriodFrequencyType) {
                     case DAYS:
                         defaultAnnualNominalInterestRate = ratePerPeriod.multiply(BigDecimal.valueOf(daysInYearType.getValue()));
-                    break;
+                      break;
                     case WEEKS:
                         defaultAnnualNominalInterestRate = ratePerPeriod.multiply(BigDecimal.valueOf(52));
-                    break;
+                      break;
                     case MONTHS:
                         defaultAnnualNominalInterestRate = ratePerPeriod.multiply(BigDecimal.valueOf(12));
-                    break;
+                      break;
                     case YEARS:
                         defaultAnnualNominalInterestRate = ratePerPeriod.multiply(BigDecimal.valueOf(1));
-                    break;
+                      break;
                     case WHOLE_TERM:
-                    break;
+                      break;
                     case INVALID:
-                    break;
+                      break;
                 }
-            break;
+              break;
             case INVALID:
-            break;
+              break;
         }
-
         return defaultAnnualNominalInterestRate;
     }
-
 }
